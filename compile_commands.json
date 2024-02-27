@@ -4,67 +4,132 @@
       "/usr/bin/clang++",
       "-std=c++17",
       "-I",
-      "Runtime/Includes",
+      "Runtime/Engine/Includes",
+      "-I",
+      "Runtime/Application",
       "-I",
       "ThirdParty/KVF",
       "-c",
       "-o",
-      "Objects/./Runtime/Sources/Core/EventBus.o",
-      "Runtime/Sources/Core/EventBus.cpp"
+      "Objects/./Runtime/Engine/Sources/Core/Engine.o",
+      "Runtime/Engine/Sources/Core/Engine.cpp"
     ],
     "directory": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop",
-    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Sources/Core/EventBus.cpp",
-    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Sources/Core/EventBus.o"
+    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Engine/Sources/Core/Engine.cpp",
+    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Engine/Sources/Core/Engine.o"
   },
   {
     "arguments": [
       "/usr/bin/clang++",
       "-std=c++17",
       "-I",
-      "Runtime/Includes",
+      "Runtime/Engine/Includes",
+      "-I",
+      "Runtime/Application",
       "-I",
       "ThirdParty/KVF",
       "-c",
       "-o",
-      "Objects/./Runtime/Sources/Core/EventListener.o",
-      "Runtime/Sources/Core/EventListener.cpp"
+      "Objects/./Runtime/Engine/Sources/Core/EventBus.o",
+      "Runtime/Engine/Sources/Core/EventBus.cpp"
     ],
     "directory": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop",
-    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Sources/Core/EventListener.cpp",
-    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Sources/Core/EventListener.o"
+    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Engine/Sources/Core/EventBus.cpp",
+    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Engine/Sources/Core/EventBus.o"
   },
   {
     "arguments": [
       "/usr/bin/clang++",
       "-std=c++17",
       "-I",
-      "Runtime/Includes",
+      "Runtime/Engine/Includes",
+      "-I",
+      "Runtime/Application",
       "-I",
       "ThirdParty/KVF",
       "-c",
       "-o",
-      "Objects/./Runtime/Sources/Core/Logs.o",
-      "Runtime/Sources/Core/Logs.cpp"
+      "Objects/./Runtime/Engine/Sources/Core/EventListener.o",
+      "Runtime/Engine/Sources/Core/EventListener.cpp"
     ],
     "directory": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop",
-    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Sources/Core/Logs.cpp",
-    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Sources/Core/Logs.o"
+    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Engine/Sources/Core/EventListener.cpp",
+    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Engine/Sources/Core/EventListener.o"
   },
   {
     "arguments": [
       "/usr/bin/clang++",
       "-std=c++17",
       "-I",
-      "Runtime/Includes",
+      "Runtime/Engine/Includes",
+      "-I",
+      "Runtime/Application",
       "-I",
       "ThirdParty/KVF",
       "-c",
       "-o",
-      "Objects/./Runtime/Sources/Core/main.o",
-      "Runtime/Sources/Core/main.cpp"
+      "Objects/./Runtime/Engine/Sources/Core/Logs.o",
+      "Runtime/Engine/Sources/Core/Logs.cpp"
     ],
     "directory": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop",
-    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Sources/Core/main.cpp",
-    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Sources/Core/main.o"
+    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Engine/Sources/Core/Logs.cpp",
+    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Engine/Sources/Core/Logs.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++17",
+      "-I",
+      "Runtime/Engine/Includes",
+      "-I",
+      "Runtime/Application",
+      "-I",
+      "ThirdParty/KVF",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Engine/Sources/Renderer/RenderCore.o",
+      "Runtime/Engine/Sources/Renderer/RenderCore.cpp"
+    ],
+    "directory": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop",
+    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Engine/Sources/Renderer/RenderCore.cpp",
+    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Engine/Sources/Renderer/RenderCore.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++17",
+      "-I",
+      "Runtime/Engine/Includes",
+      "-I",
+      "Runtime/Application",
+      "-I",
+      "ThirdParty/KVF",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Engine/Sources/Renderer/Renderer.o",
+      "Runtime/Engine/Sources/Renderer/Renderer.cpp"
+    ],
+    "directory": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop",
+    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Engine/Sources/Renderer/Renderer.cpp",
+    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Engine/Sources/Renderer/Renderer.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++17",
+      "-I",
+      "Runtime/Engine/Includes",
+      "-I",
+      "Runtime/Application",
+      "-I",
+      "ThirdParty/KVF",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Application//main.o",
+      "Runtime/Application//main.cpp"
+    ],
+    "directory": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop",
+    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Application/main.cpp",
+    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Application/main.o"
   }
 ]
