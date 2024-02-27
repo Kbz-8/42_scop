@@ -93,6 +93,9 @@ void kvfDestroySwapChainImageViewsKHR(VkDevice device, VkImageView* imageView, s
 VkFramebuffer kvfCreateFrameBuffer(VkDevice device, VkRenderPass renderPass, VkImageView swapChainImageView, VkExtent2D extent);
 void kvfDestroyFrameBuffer(VkDevice device, VkFramebuffer frameBuffer);
 
+VkCommandBuffer kvfCreateCommandBuffer(VkDevice device);
+VkCommandBuffer kvfCreateCommandBufferLeveled(VkDevice device, VkCommandBufferLevel level);
+
 VkRenderPass kvfCreateRenderPass(VkDevice device);
 void kvfDestroyRenderPass(VkDevice device, VkRenderPass renderPass);
 
@@ -172,7 +175,7 @@ void checkVk(VkResult result, const char* function)
 }
 
 #undef checkVk
-#define checkVK(res) checkVk(res, __FUNCTION__)
+#define checkVk(res) checkVk(res, __FUNCTION__)
 
 #ifdef KVF_ENABLE_VALIDATION_LAYERS
 	bool __kvfCheckValidationLayerSupport()
@@ -241,7 +244,7 @@ VkInstance kvfCreateInstance(const char** extensionsEnabled, uint32_t extensions
 	}
 #endif
 
-	checkVk(vkCreateInstance(&createInfo, NULL, &vk_instance), "vkCreateInstance");
+	checkVk(vkCreateInstance(&createInfo, NULL, &vk_instance));
 #ifdef KVF_ENABLE_VALIDATION_LAYERS
 	KVF_FREE(new_extension_set);
 #endif
@@ -306,11 +309,72 @@ VkPhysicalDevice kvfPickGoodDefaultPhysicalDevice(VkInstance instance, VkSurface
 	return kvfPickGoodPhysicalDevice(instance, surface, extensions, sizeof(extensions) / sizeof(extensions[0]));
 }
 
+int32_t __kvfScorePhysicalDevice(VkPhysicalDevice device, VkSurfaceKHR surface, const char** deviceExtensions, uint32_t deviceExtensionsCount)
+{
+	/* Check Extensions Support */
+	uint32_t extension_count;
+	vkEnumerateDeviceExtensionProperties(device, NULL, &extension_count, NULL);
+	VkExtensionProperties* props = (VkExtensionProperties*)KVF_MALLOC(sizeof(VkExtensionProperties) * extension_count + 1);
+	vkEnumerateDeviceExtensionProperties(device, NULL, &extension_count, props);
+
+	bool are_there_required_device_extensions = true;
+	for(int j = 0; j < deviceExtensionsCount; j++)
+	{
+		bool is_there_extension = false;
+		for(int k = 0; k < extension_count; k++)
+		{
+			if(strcmp(deviceExtensions[j], props[k].extensionName) == 0)
+			{
+				is_there_extension = true;
+				break;
+			}
+		}
+		if(is_there_extension == false)
+		{
+			are_there_required_device_extensions = false;
+			break;
+		}
+	}
+	KVF_FREE(props);
+	if(are_there_required_device_extensions == false)
+		return -1;
+
+	/* Check Queue Families Support */
+	kvfFindQueueFamilies(device, surface);
+	if(__kvf_graphics_queue_family == -1 || __kvf_present_queue_family == -1)
+		return -1;
+
+	/* Check Surface Formats Counts */
+	uint32_t format_count;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &format_count, NULL);
+	if(format_count == 0)
+		return -1;
+
+	VkPhysicalDeviceProperties device_props;
+	vkGetPhysicalDeviceProperties(device, &device_props);
+
+	VkPhysicalDeviceFeatures device_features;
+	vkGetPhysicalDeviceFeatures(device, &device_features);
+
+	int32_t score = -1;
+	if(device_props.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+		score += 1000;
+
+	if(!device_features.geometryShader)
+		return -1;
+
+	score += device_props.limits.maxImageDimension2D;
+	score += device_props.limits.maxBoundDescriptorSets;
+
+	return score;
+}
+
 VkPhysicalDevice kvfPickGoodPhysicalDevice(VkInstance instance, VkSurfaceKHR surface, const char** deviceExtensions, uint32_t deviceExtensionsCount)
 {
-	uint32_t device_count;
 	VkPhysicalDevice* devices = NULL;
 	VkPhysicalDevice chosen_one = VK_NULL_HANDLE;
+	uint32_t device_count;
+	int32_t best_device_score = -1;
 
 	KVF_ASSERT(instance != VK_NULL_HANDLE);
 	KVF_ASSERT(surface != VK_NULL_HANDLE);
@@ -321,51 +385,21 @@ VkPhysicalDevice kvfPickGoodPhysicalDevice(VkInstance instance, VkSurfaceKHR sur
 
 	for(int i = 0; i < device_count; i++)
 	{
-		/* Check Extensions Support */
-		uint32_t extension_count;
-		vkEnumerateDeviceExtensionProperties(devices[i], NULL, &extension_count, NULL);
-		VkExtensionProperties* props = (VkExtensionProperties*)KVF_MALLOC(sizeof(VkExtensionProperties) * extension_count + 1);
-		vkEnumerateDeviceExtensionProperties(devices[i], NULL, &extension_count, props);
-	
-		bool are_there_required_device_extensions = true;
-		for(int j = 0; j < deviceExtensionsCount; j++)
+		__kvf_graphics_queue_family = -1;
+		__kvf_present_queue_family = -1;
+		int32_t current_device_score = __kvfScorePhysicalDevice(devices[i], surface, deviceExtensions, deviceExtensionsCount);
+		if(current_device_score > best_device_score)
 		{
-			bool is_there_extension = false;
-			for(int k = 0; k < extension_count; k++)
-			{
-				if(strcmp(deviceExtensions[j], props[k].extensionName) == 0)
-				{
-					is_there_extension = true;
-					break;
-				}
-			}
-			if(is_there_extension == false)
-			{
-				are_there_required_device_extensions = false;
-				break;
-			}
+			best_device_score = current_device_score;
+			chosen_one = devices[i];
 		}
-		KVF_FREE(props);
-		if(are_there_required_device_extensions == false)
-			continue;
-
-		/* Check Surface Formats Counts */
-		uint32_t format_count;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(devices[i], surface, &format_count, NULL);
-		if(format_count == 0)
-			continue;
-
-		/* Check Queue Families Support */
-		kvfFindQueueFamilies(devices[i], surface);
-		if(__kvf_graphics_queue_family == -1 || __kvf_present_queue_family == -1)
-			continue;
-		
-		// If we get there, the device is good
-		chosen_one = devices[i];
-		KVF_FREE(devices);
-		return chosen_one;
 	}
 	KVF_FREE(devices);
+	if(chosen_one != VK_NULL_HANDLE)
+	{
+		kvfFindQueueFamilies(chosen_one, surface);
+		return chosen_one;
+	}
 	return VK_NULL_HANDLE;
 }
 
@@ -411,7 +445,7 @@ VkDevice kvfCreateDevice(VkPhysicalDevice physical, const char** extensions, uin
 	createInfo.pNext = NULL;
 
 	VkDevice device = VK_NULL_HANDLE;
-	checkVk(vkCreateDevice(physical, &createInfo, NULL, &device), "vkCreateDevice");
+	checkVk(vkCreateDevice(physical, &createInfo, NULL, &device));
 	return device;
 }
 
@@ -445,7 +479,7 @@ VkFence kvfCreateFence(VkDevice device)
 	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 	
 	VkFence fence = VK_NULL_HANDLE;
-	checkVk(vkCreateFence(device, &fenceInfo, NULL, &fence), "vkCreateFence");
+	checkVk(vkCreateFence(device, &fenceInfo, NULL, &fence));
 	return fence;
 }
 
@@ -464,7 +498,7 @@ VkSemaphore kvfCreateSemaphore(VkDevice device)
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
 	VkSemaphore semaphore = VK_NULL_HANDLE;
-	checkVk(vkCreateSemaphore(device, &semaphoreInfo, NULL, &semaphore), "vkCreateSemaphore");
+	checkVk(vkCreateSemaphore(device, &semaphoreInfo, NULL, &semaphore));
 	return semaphore;
 }
 
@@ -491,7 +525,7 @@ __KvfSwapchainSupportInternal __kvfQuerySwapchainSupport(VkPhysicalDevice physic
 {
 	__KvfSwapchainSupportInternal support;
 
-	checkVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical, surface, &support.capabilities), "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
+	checkVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical, surface, &support.capabilities));
 
 	vkGetPhysicalDeviceSurfaceFormatsKHR(physical, surface, &support.formatsCount, NULL);
 	if(support.formatsCount != 0)
@@ -589,7 +623,7 @@ VkSwapchainKHR kvfCreateSwapchainKHR(VkDevice device, VkPhysicalDevice physical,
 
 	__kvf_internal_swap_chain_image_format = surfaceFormat.format;
 
-	checkVk(vkCreateSwapchainKHR(device, &createInfo, NULL, &swapchain), "vkCreateSwapchainKHR");
+	checkVk(vkCreateSwapchainKHR(device, &createInfo, NULL, &swapchain));
 	return swapchain;
 }
 
@@ -626,7 +660,7 @@ VkImageView* kvfCreateSwapChainImageViewsKHR(VkDevice device, VkSwapchainKHR swa
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount = 1;
 
-		checkVk(vkCreateImageView(device, &createInfo, NULL, &views[i]), "vkCreateImageView");
+		checkVk(vkCreateImageView(device, &createInfo, NULL, &views[i]));
 	}
 	KVF_FREE(images);
 	return views;
@@ -656,7 +690,7 @@ VkFramebuffer kvfCreateFrameBuffer(VkDevice device, VkRenderPass renderPass, VkI
 	framebufferInfo.height = extent.height;
 	framebufferInfo.layers = 1;
 
-	checkVk(vkCreateFramebuffer(device, &framebufferInfo, NULL, &frameBuffer), "vkCreateFramebuffer");
+	checkVk(vkCreateFramebuffer(device, &framebufferInfo, NULL, &frameBuffer));
 	return frameBuffer;
 }
 
@@ -666,6 +700,26 @@ void kvfDestroyFrameBuffer(VkDevice device, VkFramebuffer frameBuffer)
 		return;
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 	vkDestroyFramebuffer(device, frameBuffer, NULL);
+}
+
+typedef struct
+{
+	VkDevice device;
+	VkCommandPool pool;
+} __KvfCommandPool;
+
+___KvfCommandPool* __pools = NULL;
+
+VkCommandBuffer kvfCreateCommandBuffer(VkDevice device)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	return kvfCreateCommandBufferLeveled(device, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+}
+
+VkCommandBuffer kvfCreateCommandBufferLeveled(VkDevice device, VkCommandBufferLevel level)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+
 }
 
 VkRenderPass kvfCreateRenderPass(VkDevice device)
@@ -699,7 +753,7 @@ VkRenderPass kvfCreateRenderPass(VkDevice device)
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
 
-	checkVk(vkCreateRenderPass(device, &renderPassInfo, NULL, &renderPass), "vkCreateRenderPass");
+	checkVk(vkCreateRenderPass(device, &renderPassInfo, NULL, &renderPass));
 	return renderPass;
 }
 
@@ -719,7 +773,7 @@ VkShaderModule kvfCreateShaderModule(VkDevice device, uint32_t* code, size_t siz
 	createInfo.codeSize = size * sizeof(uint32_t);
 	createInfo.pCode = code;
 	VkShaderModule shader = VK_NULL_HANDLE;
-	checkVk(vkCreateShaderModule(device, &createInfo, NULL, &shader), "vkCreateShaderModule");
+	checkVk(vkCreateShaderModule(device, &createInfo, NULL, &shader));
 	return shader;
 }
 

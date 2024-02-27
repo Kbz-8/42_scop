@@ -3,6 +3,7 @@
 
 #include <type_traits>
 #include <string_view>
+#include <tuple>
 
 namespace Scop
 {

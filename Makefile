@@ -2,7 +2,7 @@ NAME = scop
 
 SRCS =  $(wildcard $(addsuffix /*.cpp, ./Runtime/Engine/Sources/Core))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Engine/Sources/Renderer))
-SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Application/))
+SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Application))
 
 OBJ_DIR = Objects
 BIN_DIR = Bin
