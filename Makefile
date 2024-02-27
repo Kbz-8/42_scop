@@ -1,7 +1,8 @@
 NAME = scop
 
-SRCS =  $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Core))
-SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer))
+SRCS =  $(wildcard $(addsuffix /*.cpp, ./Runtime/Engine/Sources/Core))
+SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Engine/Sources/Renderer))
+SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Application/))
 
 OBJ_DIR = Objects
 BIN_DIR = Bin
@@ -9,7 +10,7 @@ BIN_DIR = Bin
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 
 CXX = clang++
-CXXFLAGS = -std=c++17 -I Runtime/Includes -I ThirdParty/KVF
+CXXFLAGS = -std=c++17 -I Runtime/Engine/Includes -I Runtime/Application -I ThirdParty/KVF
 
 LDFLAGS = -lvulkan -lSDL2
 
