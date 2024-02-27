@@ -3,17 +3,20 @@
 
 #include <cstddef>
 
-enum class LogType
+namespace Scop
 {
-	Debug = 0,
-	Message,
-	Warning,
-	Error,
-	FatalError,
+	enum class LogType
+	{
+		Debug = 0,
+		Message,
+		Warning,
+		Error,
+		FatalError,
 
-	EndEnum
-};
+		EndEnum
+	};
 
-constexpr std::size_t LogTypeCount = static_cast<std::size_t>(LogType::EndEnum) + 1;
+	constexpr std::size_t LogTypeCount = static_cast<std::size_t>(LogType::EndEnum) + 1;
+}
 
 #endif

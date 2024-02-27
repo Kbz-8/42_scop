@@ -5,20 +5,23 @@
 #include <functional>
 #include <string>
 
-class EventListener
+namespace Scop
 {
-	public:
-		EventListener() = delete;
-		EventListener(std::function<void(const EventBase&)> functor, std::string name);
+	class EventListener
+	{
+		public:
+			EventListener() = delete;
+			EventListener(std::function<void(const EventBase&)> functor, std::string name);
 
-		inline const std::string& GetName() const { return m_name; }
-		inline void Call(const EventBase& event) const noexcept { m_listen_functor(event); }
+			inline const std::string& GetName() const { return m_name; }
+			inline void Call(const EventBase& event) const noexcept { m_listen_functor(event); }
 
-		~EventListener() = default;
+			~EventListener() = default;
 
-	private:
-		std::function<void(const EventBase&)> m_listen_functor;
-		std::string m_name;
-};
+		private:
+			std::function<void(const EventBase&)> m_listen_functor;
+			std::string m_name;
+	};
+}
 
 #endif

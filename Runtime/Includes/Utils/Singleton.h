@@ -3,15 +3,18 @@
 
 #include <Utils/NonCopyable.h>
 
-template <typename T>
-class Singleton : public NonCopyable
+namespace Scop
 {
-	public:
-		inline static T& Get()
-		{
-			static T instance;
-			return instance;
-		}
-};
+	template <typename T>
+	class Singleton : public NonCopyable
+	{
+		public:
+			inline static T& Get()
+			{
+				static T instance;
+				return instance;
+			}
+	};
+}
 
 #endif

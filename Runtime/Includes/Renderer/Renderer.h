@@ -1,8 +1,16 @@
+#ifndef __SCOP_RENDERER__
+#define __SCOP_RENDERER__
+
 #include <kvf.h>
 
-class Renderer
+namespace Scop
 {
-	public:
-		
-	private:
-};
+	class Renderer
+	{
+		public:
+			
+		private:
+	};
+}
+
+#endif

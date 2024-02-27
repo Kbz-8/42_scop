@@ -1,15 +1,18 @@
 #include <Core/EventBus.h>
 #include <Core/Logs.h>
 
-void EventBus::Send(const std::string& listener_name, const EventBase& event)
+namespace Scop
 {
-	for(const EventListener& listener : s_listeners)
+	void EventBus::Send(const std::string& listener_name, const EventBase& event)
 	{
-		if(listener.GetName() == listener_name)
+		for(const EventListener& listener : s_listeners)
 		{
-			listener.Call(event);
-			return;
+			if(listener.GetName() == listener_name)
+			{
+				listener.Call(event);
+				return;
+			}
 		}
+		Warning("Event Bus : listener not found, '%'", listener_name);
 	}
-	Warning("Event Bus : listener not found, '%'", listener_name);
 }

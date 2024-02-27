@@ -2,7 +2,7 @@
 
 int main(int ac, char** av)
 {
-	ScopEngine engine(ac, av);
+	Scop::ScopEngine engine(ac, av);
 	engine.Run();
 	return 0;
 }

@@ -1,17 +1,25 @@
 #include <Core/Engine.h>
 #include <Renderer/RenderCore.h>
+#include <SDL2/SDL.h>
+#include <Core/Logs.h>
 
-ScopEngine::ScopEngine(int ac, char** av)
+namespace Scop
 {
-	RenderCore::Get().Init();
-}
+	ScopEngine::ScopEngine(int ac, char** av)
+	{
+		if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0)
+			FatalError("SDL error : unable to init all subsystems : %s", SDL_GetError());
+		RenderCore::Get().Init();
+	}
 
-void ScopEngine::Run()
-{
+	void ScopEngine::Run()
+	{
 
-}
+	}
 
-ScopEngine::~ScopEngine()
-{
-	RenderCore::Get().Destroy();
+	ScopEngine::~ScopEngine()
+	{
+		RenderCore::Get().Destroy();
+		SDL_Quit();
+	}
 }

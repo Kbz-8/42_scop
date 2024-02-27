@@ -3,9 +3,12 @@
 
 #include <cstdint>
 
-struct EventBase
+namespace Scop
 {
-	virtual std::uint32_t What() const = 0;
-};
+	struct EventBase
+	{
+		virtual std::uint32_t What() const = 0;
+	};
+}
 
 #endif

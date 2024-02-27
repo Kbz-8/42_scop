@@ -5,43 +5,46 @@
 #include <string_view>
 #include <Core/Enums.h>
 
-template<typename... Args>
-void DebugLog(unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
-
-template<typename... Args>
-void Error(unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
-
-template<typename... Args>
-void Warning(unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
-
-template<typename... Args>
-void Message(unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
-
-template<typename... Args>
-void FatalError(unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
-
-class Logs
+namespace Scop
 {
-	public:
-		Logs() = delete;
-
-		static void Report(LogType type, std::string message);
-		static void Report(LogType type, unsigned int line, std::string_view file, std::string_view function, std::string message);
-
-		~Logs() = delete;
-};
-
-#if defined(DEBUG)
 	template<typename... Args>
-	void Assert(bool cond, unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
-#else
+	void DebugLog(unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
+
 	template<typename... Args>
-	void Assert(bool cond, unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args) {}
-#endif
+	void Error(unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
+
+	template<typename... Args>
+	void Warning(unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
+
+	template<typename... Args>
+	void Message(unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
+
+	template<typename... Args>
+	void FatalError(unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
+
+	class Logs
+	{
+		public:
+			Logs() = delete;
+
+			static void Report(LogType type, std::string message);
+			static void Report(LogType type, unsigned int line, std::string_view file, std::string_view function, std::string message);
+
+			~Logs() = delete;
+	};
+
+	#if defined(DEBUG)
+		template<typename... Args>
+		void Assert(bool cond, unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
+	#else
+		template<typename... Args>
+		void Assert(bool cond, unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args) {}
+	#endif
+}
 
 #include <Core/Logs.inl>
 
-namespace Ak
+namespace Scop
 {
 	#undef  DebugLog
 	#define DebugLog(...) DebugLog(__LINE__, __FILE__, __func__, __VA_ARGS__)
