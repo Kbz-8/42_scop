@@ -1,0 +1,70 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++17",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "ThirdParty/KVF",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Core/EventBus.o",
+      "Runtime/Sources/Core/EventBus.cpp"
+    ],
+    "directory": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop",
+    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Sources/Core/EventBus.cpp",
+    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Sources/Core/EventBus.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++17",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "ThirdParty/KVF",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Core/EventListener.o",
+      "Runtime/Sources/Core/EventListener.cpp"
+    ],
+    "directory": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop",
+    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Sources/Core/EventListener.cpp",
+    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Sources/Core/EventListener.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++17",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "ThirdParty/KVF",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Core/Logs.o",
+      "Runtime/Sources/Core/Logs.cpp"
+    ],
+    "directory": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop",
+    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Sources/Core/Logs.cpp",
+    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Sources/Core/Logs.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++17",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "ThirdParty/KVF",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Core/main.o",
+      "Runtime/Sources/Core/main.cpp"
+    ],
+    "directory": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop",
+    "file": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Runtime/Sources/Core/main.cpp",
+    "output": "/home/kbz_8/Documents/Programmation/42/cursus/graphics/scop/Objects/Runtime/Sources/Core/main.o"
+  }
+]
