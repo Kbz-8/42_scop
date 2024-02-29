@@ -16,6 +16,7 @@ namespace Scop
 	NonOwningPtr<T>& NonOwningPtr<T>::operator=(T* ptr)
 	{
 		m_ptr = ptr;
+		return *this;
 	}
 
 	template<typename T>
@@ -23,6 +24,7 @@ namespace Scop
 	{
 		m_ptr = ptr.m_ptr;
 		ptr.m_ptr = nullptr;
+		return *this;
 	}
 
 	template<typename T>

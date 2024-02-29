@@ -1,5 +1,7 @@
 #define KVF_IMPLEMENTATION
-#define KVF_ENABLE_VALIDATION_LAYERS
+#ifdef DEBUG
+	#define KVF_ENABLE_VALIDATION_LAYERS
+#endif
 #include <kvf.h>
 
 #include <SDL2/SDL.h>
@@ -35,8 +37,8 @@ namespace Scop
 		VkSurfaceKHR surface = VK_NULL_HANDLE;
 		SDL_Vulkan_CreateSurface(win, m_instance, &surface);
 
-		VkPhysicalDevice physical_device = kvfPickGoodDefaultPhysicalDevice(m_instance, surface);
-		m_device = kvfCreateDefaultDevice(physical_device);
+		m_physical_device = kvfPickGoodDefaultPhysicalDevice(m_instance, surface);
+		m_device = kvfCreateDefaultDevice(m_physical_device);
 
 		vkDestroySurfaceKHR(m_instance, surface, nullptr);
 		SDL_DestroyWindow(win);
@@ -46,7 +48,5 @@ namespace Scop
 	{
 		kvfDestroyDevice(m_device);
 		kvfDestroyInstance(m_instance);
-
-		Message("Successfully executed !");
 	}
 }
