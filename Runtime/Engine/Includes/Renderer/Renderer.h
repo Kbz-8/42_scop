@@ -13,6 +13,7 @@
 
 namespace Scop
 {
+	// Ugly fat god class but I don't care
 	class Renderer
 	{
 		public:
@@ -20,11 +21,16 @@ namespace Scop
 
 			void Init(Window* window);
 
+			bool BeginFrame();
+			void EndFrame();
+
 			inline VkSwapchainKHR GetSwapchain() const noexcept { return m_swapchain; }
 			inline VkSurfaceKHR GetSurface() const noexcept { return m_surface; }
 			inline VkRenderPass GetRenderPass() const noexcept { return m_render_pass; }
 			inline VkSemaphore GetSemaphore(int index) const noexcept { return m_semaphores[index]; }
 			inline VkFramebuffer GetFramebuffer(int index) const noexcept { return m_framebuffers[index]; }
+			inline VkCommandBuffer GetCommandBuffer(int index) const noexcept { return m_cmd_buffers[index]; }
+			inline VkCommandBuffer GetActiveCommandBuffer() const noexcept { return m_cmd_buffers[m_current_frame_index]; }
 
 			void Destroy() noexcept;
 
@@ -33,6 +39,8 @@ namespace Scop
 		private:
 			std::vector<VkFramebuffer> m_framebuffers;
 			std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> m_semaphores;
+			std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT> m_cmd_buffers;
+			std::array<VkFence, MAX_FRAMES_IN_FLIGHT> m_cmd_fences;
 			NonOwningPtr<Window> m_window_ptr;
 			VkSurfaceKHR m_surface = VK_NULL_HANDLE;
 			VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;

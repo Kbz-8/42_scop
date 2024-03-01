@@ -18,8 +18,23 @@ namespace Scop
 		VkExtent2D extent = { static_cast<std::uint32_t>(width), static_cast<std::uint32_t>(height) };
 		m_swapchain = kvfCreateSwapchainKHR(render_core.GetDevice(), render_core.GetPhysicalDevice(), m_surface, extent, true);
 
+		std::vector<VkAttachmentDescription> attachements;
+
 		for(std::size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+		{
 			m_semaphores[i] = kvfCreateSemaphore(render_core.GetDevice());
+			m_cmd_buffers[i] = kvfCreateCommandBuffer(render_core.GetDevice());
+			m_cmd_fences[i] = kvfCreateFence(render_core.GetDevice());
+		}
+	}
+
+	bool Renderer::BeginFrame()
+	{
+		return true;
+	}
+
+	void Renderer::EndFrame()
+	{
 	}
 
 	void Renderer::Destroy() noexcept
@@ -27,7 +42,10 @@ namespace Scop
 		auto& render_core = RenderCore::Get();
 
 		for(std::size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+		{
 			kvfDestroySemaphore(render_core.GetDevice(), m_semaphores[i]);
+			kvfDestroyFence(render_core.GetDevice(), m_cmd_fences[i]);
+		}
 
 		kvfDestroySwapchainKHR(render_core.GetDevice(), m_swapchain);
 		vkDestroySurfaceKHR(render_core.GetInstance(), m_surface, nullptr);
