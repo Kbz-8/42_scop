@@ -1,8 +1,3 @@
-#define KVF_IMPLEMENTATION
-#ifdef DEBUG
-	#define KVF_ENABLE_VALIDATION_LAYERS
-#endif
-#include <kvf.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_vulkan.h>
@@ -10,6 +5,10 @@
 #include <vector>
 #include <cstdint>
 
+#define KVF_IMPLEMENTATION
+#ifdef DEBUG
+	#define KVF_ENABLE_VALIDATION_LAYERS
+#endif
 #include <Renderer/RenderCore.h>
 #include <Core/Logs.h>
 
@@ -33,12 +32,20 @@ namespace Scop
 			FatalError("Vulkan : cannot get instance extentions from window : %", SDL_GetError());
 
 		m_instance = kvfCreateInstance(extensions.data(), extensions.size());
+		Message("Vulkan : instance created");
 
 		VkSurfaceKHR surface = VK_NULL_HANDLE;
 		SDL_Vulkan_CreateSurface(win, m_instance, &surface);
 
 		m_physical_device = kvfPickGoodDefaultPhysicalDevice(m_instance, surface);
+
+		// just for style
+		VkPhysicalDeviceProperties props;
+		vkGetPhysicalDeviceProperties(m_physical_device, &props);
+		Message("Vulkan : physical device picked '%'", props.deviceName);
+
 		m_device = kvfCreateDefaultDevice(m_physical_device);
+		Message("Vulkan : logical device created");
 
 		vkDestroySurfaceKHR(m_instance, surface, nullptr);
 		SDL_DestroyWindow(win);
@@ -47,6 +54,8 @@ namespace Scop
 	void RenderCore::Destroy() noexcept
 	{
 		kvfDestroyDevice(m_device);
+		Message("Vulkan : logical device destroyed");
 		kvfDestroyInstance(m_instance);
+		Message("Vulkan : instance destroyed");
 	}
 }
