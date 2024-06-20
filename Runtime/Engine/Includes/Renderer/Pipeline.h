@@ -1,0 +1,4 @@
+#ifndef __SCOP_RENDERER_PIPELINE__
+#define __SCOP_RENDERER_PIPELINE__
+
+#endif

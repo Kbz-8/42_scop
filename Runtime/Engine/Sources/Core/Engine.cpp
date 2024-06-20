@@ -4,7 +4,6 @@
 #include <Core/Logs.h>
 #include <Core/EventBus.h>
 #include <csignal>
-#include <iostream>
 
 namespace Scop
 {

@@ -9,7 +9,6 @@
 
 #include <array>
 #include <vector>
-#include <vulkan/vulkan_core.h>
 
 namespace Scop
 {
