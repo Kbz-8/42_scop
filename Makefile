@@ -5,8 +5,9 @@ SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Engine/Sources/Renderer))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Engine/Sources/Platform))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Application))
 
-OBJ_DIR = Objects
 BIN_DIR = Bin
+OBJ_DIR = Objects
+RES_DIR = Resources
 
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 
@@ -43,7 +44,7 @@ $(BIN_DIR):
 	@mkdir -p $(BIN_DIR)
 
 run:
-	@$(BIN_DIR)/$(NAME)
+	@$(BIN_DIR)/$(NAME) $(RES_DIR)/knuckles.obj
 
 clean:
 	@$(RM) $(OBJ_DIR)

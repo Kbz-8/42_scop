@@ -1,5 +1,4 @@
 #include <Core/Engine.h>
-#include <Renderer/Actor.h>
 #include <Core/Logs.h>
 
 int main(int ac, char** av)

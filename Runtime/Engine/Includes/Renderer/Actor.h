@@ -13,6 +13,7 @@ namespace Scop
 	{
 		public:
 			Actor();
+			Actor(Model model);
 
 			~Actor();
 

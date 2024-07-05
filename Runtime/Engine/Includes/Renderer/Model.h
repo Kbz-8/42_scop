@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <filesystem>
 
 #include <Renderer/Material.h>
 #include <Renderer/Mesh.h>
@@ -26,6 +27,8 @@ namespace Scop
 		private:
 			std::vector<SubMeshData> m_sub_meshes;
 	};
+
+	Model LoadModelFromObjFile(std::filesystem::path path) noexcept;
 }
 
 #endif

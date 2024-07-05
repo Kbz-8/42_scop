@@ -6,6 +6,7 @@
 #include <Platform/Window.h>
 #include <Platform/Inputs.h>
 #include <Renderer/Renderer.h>
+#include <Renderer/Actor.h>
 
 namespace Scop
 {
@@ -17,6 +18,8 @@ namespace Scop
 			void Run();
 
 			inline const Window& GetWindow() const noexcept { return m_window; }
+
+			inline void RegisterActor(const Actor& actor) noexcept { (void)actor; }
 
 			constexpr void Quit() noexcept { m_running = false; }
 
