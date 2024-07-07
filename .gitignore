@@ -17,5 +17,6 @@
 .xmake/
 .cache/
 Objects/
+ScopEngine/Objects/
 Bin/
 .vscode/
