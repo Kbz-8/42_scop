@@ -15,14 +15,7 @@ namespace Scop
 
 			default : break;
 		}
-
-		VkShaderModuleCreateInfo create_info{};
-		create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		create_info.codeSize = m_bytecode.size() * sizeof(std::uint32_t);
-		create_info.pCode = m_bytecode.data();
-
-		if(vkCreateShaderModule(RenderCore::Get().GetDevice(), &create_info, nullptr, &m_module) != VK_SUCCESS)
-			FatalError("Vulkan : failed to create shader module");
+		m_module = kvfCreateShaderModule(RenderCore::Get().GetDevice(), m_bytecode.data(), m_bytecode.size());
 		Message("Vulkan : created shader module");
 
 		GeneratePipelineLayout(layout);
@@ -30,11 +23,48 @@ namespace Scop
 
 	void Shader::GeneratePipelineLayout(ShaderLayout layout)
 	{
+		for(auto& [_, set] : layout.set_layouts)
+		{
+			std::vector<VkDescriptorSetLayoutBinding> bindings(set.binds.size());
+			for(std::size_t i = 0; i < set.binds.size(); i++)
+			{
+				bindings[i].binding = set.binds[i].first;
+				bindings[i].descriptorCount = 1;
+				bindings[i].descriptorType = set.binds[i].second;
+				bindings[i].pImmutableSamplers = nullptr;
+				bindings[i].stageFlags = m_stage;
+			}
+			m_set_layouts.emplace_back(kvfCreateDescriptorSetLayout(RenderCore::Get().GetDevice(), bindings.data(), bindings.size()));
+		}
+
+		std::vector<VkPushConstantRange> push_constants(layout.push_constants.size());
+		for(auto& pc : layout.push_constants)
+		{
+			VkPushConstantRange push_constant_range;
+			push_constant_range.offset = pc.offset;
+			push_constant_range.size = pc.size;
+			push_constant_range.stageFlags = m_stage;
+			push_constants.push_back(push_constant_range);
+		}
+
+		m_pipeline_layout = kvfCreatePipelineLayout(RenderCore::Get().GetDevice(), m_set_layouts.data(), m_set_layouts.size(), push_constants.data(), push_constants.size());
+	}
+
+	void Shader::LoadDescriptorSets(ShaderLayout layout)
+	{
+		auto it = m_set_layouts.begin();
+		for(auto& [n, _] : layout.set_layouts)
+		{
+			
+			++it;
+		}
 	}
 
 	Shader::~Shader()
 	{
-		vkDestroyShaderModule(RenderCore::Get().GetDevice(), m_module, nullptr);
+		kvfDestroyShaderModule(RenderCore::Get().GetDevice(), m_module);
+		for(auto& layout : m_set_layouts)
+			kvfDestroyDescriptorSetLayout(RenderCore::Get().GetDevice(), layout);
 	}
 
 	std::shared_ptr<Shader> LoadShaderFromFile(const std::filesystem::path& filepath, ShaderType type, ShaderLayout layout)

@@ -14,6 +14,11 @@
 
 namespace Scop
 {
+	void ErrorCallback(const char* message) noexcept
+	{
+		FatalError(message);
+	}
+
 	void RenderCore::Init() noexcept
 	{
 		SDL_Window* win = SDL_CreateWindow("", 0, 0, 1, 1, SDL_WINDOW_VULKAN | SDL_WINDOW_HIDDEN);
@@ -30,6 +35,8 @@ namespace Scop
 
 		if(!SDL_Vulkan_GetInstanceExtensions(win, &count, extensions.data() + additional_extension_count))
 			FatalError("Vulkan : cannot get instance extentions from window : %", SDL_GetError());
+
+		kvfSetErrorCallback(ErrorCallback);
 
 		m_instance = kvfCreateInstance(extensions.data(), extensions.size());
 		Message("Vulkan : instance created");
