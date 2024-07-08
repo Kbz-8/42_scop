@@ -13,10 +13,12 @@
 *.exe
 *vgcore.*
 *.gdb_history
+*.spv
 .vs/
 .xmake/
 .cache/
 Objects/
-ScopEngine/Objects/
 Bin/
 .vscode/
+ScopEngine/Objects/
+ScopEngine/Assets/Shaders/Build/

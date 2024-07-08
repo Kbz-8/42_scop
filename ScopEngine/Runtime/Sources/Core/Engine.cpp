@@ -25,8 +25,12 @@ namespace Scop
 		EventBus::Send("__ScopEngine", Internal::InterruptEvent{});
 	}
 
-	ScopEngine::ScopEngine(int ac, char** av, const std::string& title, std::uint32_t width, std::uint32_t height) : m_renderer(), m_window(title, width, height)
+	ScopEngine* ScopEngine::s_instance = nullptr;
+
+	ScopEngine::ScopEngine(int ac, char** av, const std::string& title, std::uint32_t width, std::uint32_t height, std::filesystem::path assets_path)
+		: m_renderer(), m_window(title, width, height), m_assets_path(std::move(assets_path))
 	{
+		s_instance = this;
 		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
 		{
 			if(event.What() == 167)
@@ -44,11 +48,24 @@ namespace Scop
 		m_renderer.Init(&m_window);
 	}
 
+	ScopEngine& ScopEngine::Get() noexcept
+	{
+		Verify(s_instance != nullptr, "ScopEngine has not been instanciated");
+		return *s_instance;
+	}
+
 	void ScopEngine::Run()
 	{
 		while(m_running)
 		{
 			m_inputs.Update();
+
+			if(m_renderer.BeginFrame())
+			{
+				/* Do scene rendering */
+
+				m_renderer.EndFrame();
+			}
 
 			if(m_running)
 				m_running = !m_inputs.HasRecievedCloseEvent();
@@ -62,5 +79,6 @@ namespace Scop
 		RenderCore::Get().Destroy();
 		SDL_Quit();
 		Message("Successfully executed !");
+		s_instance = nullptr;
 	}
 }

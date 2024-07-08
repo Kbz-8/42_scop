@@ -4,10 +4,15 @@
 
 #include <SDL2/SDL_vulkan.h>
 
+#include <Core/Engine.h>
+#include <Renderer/Pipelines/Shader.h>
+
 namespace Scop
 {
 	void Renderer::Init(Window* window)
 	{
+		Verify(ScopEngine::IsInit(), "ScopEngine is not init (wtf)");
+
 		m_window_ptr = window;
 		auto& render_core = RenderCore::Get();
 		if(SDL_Vulkan_CreateSurface(m_window_ptr->GetSDLWindow(), render_core.GetInstance(), &m_surface) != SDL_TRUE)
@@ -31,6 +36,29 @@ namespace Scop
 			m_cmd_fences[i] = kvfCreateFence(render_core.GetDevice());
 			Message("Vulkan : fence created");
 		}
+
+		ShaderLayout vertex_shader_layout(
+			{
+				{ 0,
+					ShaderSetLayout({ 
+						{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER }
+					})
+				}
+			}, { ShaderPushConstantLayout({ 0, 16 }) }
+		);
+		m_internal_shaders.emplace_back(LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/Vertex.spv", ShaderType::Vertex, std::move(vertex_shader_layout)));
+
+		ShaderLayout default_fragment_shader_layout(
+			{
+				{ 1,
+					ShaderSetLayout({ 
+						{ 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER }
+					})
+				}
+			}, {}
+		);
+		m_internal_shaders.emplace_back(LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/DefaultFragment.spv", ShaderType::Fragment, std::move(default_fragment_shader_layout)));
+
 	}
 
 	bool Renderer::BeginFrame()
@@ -45,6 +73,8 @@ namespace Scop
 	void Renderer::Destroy() noexcept
 	{
 		auto& render_core = RenderCore::Get();
+
+		m_internal_shaders.clear();
 
 		for(std::size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 		{

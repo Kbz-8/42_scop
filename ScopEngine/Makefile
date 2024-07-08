@@ -1,6 +1,7 @@
 SRCS =  $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Core))
-SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Platform))
+SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer))
+SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer/Pipelines))
 
 BIN_DIR = Bin
 OBJ_DIR = Objects
@@ -37,14 +38,17 @@ $(OBJ_DIR)/%.o: %.cpp
 
 all: $(NAME)
 
-$(NAME): $(OBJ_DIR) $(BIN_DIR) $(OBJS)
+$(NAME): $(OBJ_DIR) $(BIN_DIR) shaders $(OBJS)
 	@printf "\e[1;32m[linking   "$(MODE)" {"$(CXX)"}...]\e[1;00m "$@"\n"
 ifeq ($(SHARED), true)
-	@$(CXX) -o $(BIN_DIR)/$(NAME) $(OBJS) $(LDFLAGS)
+	@$(CXX) -o $(BIN_DIR)/$(NAME) $(OBJS) $(LDFLAGS) --shared
 else
 	@$(AR) $(BIN_DIR)/$(NAME) $(OBJS)
 endif
 	@printf "\e[1;32m[build finished]\e[1;00m\n"
+
+shaders:
+	@sh ./Assets/Scripts/CompileShaders.sh $(CURDIR)
 
 $(OBJ_DIR):
 	@mkdir -p $(sort $(addprefix $(OBJ_DIR)/, $(dir $(SRCS))))
@@ -54,6 +58,7 @@ $(BIN_DIR):
 
 clean:
 	@$(RM) $(OBJ_DIR)
+	@$(RM) Assets/Shaders/Build
 
 fclean: clean
 	@$(RM) $(BIN_DIR)

@@ -21,6 +21,8 @@ ifeq ($(DEBUG), true)
 	MODE = "debug"
 endif
 
+JOBS = $(patsubst -j%,%,$(filter -j%,$(MAKEFLAGS)))
+
 RM = rm -rf
 
 $(OBJ_DIR)/%.o: %.cpp
@@ -35,7 +37,7 @@ $(NAME): $(OBJ_DIR) $(BIN_DIR) engine $(OBJS)
 	@printf "\e[1;32m[build finished]\e[1;00m\n"
 
 engine:
-	@make -C ScopEngine
+	@make -j$(JOBS) -C ScopEngine DEBUG=$(DEBUG)
 
 $(OBJ_DIR):
 	@mkdir -p $(sort $(addprefix $(OBJ_DIR)/, $(dir $(SRCS))))
@@ -48,9 +50,11 @@ run:
 
 clean:
 	@$(RM) $(OBJ_DIR)
+	@make -C ScopEngine clean
 
 fclean: clean
 	@$(RM) $(BIN_DIR)
+	@make -C ScopEngine fclean
 
 re: fclean all
 

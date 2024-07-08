@@ -22,6 +22,9 @@ namespace Scop
 	template<typename... Args>
 	void FatalError(unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
 
+	template<typename... Args>
+	void Verify(bool cond, unsigned int line, std::string_view file, std::string_view function, std::string message, const Args&... args);
+
 	class Logs
 	{
 		public:
@@ -60,6 +63,9 @@ namespace Scop
 
 	#undef  FatalError
 	#define FatalError(...) FatalError(__LINE__, __FILE__, __func__, __VA_ARGS__)
+
+	#undef  Verify
+	#define Verify(cond, ...) Verify(cond, __LINE__, __FILE__, __func__, __VA_ARGS__)
 
 	#undef  Assert
 	#define Assert(cond, ...) Assert(cond, __LINE__, __FILE__, __func__, __VA_ARGS__)

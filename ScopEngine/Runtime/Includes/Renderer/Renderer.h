@@ -9,6 +9,7 @@
 
 #include <array>
 #include <vector>
+#include <memory>
 
 namespace Scop
 {
@@ -27,7 +28,6 @@ namespace Scop
 			inline VkSurfaceKHR GetSurface() const noexcept { return m_surface; }
 			inline VkRenderPass GetRenderPass() const noexcept { return m_render_pass; }
 			inline VkSemaphore GetSemaphore(int index) const noexcept { return m_semaphores[index]; }
-			inline VkFramebuffer GetFramebuffer(int index) const noexcept { return m_framebuffers[index]; }
 			inline VkCommandBuffer GetCommandBuffer(int index) const noexcept { return m_cmd_buffers[index]; }
 			inline VkCommandBuffer GetActiveCommandBuffer() const noexcept { return m_cmd_buffers[m_current_frame_index]; }
 
@@ -36,7 +36,7 @@ namespace Scop
 			~Renderer() = default;
 
 		private:
-			std::vector<VkFramebuffer> m_framebuffers;
+			std::vector<std::shared_ptr<class Shader> > m_internal_shaders;
 			std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> m_semaphores;
 			std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT> m_cmd_buffers;
 			std::array<VkFence, MAX_FRAMES_IN_FLIGHT> m_cmd_fences;

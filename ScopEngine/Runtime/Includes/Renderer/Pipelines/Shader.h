@@ -3,21 +3,64 @@
 
 #include <vector>
 #include <cstdint>
+#include <filesystem>
+
+#include <kvf.h>
 
 namespace Scop
 {
+	struct ShaderSetLayout
+	{
+		std::vector<std::pair<int, VkDescriptorType> > binds;
+
+		ShaderSetLayout(std::vector<std::pair<int, VkDescriptorType> > b) : binds(std::move(b)) {}
+	};
+
+	struct ShaderPushConstantLayout
+	{
+		std::size_t offset;
+		std::size_t size;
+
+		ShaderPushConstantLayout(std::size_t o, std::size_t s) : offset(o), size(s) {}
+	};
+
+	struct ShaderLayout
+	{
+		std::vector<std::pair<int, ShaderSetLayout> > set_layouts;
+		std::vector<ShaderPushConstantLayout> push_constants;
+
+		ShaderLayout(std::vector<std::pair<int, ShaderSetLayout> > s, std::vector<ShaderPushConstantLayout> pc) : set_layouts(std::move(s)), push_constants(std::move(pc)) {}
+	};
+
+	enum class ShaderType
+	{
+		Vertex,
+		Fragment,
+		Compute
+	};
+
 	class Shader
 	{
 		public:
-			Shader(const std::vector<std::uint32_t>& bytecode);
+			Shader(const std::vector<std::uint32_t>& bytecode, ShaderType type, ShaderLayout layout);
 
 			inline const std::vector<std::uint32_t>& GetByteCode() const noexcept { return m_bytecode; }
+			inline VkPipelineLayout GetPipelineLayout() const noexcept { return m_pipeline_layout; }
+			inline VkShaderModule GetShaderModule() const noexcept { return m_module; }
 
 			~Shader();
 
 		private:
+			void GeneratePipelineLayout(ShaderLayout layout);
+
+		private:
 			std::vector<std::uint32_t> m_bytecode;
+			VkShaderStageFlagBits m_stage;
+			VkPipelineLayout m_pipeline_layout = VK_NULL_HANDLE;
+			VkShaderModule m_module = VK_NULL_HANDLE;
 	};
+
+	std::shared_ptr<Shader> LoadShaderFromFile(const std::filesystem::path& filepath, ShaderType type, ShaderLayout layout);
 }
 
 #endif
