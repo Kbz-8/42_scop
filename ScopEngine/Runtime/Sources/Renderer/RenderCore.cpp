@@ -1,22 +1,33 @@
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_vulkan.h>
 
 #include <vector>
 #include <cstdint>
 
+#include <Renderer/RenderCore.h>
+#include <Core/Logs.h>
+
 #define KVF_IMPLEMENTATION
 #ifdef DEBUG
 	#define KVF_ENABLE_VALIDATION_LAYERS
 #endif
-#include <Renderer/RenderCore.h>
-#include <Core/Logs.h>
+#include <kvf.h>
 
 namespace Scop
 {
 	void ErrorCallback(const char* message) noexcept
 	{
 		FatalError(message);
+	}
+
+	void ValidationErrorCallback(const char* message) noexcept
+	{
+		Error(message);
+	}
+
+	void ValidationWarningCallback(const char* message) noexcept
+	{
+		Warning(message);
 	}
 
 	void RenderCore::Init() noexcept
@@ -36,7 +47,9 @@ namespace Scop
 		if(!SDL_Vulkan_GetInstanceExtensions(win, &count, extensions.data() + additional_extension_count))
 			FatalError("Vulkan : cannot get instance extentions from window : %", SDL_GetError());
 
-		kvfSetErrorCallback(ErrorCallback);
+		kvfSetErrorCallback(&ErrorCallback);
+		kvfSetValidationErrorCallback(&ValidationErrorCallback);
+		kvfSetValidationWarningCallback(&ValidationWarningCallback);
 
 		m_instance = kvfCreateInstance(extensions.data(), extensions.size());
 		Message("Vulkan : instance created");

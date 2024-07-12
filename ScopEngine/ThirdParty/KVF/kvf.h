@@ -49,7 +49,6 @@
 #define KBZ_8_VULKAN_FRAMEWORK_H
 
 #include <cstdint>
-#include <vulkan/vulkan_core.h>
 #ifdef KVF_IMPL_VK_NO_PROTOTYPES
 	#define VK_NO_PROTOTYPES
 #endif
@@ -68,8 +67,8 @@ extern "C" {
 typedef enum
 {
 	KVF_GRAPHICS_QUEUE = 0,
-	KVF_PRESENT_QUEUE = 1
-	// TODO : compute queue
+	KVF_PRESENT_QUEUE = 1,
+	KVF_COMPUTE_QUEUE = 2
 } KvfQueueType;
 
 typedef enum
@@ -84,6 +83,8 @@ typedef enum
 typedef void (*KvfErrorCallback)(const char* message);
 
 void kvfSetErrorCallback(KvfErrorCallback callback);
+void kvfSetValidationErrorCallback(KvfErrorCallback callback);
+void kvfSetValidationWarningCallback(KvfErrorCallback callback);
 
 VkInstance kvfCreateInstance(const char** extensionsEnabled, uint32_t extensionsCount);
 void kvfDestroyInstance(VkInstance instance);
@@ -93,6 +94,7 @@ VkPhysicalDevice kvfPickGoodDefaultPhysicalDevice(VkInstance instance, VkSurface
 VkPhysicalDevice kvfPickGoodPhysicalDevice(VkInstance instance, VkSurfaceKHR surface, const char** deviceExtensions, uint32_t deviceExtensionsCount);
 
 VkQueue kvfGetDeviceQueue(VkDevice device, KvfQueueType queue);
+bool kvfQueuePresentKHR(VkDevice device, VkSemaphore signal, VkSwapchainKHR swapchain, uint32_t* image_index); // return false when the swapchain must be recreated
 
 VkDevice kvfCreateDefaultDevice(VkPhysicalDevice physical);
 VkDevice kvfCreateDevice(VkPhysicalDevice physical, const char** extensions, uint32_t extensions_count);
@@ -115,6 +117,9 @@ void kvfDestroyFrameBuffer(VkDevice device, VkFramebuffer frameBuffer);
 
 VkCommandBuffer kvfCreateCommandBuffer(VkDevice device);
 VkCommandBuffer kvfCreateCommandBufferLeveled(VkDevice device, VkCommandBufferLevel level);
+void kvfBeginCommandBuffer(VkCommandBuffer buffer, VkCommandBufferUsageFlags flags);
+void kvfEndCommandBuffer(VkCommandBuffer buffer);
+void kvfSubmitCommandBuffer(VkCommandBuffer buffer, VkDevice device, KvfQueueType queue, VkSemaphore signal, VkSemaphore wait, VkFence fence, VkPipelineStageFlags* stages);
 
 VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkFormat format, VkImageLayout initial, VkImageLayout final, bool clear);
 VkAttachmentDescription* kvfBuildSwapChainAttachmentDescriptions(VkSwapchainKHR swapchain, bool clear, size_t* count);
@@ -135,6 +140,8 @@ VkDescriptorSetLayout kvfCreateDescriptorSetLayout(VkDevice device, VkDescriptor
 void kvfDestroyDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout layout);
 
 VkDescriptorSet kvfAllocateDescriptorSet(VkDevice device, VkDescriptorSetLayout layout);
+
+void kvfResetDeviceDescriptorPools(VkDevice device);
 
 VkPipelineLayout kvfCreatePipelineLayout(VkDevice device, VkDescriptorSetLayout* set_layouts, size_t set_layouts_count, VkPushConstantRange* pc, size_t pc_count);
 void kvfDestroyPipelineLayout(VkDevice device, VkPipelineLayout layout);
@@ -176,6 +183,7 @@ typedef struct
 {
 	int32_t graphics;
 	int32_t present;
+	int32_t compute;
 } __KvfQueueFamilies;
 
 typedef struct
@@ -192,7 +200,6 @@ typedef struct
 	VkCommandPool cmd_pool;
 	__KvfQueueFamilies queues;
 	__KvfDescriptorPool* sets_pools;
-	size_t sets_pools_capacity;
 	size_t sets_pools_size;
 } __KvfDevice;
 
@@ -227,6 +234,8 @@ size_t __kvf_internal_swapchains_capacity = 0;
 #endif
 
 KvfErrorCallback __kvf_error_callback = NULL;
+KvfErrorCallback __kvf_validation_error_callback = NULL;
+KvfErrorCallback __kvf_validation_warning_callback = NULL;
 
 void __kvfCheckVk(VkResult result, const char* function)
 {
@@ -381,31 +390,27 @@ __KvfSwapchain* __kvfGetKvfSwapchainFromVkSwapchainKHR(VkSwapchainKHR swapchain)
 	return NULL;
 }
 
-void __kvfDeviceCreateDescriptorPool(VkDevice device)
+VkDescriptorPool __kvfDeviceCreateDescriptorPool(VkDevice device)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 	__KvfDevice* kvf_device = __kvfGetKvfDeviceFromVkDevice(device);
 	KVF_ASSERT(kvf_device != NULL);
-	if(kvf_device->sets_pools_size == kvf_device->sets_pools_capacity)
-	{
-		// Resize the dynamic array if necessary
-		kvf_device->sets_pools_capacity += 4;
-		kvf_device->sets_pools = (__KvfDescriptorPool*)KVF_REALLOC(kvf_device->sets_pools, kvf_device->sets_pools_capacity * sizeof(__KvfDescriptorPool));
-		memset(kvf_device->sets_pools[kvf_device->sets_pools_size], 0, sizeof(__KvfDescriptorPool));
-	}
+	kvf_device->sets_pools_size++;
+	kvf_device->sets_pools = (__KvfDescriptorPool*)KVF_REALLOC(kvf_device->sets_pools, kvf_device->sets_pools_size * sizeof(__KvfDescriptorPool));
+	memset(&kvf_device->sets_pools[kvf_device->sets_pools_size - 1], 0, sizeof(__KvfDescriptorPool));
 
 	VkDescriptorPoolSize pool_sizes[] = {
-		{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-		{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+		{ VK_DESCRIPTOR_TYPE_SAMPLER, 1024 },
+		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1024 },
+		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1024 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1024 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1024 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1024 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1024 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1024 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1024 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1024 },
+		{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1024 }
 	};
 
 	VkDescriptorPoolCreateInfo pool_info = {};
@@ -415,9 +420,9 @@ void __kvfDeviceCreateDescriptorPool(VkDevice device)
 	pool_info.maxSets = KVF_DESCRIPTOR_POOL_CAPACITY;
 	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
-	__kvfCheckVk(vkCreateDescriptorPool(device, &pool_info, NULL, &kvf_device->sets_pools[kvf_device->sets_pools_size]->pool));
-	kvf_device->sets_pools[kvf_device->sets_pools_size]->capacity = KVF_DESCRIPTOR_POOL_CAPACITY;
-	kvf_device->sets_pools_size++;
+	__kvfCheckVk(vkCreateDescriptorPool(device, &pool_info, NULL, &kvf_device->sets_pools[kvf_device->sets_pools_size - 1].pool));
+	kvf_device->sets_pools[kvf_device->sets_pools_size - 1].capacity = KVF_DESCRIPTOR_POOL_CAPACITY;
+	return kvf_device->sets_pools[kvf_device->sets_pools_size - 1].pool;
 }
 
 void __kvfDestroyDescriptorPools(VkDevice device)
@@ -427,16 +432,24 @@ void __kvfDestroyDescriptorPools(VkDevice device)
 	KVF_ASSERT(kvf_device != NULL);
 
 	for(size_t i = 0; i < kvf_device->sets_pools_size; i++)
-		vkDestroyDescriptorPool(device, kvf_device->sets_pools[i]->pool, NULL);
+		vkDestroyDescriptorPool(device, kvf_device->sets_pools[i].pool, NULL);
 	KVF_FREE(kvf_device->sets_pools);
 	kvf_device->sets_pools_size = 0;
-	kvf_device->sets_pools_capacity = 0;
 }
 
 void kvfSetErrorCallback(KvfErrorCallback callback)
 {
-	if(callback != NULL)
-		__kvf_error_callback = callback;
+	__kvf_error_callback = callback;
+}
+
+void kvfSetValidationErrorCallback(KvfErrorCallback callback)
+{
+	__kvf_validation_error_callback = callback;
+}
+
+void kvfSetValidationWarningCallback(KvfErrorCallback callback)
+{
+	__kvf_validation_warning_callback = callback;
 }
 
 bool kvfIsStencilFormat(VkFormat format)
@@ -618,7 +631,7 @@ const char* kvfVerbaliseVkResult(VkResult result)
 		case VK_ERROR_EXTENSION_NOT_PRESENT: return "A requested extension is not supported";
 		case VK_ERROR_FEATURE_NOT_PRESENT: return "A requested feature is not supported";
 		case VK_ERROR_INCOMPATIBLE_DRIVER: return "The requested version of Vulkan is not supported by the driver or is otherwise incompatible";
-		case VK_ERROR_TOO_MANY_OBJECTS: return "To``````o many objects of the type have already been created";
+		case VK_ERROR_TOO_MANY_OBJECTS: return "Too many objects of the type have already been created";
 		case VK_ERROR_FORMAT_NOT_SUPPORTED: return "A requested format is not supported on this device";
 		case VK_ERROR_SURFACE_LOST_KHR: return "A surface is no longer available";
 		case VK_SUBOPTIMAL_KHR: return "A swapchain no longer matches the surface properties exactly, but can still be used";
@@ -651,9 +664,27 @@ const char* kvfVerbaliseVkResult(VkResult result)
 	VKAPI_ATTR VkBool32 VKAPI_CALL __kvfDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 	{
 		if(messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
-			printf("\nKVF Vulkan validation layer error : %s\n", pCallbackData->pMessage);
+		{
+			if(__kvf_validation_error_callback != NULL)
+			{
+				char buffer[4096];
+				snprintf(buffer, 4096, "KVF Vulkan validation error : %s\n", pCallbackData->pMessage);
+				__kvf_validation_error_callback(buffer);
+				return VK_FALSE;
+			}
+			printf("\nKVF Vulkan validation error : %s\n", pCallbackData->pMessage);
+		}
 		else if(messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
-			printf("\nKVF Vulkan validation layer warning : %s\n", pCallbackData->pMessage);
+		{
+			if(__kvf_validation_warning_callback != NULL)
+			{
+				char buffer[4096];
+				snprintf(buffer, 4096, "KVF Vulkan validation warning : %s\n", pCallbackData->pMessage);
+				__kvf_validation_warning_callback(buffer);
+				return VK_FALSE;
+			}
+			printf("\nKVF Vulkan validation warning : %s\n", pCallbackData->pMessage);
+		}
 		return VK_FALSE;
 	}
 
@@ -736,7 +767,7 @@ VkPhysicalDevice kvfPickFirstPhysicalDevice(VkInstance instance)
 
 __KvfQueueFamilies __kvfFindQueueFamilies(VkPhysicalDevice physical, VkSurfaceKHR surface)
 {
-	__KvfQueueFamilies queues = { -1, -1 };
+	__KvfQueueFamilies queues = { -1, -1, -1 };
 	uint32_t queue_family_count;
 	vkGetPhysicalDeviceQueueFamilyProperties(physical, &queue_family_count, NULL);
 	VkQueueFamilyProperties* queue_families = (VkQueueFamilyProperties*)KVF_MALLOC(sizeof(VkQueueFamilyProperties) * queue_family_count);
@@ -744,6 +775,11 @@ __KvfQueueFamilies __kvfFindQueueFamilies(VkPhysicalDevice physical, VkSurfaceKH
 
 	for(int i = 0; i < queue_family_count; i++)
 	{
+		// try to find a queue family index that supports compute but not graphics
+		if(queue_families[i].queueFlags & VK_QUEUE_COMPUTE_BIT && (queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0)
+			queues.compute = i;
+		else if(queues.compute != -1 && queue_families[i].queueFlags & VK_QUEUE_COMPUTE_BIT) // else just find a compute queue
+			queues.compute = i;
 		if(queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			queues.graphics = i;
 		VkBool32 present_support = false;
@@ -751,7 +787,7 @@ __KvfQueueFamilies __kvfFindQueueFamilies(VkPhysicalDevice physical, VkSurfaceKH
 		if(present_support)
 			queues.present = i;
 
-		if(queues.graphics != -1 && queues.present != -1)
+		if(queues.graphics != -1 && queues.present != -1 && queues.compute != -1)
 			break;
 	}
 	KVF_FREE(queue_families);
@@ -928,7 +964,28 @@ VkQueue kvfGetDeviceQueue(VkDevice device, KvfQueueType queue)
 		vkGetDeviceQueue(device, kvfdevice->queues.graphics, 0, &vk_queue);
 	else if(queue == KVF_PRESENT_QUEUE)
 		vkGetDeviceQueue(device, kvfdevice->queues.present, 0, &vk_queue);
+	else if(queue == KVF_COMPUTE_QUEUE)
+		vkGetDeviceQueue(device, kvfdevice->queues.compute, 0, &vk_queue);
 	return vk_queue;
+}
+
+bool kvfQueuePresentKHR(VkDevice device, VkSemaphore signal, VkSwapchainKHR swapchain, uint32_t* image_index)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	VkPresentInfoKHR present_info = {};
+	present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	present_info.waitSemaphoreCount = 1;
+	present_info.pWaitSemaphores = &signal;
+	present_info.swapchainCount = 1;
+	present_info.pSwapchains = &swapchain;
+	present_info.pImageIndices = image_index;
+
+	VkResult result = vkQueuePresentKHR(kvfGetDeviceQueue(device, KVF_PRESENT_QUEUE), &present_info);
+	if(result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+		return false;
+	else
+		__kvfCheckVk(result);
+	return true;
 }
 
 VkFence kvfCreateFence(VkDevice device)
@@ -1181,6 +1238,46 @@ VkCommandBuffer kvfCreateCommandBufferLeveled(VkDevice device, VkCommandBufferLe
 	return buffer;
 }
 
+void kvfBeginCommandBuffer(VkCommandBuffer buffer, VkCommandBufferUsageFlags usage)
+{
+	KVF_ASSERT(buffer != VK_NULL_HANDLE);
+	VkCommandBufferBeginInfo begin_info = {};
+	begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	begin_info.flags = usage;
+	__kvfCheckVk(vkBeginCommandBuffer(buffer, &begin_info));
+}
+
+void kvfEndCommandBuffer(VkCommandBuffer buffer)
+{
+	KVF_ASSERT(buffer != VK_NULL_HANDLE);
+	__kvfCheckVk(vkEndCommandBuffer(buffer));
+}
+
+void kvfSubmitCommandBuffer(VkCommandBuffer buffer, VkDevice device, KvfQueueType queue, VkSemaphore signal, VkSemaphore wait, VkFence fence, VkPipelineStageFlags* stages)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+
+	VkSemaphore signal_semaphores[1];
+	VkSemaphore wait_semaphores[1];
+	signal_semaphores[0] = (signal ? signal : VK_NULL_HANDLE);
+	wait_semaphores[0] = (wait ? wait : VK_NULL_HANDLE);
+
+	if(fence != VK_NULL_HANDLE)
+		vkResetFences(device, 1, &fence);
+
+	VkSubmitInfo submit_info = {};
+	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit_info.waitSemaphoreCount = (!wait ? 0 : 1);
+	submit_info.pWaitSemaphores = wait_semaphores;
+	submit_info.pWaitDstStageMask = stages;
+	submit_info.commandBufferCount = 1;
+	submit_info.pCommandBuffers = &buffer;
+	submit_info.signalSemaphoreCount = (!signal ? 0 : 1);
+	submit_info.pSignalSemaphores = signal_semaphores;
+
+	__kvfCheckVk(vkQueueSubmit(kvfGetDeviceQueue(device, queue), 1, &submit_info, fence));
+}
+
 VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkFormat format, VkImageLayout initial, VkImageLayout final, bool clear)
 {
 	VkAttachmentDescription attachment = {};
@@ -1361,6 +1458,44 @@ void kvfDestroyPipelineLayout(VkDevice device, VkPipelineLayout layout)
 		return;
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 	vkDestroyPipelineLayout(device, layout, NULL);
+}
+
+VkDescriptorSet kvfAllocateDescriptorSet(VkDevice device, VkDescriptorSetLayout layout)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	__KvfDevice* kvf_device = __kvfGetKvfDeviceFromVkDevice(device);
+	KVF_ASSERT(kvf_device != NULL);
+	VkDescriptorPool pool = VK_NULL_HANDLE;
+	for(int i = 0; i < kvf_device->sets_pools_size; i++)
+	{
+		if(kvf_device->sets_pools[i].size < kvf_device->sets_pools[i].capacity)
+			pool = kvf_device->sets_pools[i].pool;
+	}
+	if(pool == VK_NULL_HANDLE)
+		pool = __kvfDeviceCreateDescriptorPool(device);
+	KVF_ASSERT(pool != VK_NULL_HANDLE);
+
+	VkDescriptorSet set = VK_NULL_HANDLE;
+	VkDescriptorSetAllocateInfo alloc_info = {};
+	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	alloc_info.descriptorPool = pool;
+	alloc_info.descriptorSetCount = 1;
+	alloc_info.pSetLayouts = &layout;
+	__kvfCheckVk(vkAllocateDescriptorSets(device, &alloc_info, &set));
+	KVF_ASSERT(set != VK_NULL_HANDLE);
+	return set;
+}
+
+void kvfResetDeviceDescriptorPools(VkDevice device)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	__KvfDevice* kvf_device = __kvfGetKvfDeviceFromVkDevice(device);
+	KVF_ASSERT(kvf_device != NULL);
+	for(int i = 0; i < kvf_device->sets_pools_size; i++)
+	{
+		vkResetDescriptorPool(device, kvf_device->sets_pools[i].pool, 0);
+		kvf_device->sets_pools[i].size = 0;
+	}
 }
 
 #endif // KVF_IMPLEMENTATION

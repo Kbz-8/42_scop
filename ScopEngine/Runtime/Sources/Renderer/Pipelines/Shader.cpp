@@ -23,7 +23,7 @@ namespace Scop
 
 	void Shader::GeneratePipelineLayout(ShaderLayout layout)
 	{
-		for(auto& [_, set] : layout.set_layouts)
+		for(auto& [n, set] : layout.set_layouts)
 		{
 			std::vector<VkDescriptorSetLayoutBinding> bindings(set.binds.size());
 			for(std::size_t i = 0; i < set.binds.size(); i++)
@@ -35,6 +35,7 @@ namespace Scop
 				bindings[i].stageFlags = m_stage;
 			}
 			m_set_layouts.emplace_back(kvfCreateDescriptorSetLayout(RenderCore::Get().GetDevice(), bindings.data(), bindings.size()));
+			m_sets[n] = VK_NULL_HANDLE;
 		}
 
 		std::vector<VkPushConstantRange> push_constants(layout.push_constants.size());
@@ -50,12 +51,12 @@ namespace Scop
 		m_pipeline_layout = kvfCreatePipelineLayout(RenderCore::Get().GetDevice(), m_set_layouts.data(), m_set_layouts.size(), push_constants.data(), push_constants.size());
 	}
 
-	void Shader::LoadDescriptorSets(ShaderLayout layout)
+	void Shader::LoadDescriptorSets() noexcept
 	{
 		auto it = m_set_layouts.begin();
-		for(auto& [n, _] : layout.set_layouts)
+		for(auto& [_, set] : m_sets)
 		{
-			
+			set = kvfAllocateDescriptorSet(RenderCore::Get().GetDevice(), *it);
 			++it;
 		}
 	}

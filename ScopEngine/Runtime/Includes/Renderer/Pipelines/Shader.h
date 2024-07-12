@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdint>
 #include <filesystem>
-#include <unorederd_map>
+#include <unordered_map>
 
 #include <kvf.h>
 
@@ -47,18 +47,19 @@ namespace Scop
 
 			inline const std::vector<std::uint32_t>& GetByteCode() const noexcept { return m_bytecode; }
 			inline VkPipelineLayout GetPipelineLayout() const noexcept { return m_pipeline_layout; }
+			inline VkDescriptorSet GetDescriptorSet(std::size_t n) const { return m_sets.at(n); }
 			inline VkShaderModule GetShaderModule() const noexcept { return m_module; }
-			inline VkDescriptorSet GetDescriptorSet(std::size_t n) const { return m_sets.at(i); }
+
+			void LoadDescriptorSets() noexcept;
 
 			~Shader();
 
 		private:
 			void GeneratePipelineLayout(ShaderLayout layout);
-			void LoadDescriptorSets(ShaderLayout layout);
 
 		private:
 			std::vector<std::uint32_t> m_bytecode;
-			std::unorederd_map<std::size_t, VkDescriptorSet> m_sets;
+			std::unordered_map<std::size_t, VkDescriptorSet> m_sets;
 			std::vector<VkDescriptorSetLayout> m_set_layouts;
 			VkShaderStageFlagBits m_stage;
 			VkPipelineLayout m_pipeline_layout = VK_NULL_HANDLE;
