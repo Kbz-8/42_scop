@@ -34,7 +34,6 @@ namespace Scop
 
 			inline VkSwapchainKHR GetSwapchain() const noexcept { return m_swapchain; }
 			inline VkSurfaceKHR GetSurface() const noexcept { return m_surface; }
-			inline VkRenderPass GetRenderPass() const noexcept { return m_render_pass; }
 			inline VkSemaphore GetImageAvailableSemaphore(int index) const noexcept { return m_image_available_semaphores[index]; }
 			inline VkSemaphore GetRenderFinishedSemaphore(int index) const noexcept { return m_render_finished_semaphores[index]; }
 			inline VkCommandBuffer GetCommandBuffer(int index) const noexcept { return m_cmd_buffers[index]; }
@@ -60,7 +59,6 @@ namespace Scop
 			NonOwningPtr<Window> m_window_ptr;
 			VkSurfaceKHR m_surface = VK_NULL_HANDLE;
 			VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
-			VkRenderPass m_render_pass = VK_NULL_HANDLE;
 			std::uint32_t m_current_frame_index = 0;
 			std::uint32_t m_swapchain_image_index = 0;
 			bool m_framebuffers_resize = false;

@@ -38,8 +38,8 @@ namespace Scop
 			m_sets[n] = VK_NULL_HANDLE;
 		}
 
-		std::vector<VkPushConstantRange> push_constants(layout.push_constants.size());
 		std::size_t i = 0;
+		std::vector<VkPushConstantRange> push_constants(layout.push_constants.size());
 		for(auto& pc : layout.push_constants)
 		{
 			VkPushConstantRange push_constant_range = {};
@@ -51,6 +51,7 @@ namespace Scop
 		}
 
 		m_pipeline_layout = kvfCreatePipelineLayout(RenderCore::Get().GetDevice(), m_set_layouts.data(), m_set_layouts.size(), push_constants.data(), push_constants.size());
+		Message("Vulkan : generated graphics pipeline layout");
 	}
 
 	void Shader::LoadDescriptorSets() noexcept

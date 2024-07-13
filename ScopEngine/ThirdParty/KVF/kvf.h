@@ -129,8 +129,9 @@ void kvfSubmitSingleTimeCommandBuffer(VkDevice device, VkCommandBuffer buffer, K
 VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkFormat format, VkImageLayout initial, VkImageLayout final, bool clear);
 VkAttachmentDescription* kvfBuildSwapChainAttachmentDescriptions(VkSwapchainKHR swapchain, bool clear, size_t* count);
 
-VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attachments, size_t attachments_count);
+VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attachments, size_t attachments_count, VkPipelineBindPoint bind_point);
 void kvfDestroyRenderPass(VkDevice device, VkRenderPass renderPass);
+void kvfBeginRenderPass(VkRenderPass pass, VkCommandBuffer cmd, VkFramebuffer framebuffer, VkExtent2D framebuffer_extent, VkClearValue* clears, size_t clears_count);
 
 VkShaderModule kvfCreateShaderModule(VkDevice device, uint32_t* code, size_t size);
 void kvfDestroyShaderModule(VkDevice device, VkShaderModule shader);
@@ -529,7 +530,7 @@ VkPipelineStageFlags kvfAccessFlagsToPipelineStage(VkAccessFlags access_flags, V
 
 	while(access_flags != 0)
 	{
-		VkAccessFlagBits _access_flag = static_cast<VkAccessFlagBits>(access_flags & (~(access_flags - 1)));
+		VkAccessFlagBits _access_flag = (VkAccessFlagBits)(access_flags & (~(access_flags - 1)));
 		if(_access_flag == 0 || (_access_flag & (_access_flag - 1)) != 0)
 			KVF_ASSERT(false && "Vulkan : an error has been caught during access flag to pipeline stage operation");
 		access_flags &= ~_access_flag;
@@ -753,7 +754,7 @@ const char* kvfVerbaliseVkResult(VkResult result)
 				__kvf_validation_error_callback(buffer);
 				return VK_FALSE;
 			}
-			printf("\nKVF Vulkan validation error : %s\n", pCallbackData->pMessage);
+			fprintf(stderr, "\nKVF Vulkan validation error : %s\n", pCallbackData->pMessage);
 		}
 		else if(messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
 		{
@@ -764,7 +765,7 @@ const char* kvfVerbaliseVkResult(VkResult result)
 				__kvf_validation_warning_callback(buffer);
 				return VK_FALSE;
 			}
-			printf("\nKVF Vulkan validation warning : %s\n", pCallbackData->pMessage);
+			fprintf(stderr, "\nKVF Vulkan validation warning : %s\n", pCallbackData->pMessage);
 		}
 		return VK_FALSE;
 	}
@@ -1473,11 +1474,7 @@ VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkForma
 			break;
 		}
 
-		default:
-		{
-			fprintf(stderr, "KVF Attachment Description builder : unsupported image type");
-			return {};
-		}
+		default: KVF_ASSERT(false && "KVF Attachment Description builder : unsupported image type"); break;
 	}
 
 	if(clear)
@@ -1502,21 +1499,20 @@ VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkForma
 
 VkAttachmentDescription* kvfBuildSwapChainAttachmentDescriptions(VkSwapchainKHR swapchain, bool clear, size_t* count)
 {
-	__KvfSwapchain* kvfswapchain = __kvfGetKvfSwapchainFromVkSwapchainKHR(swapchain);
-	KVF_ASSERT(kvfswapchain != NULL);
-	KVF_ASSERT(kvfswapchain->images_count != 0);
+	__KvfSwapchain* kvf_swapchain = __kvfGetKvfSwapchainFromVkSwapchainKHR(swapchain);
+	KVF_ASSERT(kvf_swapchain != NULL);
+	KVF_ASSERT(kvf_swapchain->images_count != 0);
 
-	*count = kvfswapchain->images_count;
-	VkAttachmentDescription* attachments = (VkAttachmentDescription*)KVF_MALLOC(kvfswapchain->images_count * sizeof(VkAttachmentDescription));
-	for(uint32_t i = 0; i < kvfswapchain->images_count; i++)
-		attachments[i] = kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, kvfswapchain->images_format, VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, clear);
+	*count = kvf_swapchain->images_count;
+	VkAttachmentDescription* attachments = (VkAttachmentDescription*)KVF_MALLOC(kvf_swapchain->images_count * sizeof(VkAttachmentDescription));
+	for(uint32_t i = 0; i < kvf_swapchain->images_count; i++)
+		attachments[i] = kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, kvf_swapchain->images_format, VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, clear);
 	return attachments;
 }
 
-VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attachments, size_t attachments_count)
+VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attachments, size_t attachments_count, VkPipelineBindPoint bind_point)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
-	VkRenderPass renderPass = VK_NULL_HANDLE;
 
 	size_t color_attachment_count = 0;
 	size_t depth_attachment_count = 0;
@@ -1550,20 +1546,23 @@ VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attac
 	}
 
 	VkSubpassDescription subpass = {};
-	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.pipelineBindPoint = bind_point;
 	subpass.colorAttachmentCount = color_attachment_count;
 	subpass.pColorAttachments = color_references;
 	subpass.pDepthStencilAttachment = depth_references;
 
-	VkRenderPassCreateInfo renderPassInfo = {};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = 1;
-	renderPassInfo.pAttachments = attachments;
-	renderPassInfo.subpassCount = attachments_count;
-	renderPassInfo.pSubpasses = &subpass;
+	VkRenderPassCreateInfo renderpass_create_info = {};
+	renderpass_create_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderpass_create_info.attachmentCount = attachments_count;
+	renderpass_create_info.pAttachments = attachments;
+	renderpass_create_info.subpassCount = 1;
+	renderpass_create_info.pSubpasses = &subpass;
+	renderpass_create_info.dependencyCount = 0;
+	renderpass_create_info.pDependencies = NULL;
 
-	__kvfCheckVk(vkCreateRenderPass(device, &renderPassInfo, NULL, &renderPass));
-	return renderPass;
+	VkRenderPass render_pass = VK_NULL_HANDLE;
+	__kvfCheckVk(vkCreateRenderPass(device, &renderpass_create_info, NULL, &render_pass));
+	return render_pass;
 }
 
 void kvfDestroyRenderPass(VkDevice device, VkRenderPass renderPass)
@@ -1572,6 +1571,23 @@ void kvfDestroyRenderPass(VkDevice device, VkRenderPass renderPass)
 		return;
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 	vkDestroyRenderPass(device, renderPass, NULL);
+}
+
+void kvfBeginRenderPass(VkRenderPass pass, VkCommandBuffer cmd, VkFramebuffer framebuffer, VkExtent2D framebuffer_extent, VkClearValue* clears, size_t clears_count)
+{
+	KVF_ASSERT(pass != VK_NULL_HANDLE);
+	KVF_ASSERT(framebuffer != VK_NULL_HANDLE);
+
+	VkOffset2D offset = { 0, 0 };
+	VkRenderPassBeginInfo renderpass_info = {};
+	renderpass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderpass_info.renderPass = pass;
+	renderpass_info.framebuffer = framebuffer;
+	renderpass_info.renderArea.offset = offset;
+	renderpass_info.renderArea.extent = framebuffer_extent;
+	renderpass_info.clearValueCount = clears_count;
+	renderpass_info.pClearValues = clears;
+	vkCmdBeginRenderPass(cmd, &renderpass_info, VK_SUBPASS_CONTENTS_INLINE);
 }
 
 VkShaderModule kvfCreateShaderModule(VkDevice device, uint32_t* code, size_t size)
