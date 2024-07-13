@@ -4,6 +4,7 @@
 #include <Platform/Window.h>
 #include <Utils/NonOwningPtr.h>
 #include <Renderer/RenderCore.h>
+#include <Renderer/Image.h>
 
 #include <kvf.h>
 
@@ -47,6 +48,7 @@ namespace Scop
 
 		private:
 			void CreateSwapchain();
+			void DestroySwapchain();
 
 		private:
 			std::vector<std::shared_ptr<class Shader> > m_internal_shaders;
@@ -54,6 +56,7 @@ namespace Scop
 			std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> m_render_finished_semaphores;
 			std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT> m_cmd_buffers;
 			std::array<VkFence, MAX_FRAMES_IN_FLIGHT> m_cmd_fences;
+			std::vector<Image> m_swapchain_images;
 			NonOwningPtr<Window> m_window_ptr;
 			VkSurfaceKHR m_surface = VK_NULL_HANDLE;
 			VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;

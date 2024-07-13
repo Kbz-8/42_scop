@@ -13,7 +13,7 @@ namespace Scop
 			case ShaderType::Fragment : m_stage = VK_SHADER_STAGE_FRAGMENT_BIT; break;
 			case ShaderType::Compute : m_stage = VK_SHADER_STAGE_COMPUTE_BIT; break;
 
-			default : break;
+			default : FatalError("wtf"); break;
 		}
 		m_module = kvfCreateShaderModule(RenderCore::Get().GetDevice(), m_bytecode.data(), m_bytecode.size());
 		Message("Vulkan : created shader module");
@@ -39,13 +39,15 @@ namespace Scop
 		}
 
 		std::vector<VkPushConstantRange> push_constants(layout.push_constants.size());
+		std::size_t i = 0;
 		for(auto& pc : layout.push_constants)
 		{
-			VkPushConstantRange push_constant_range;
+			VkPushConstantRange push_constant_range = {};
 			push_constant_range.offset = pc.offset;
 			push_constant_range.size = pc.size;
 			push_constant_range.stageFlags = m_stage;
-			push_constants.push_back(push_constant_range);
+			push_constants[i] = push_constant_range;
+			i++;
 		}
 
 		m_pipeline_layout = kvfCreatePipelineLayout(RenderCore::Get().GetDevice(), m_set_layouts.data(), m_set_layouts.size(), push_constants.data(), push_constants.size());
@@ -64,6 +66,7 @@ namespace Scop
 	Shader::~Shader()
 	{
 		kvfDestroyShaderModule(RenderCore::Get().GetDevice(), m_module);
+		kvfDestroyPipelineLayout(RenderCore::Get().GetDevice(), m_pipeline_layout);
 		for(auto& layout : m_set_layouts)
 			kvfDestroyDescriptorSetLayout(RenderCore::Get().GetDevice(), layout);
 	}

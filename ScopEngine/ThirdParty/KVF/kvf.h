@@ -1,54 +1,53 @@
-/**
- *	                             MIT License
+/***
+ *                              MIT License
  *
- *	                       Copyright (c) 2023 kbz_8
+ *                      Copyright (c) 2023-2024 kbz_8
  *
- *	Permission is hereby granted, free of charge, to any person obtaining a copy
- *	of this software and associated documentation files (the "Software"), to deal
- *	in the Software without restriction, including without limitation the rights
- *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *	copies of the Software, and to permit persons to whom the Software is
- *	furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *	The above copyright notice and this permission notice shall be included in all
- *	copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *	SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  *
- *	Do this:
- *	#define KVF_IMPLEMENTATION
- *	before you include this file in *one* C or C++ file to create the implementation.
+ * Do this:
+ * #define KVF_IMPLEMENTATION
+ * before you include this file in *one* C or C++ file to create the implementation.
  *
- *	// i.e. it should look like this:
- *	#include ...
- *	#include ...
- *	#include ...
- *	#define KVF_IMPLEMENTATION
- *	#include "kvf.h"
- *	
- *	You can #define KVF_ASSERT(x) before the #include to avoid using assert.h.
- *	And #define KVF_MALLOC, KVF_REALLOC, and KVF_FREE to avoid using malloc, realloc, free.
+ * // i.e. it should look like this:
+ * #include ...
+ * #include ...
+ * #include ...
+ * #define KVF_IMPLEMENTATION
+ * #include "kvf.h"
  *
- *	By default KVF exits the program if a call to the Vulkan API fails. You can avoid that
- *	by using #define KVF_NO_EXIT_ON_FAILURE
+ * You can #define KVF_ASSERT(x) before the #include to avoid using assert.h.
+ * And #define KVF_MALLOC, KVF_REALLOC, and KVF_FREE to avoid using malloc, realloc, free.
  *
- *	If you are using Volk or any other meta loader you must define KVF_IMPL_VK_NO_PROTOTYPES
- *	or VK_NO_PROTOTYPES before including this file to avoid conflicts with Vulkan prototypes.
+ * By default KVF exits the program if a call to the Vulkan API fails. You can avoid that
+ * by using #define KVF_NO_EXIT_ON_FAILURE
  *
- *	You can also #define KVF_ENABLE_VALIDATION_LAYERS to enable validation layers.
+ * If you are using Volk or any other meta loader you must define KVF_IMPL_VK_NO_PROTOTYPES
+ * or VK_NO_PROTOTYPES before including this file to avoid conflicts with Vulkan prototypes.
+ *
+ * You can also #define KVF_ENABLE_VALIDATION_LAYERS to enable validation layers.
  */
 
 #ifndef KBZ_8_VULKAN_FRAMEWORK_H
 #define KBZ_8_VULKAN_FRAMEWORK_H
 
-#include <cstdint>
 #ifdef KVF_IMPL_VK_NO_PROTOTYPES
 	#define VK_NO_PROTOTYPES
 #endif
@@ -107,19 +106,25 @@ VkSemaphore kvfCreateSemaphore(VkDevice device);
 void kvfDestroySemaphore(VkDevice device, VkSemaphore semaphore);
 
 VkSwapchainKHR kvfCreateSwapchainKHR(VkDevice device, VkPhysicalDevice physical, VkSurfaceKHR surface, VkExtent2D extent, bool tryVsync);
+VkFormat kvfGetSwapchainImagesFormat(VkSwapchainKHR swapchain);
+uint32_t kvfGetSwapchainImagesCount(VkSwapchainKHR swapchain);
 void kvfDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain);
 
-VkImageView* kvfCreateSwapChainImageViewsKHR(VkDevice device, VkSwapchainKHR swapChain, size_t* size);
-void kvfDestroySwapChainImageViewsKHR(VkDevice device, VkImageView* imageView, size_t size);
+VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkDeviceMemory memory);
+void kvfDestroyImage(VkDevice device, VkImage image);
+VkImageView kvfCreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageViewType type, VkImageAspectFlags aspect);
+void kvfDestroyImageView(VkDevice device, VkImageView image_view);
+void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cmd, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, bool is_single_time_cmd_buffer);
 
-VkFramebuffer kvfCreateFrameBuffer(VkDevice device, VkRenderPass renderPass, VkImageView swapChainImageView, VkExtent2D extent);
+VkFramebuffer kvfCreateFrameBuffer(VkDevice device, VkRenderPass renderPass, VkImageView image_view, VkExtent2D extent);
 void kvfDestroyFrameBuffer(VkDevice device, VkFramebuffer frameBuffer);
 
 VkCommandBuffer kvfCreateCommandBuffer(VkDevice device);
 VkCommandBuffer kvfCreateCommandBufferLeveled(VkDevice device, VkCommandBufferLevel level);
 void kvfBeginCommandBuffer(VkCommandBuffer buffer, VkCommandBufferUsageFlags flags);
 void kvfEndCommandBuffer(VkCommandBuffer buffer);
-void kvfSubmitCommandBuffer(VkCommandBuffer buffer, VkDevice device, KvfQueueType queue, VkSemaphore signal, VkSemaphore wait, VkFence fence, VkPipelineStageFlags* stages);
+void kvfSubmitCommandBuffer(VkDevice device, VkCommandBuffer buffer, KvfQueueType queue, VkSemaphore signal, VkSemaphore wait, VkFence fence, VkPipelineStageFlags* stages);
+void kvfSubmitSingleTimeCommandBuffer(VkDevice device, VkCommandBuffer buffer, KvfQueueType queue, VkFence fence);
 
 VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkFormat format, VkImageLayout initial, VkImageLayout final, bool clear);
 VkAttachmentDescription* kvfBuildSwapChainAttachmentDescriptions(VkSwapchainKHR swapchain, bool clear, size_t* count);
@@ -135,6 +140,8 @@ const char* kvfVerbaliseVkResult(VkResult result);
 bool kvfIsStencilFormat(VkFormat format);
 bool kvfIsDepthFormat(VkFormat format);
 uint32_t kvfFormatSize(VkFormat format);
+VkPipelineStageFlags kvfLayoutToAccessMask(VkImageLayout layout, bool is_destination);
+VkPipelineStageFlags kvfAccessFlagsToPipelineStage(VkAccessFlags access_flags, VkPipelineStageFlags stage_flags);
 
 VkDescriptorSetLayout kvfCreateDescriptorSetLayout(VkDevice device, VkDescriptorSetLayoutBinding* bindings, size_t bindings_count);
 void kvfDestroyDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout layout);
@@ -244,7 +251,7 @@ void __kvfCheckVk(VkResult result, const char* function)
 		if(__kvf_error_callback != NULL)
 		{
 			char buffer[1024];
-			snprintf(buffer, 1024, "KVF Vulkan error in '%s': %s\n", function, kvfVerbaliseVkResult(result));
+			snprintf(buffer, 1024, "KVF Vulkan error in '%s': %s", function, kvfVerbaliseVkResult(result));
 			__kvf_error_callback(buffer);
 			return;
 		}
@@ -279,25 +286,27 @@ void __kvfCompleteDevice(VkPhysicalDevice physical, VkDevice device)
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 	KVF_ASSERT(physical != VK_NULL_HANDLE);
 
-	__KvfDevice* kvfdevice = NULL;
+	__KvfDevice* kvf_device = NULL;
 
 	for(size_t i = 0; i < __kvf_internal_devices_size; i++)
 	{
 		if(__kvf_internal_devices[i].physical == physical)
-			kvfdevice = &__kvf_internal_devices[i];
+			kvf_device = &__kvf_internal_devices[i];
 	}
 
-	KVF_ASSERT(kvfdevice != NULL);
+	KVF_ASSERT(kvf_device != NULL);
 
 	VkCommandPool pool;
 	VkCommandPoolCreateInfo pool_info = {};
 	pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-	pool_info.queueFamilyIndex = kvfdevice->queues.graphics;
+	pool_info.queueFamilyIndex = kvf_device->queues.graphics;
 	__kvfCheckVk(vkCreateCommandPool(device, &pool_info, NULL, &pool));
 
-	kvfdevice->device = device;
-	kvfdevice->cmd_pool = pool;
+	kvf_device->device = device;
+	kvf_device->cmd_pool = pool;
+	kvf_device->sets_pools = NULL;
+	kvf_device->sets_pools_size = 0;
 }
 
 void __kvfDestroyDescriptorPools(VkDevice device);
@@ -477,6 +486,78 @@ bool kvfIsDepthFormat(VkFormat format)
 
 		default: return false;
 	}
+}
+
+VkPipelineStageFlags kvfLayoutToAccessMask(VkImageLayout layout, bool is_destination)
+{
+	VkPipelineStageFlags access_mask = 0;
+
+	switch(layout)
+	{
+		case VK_IMAGE_LAYOUT_UNDEFINED:
+			if(is_destination)
+				KVF_ASSERT(false && "Vulkan : the new layout used in a transition must not be VK_IMAGE_LAYOUT_UNDEFINED");
+		break;
+		case VK_IMAGE_LAYOUT_GENERAL: access_mask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT; break;
+		case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL: access_mask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT; break;
+		case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL: access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT; break;
+		case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
+			access_mask = VK_ACCESS_SHADER_READ_BIT; // VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+		break;
+		case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL: access_mask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT; break;
+		case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL: access_mask = VK_ACCESS_TRANSFER_READ_BIT; break;
+		case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL: access_mask = VK_ACCESS_TRANSFER_WRITE_BIT; break;
+		case VK_IMAGE_LAYOUT_PREINITIALIZED:
+			if(!is_destination)
+				access_mask = VK_ACCESS_HOST_WRITE_BIT;
+			else
+				KVF_ASSERT(false && "Vulkan : the new layout used in a transition must not be VK_IMAGE_LAYOUT_PREINITIALIZED");
+		break;
+		case VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL: access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT; break;
+		case VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL: access_mask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT; break;
+		case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR: access_mask = VK_ACCESS_MEMORY_READ_BIT; break;
+
+		default: KVF_ASSERT(false && "Vulkan : unexpected image layout"); break;
+	}
+
+	return access_mask;
+}
+
+VkPipelineStageFlags kvfAccessFlagsToPipelineStage(VkAccessFlags access_flags, VkPipelineStageFlags stage_flags)
+{
+	VkPipelineStageFlags stages = 0;
+
+	while(access_flags != 0)
+	{
+		VkAccessFlagBits _access_flag = static_cast<VkAccessFlagBits>(access_flags & (~(access_flags - 1)));
+		if(_access_flag == 0 || (_access_flag & (_access_flag - 1)) != 0)
+			KVF_ASSERT(false && "Vulkan : an error has been caught during access flag to pipeline stage operation");
+		access_flags &= ~_access_flag;
+
+		switch(_access_flag)
+		{
+			case VK_ACCESS_INDIRECT_COMMAND_READ_BIT: stages |= VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT; break;
+			case VK_ACCESS_INDEX_READ_BIT: stages |= VK_PIPELINE_STAGE_VERTEX_INPUT_BIT; break;
+			case VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT: stages |= VK_PIPELINE_STAGE_VERTEX_INPUT_BIT; break;
+			case VK_ACCESS_UNIFORM_READ_BIT: stages |= stage_flags | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT; break;
+			case VK_ACCESS_INPUT_ATTACHMENT_READ_BIT: stages |= VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT; break;
+			case VK_ACCESS_SHADER_READ_BIT: stages |= stage_flags | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT; break;
+			case VK_ACCESS_SHADER_WRITE_BIT: stages |= stage_flags | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT; break;
+			case VK_ACCESS_COLOR_ATTACHMENT_READ_BIT: stages |= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT; break;
+			case VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT: stages |= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT; break;
+			case VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT: stages |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT; break;
+			case VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT: stages |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT; break;
+			case VK_ACCESS_TRANSFER_READ_BIT: stages |= VK_PIPELINE_STAGE_TRANSFER_BIT; break;
+			case VK_ACCESS_TRANSFER_WRITE_BIT: stages |= VK_PIPELINE_STAGE_TRANSFER_BIT; break;
+			case VK_ACCESS_HOST_READ_BIT: stages |= VK_PIPELINE_STAGE_HOST_BIT; break;
+			case VK_ACCESS_HOST_WRITE_BIT: stages |= VK_PIPELINE_STAGE_HOST_BIT; break;
+			case VK_ACCESS_MEMORY_READ_BIT: break;
+			case VK_ACCESS_MEMORY_WRITE_BIT: break;
+
+			default: KVF_ASSERT(false && "Vulkan : unknown access flag"); break;
+		}
+	}
+	return stages;
 }
 
 uint32_t kvfFormatSize(VkFormat format)
@@ -668,7 +749,7 @@ const char* kvfVerbaliseVkResult(VkResult result)
 			if(__kvf_validation_error_callback != NULL)
 			{
 				char buffer[4096];
-				snprintf(buffer, 4096, "KVF Vulkan validation error : %s\n", pCallbackData->pMessage);
+				snprintf(buffer, 4096, "KVF Vulkan validation error : %s", pCallbackData->pMessage);
 				__kvf_validation_error_callback(buffer);
 				return VK_FALSE;
 			}
@@ -679,7 +760,7 @@ const char* kvfVerbaliseVkResult(VkResult result)
 			if(__kvf_validation_warning_callback != NULL)
 			{
 				char buffer[4096];
-				snprintf(buffer, 4096, "KVF Vulkan validation warning : %s\n", pCallbackData->pMessage);
+				snprintf(buffer, 4096, "KVF Vulkan validation warning : %s", pCallbackData->pMessage);
 				__kvf_validation_warning_callback(buffer);
 				return VK_FALSE;
 			}
@@ -1137,6 +1218,20 @@ VkSwapchainKHR kvfCreateSwapchainKHR(VkDevice device, VkPhysicalDevice physical,
 	return swapchain;
 }
 
+VkFormat kvfGetSwapchainImagesFormat(VkSwapchainKHR swapchain)
+{
+	__KvfSwapchain* kvf_swapchain = __kvfGetKvfSwapchainFromVkSwapchainKHR(swapchain);
+	KVF_ASSERT(kvf_swapchain != NULL);
+	return kvf_swapchain->images_format;
+}
+
+uint32_t kvfGetSwapchainImagesCount(VkSwapchainKHR swapchain)
+{
+	__KvfSwapchain* kvf_swapchain = __kvfGetKvfSwapchainFromVkSwapchainKHR(swapchain);
+	KVF_ASSERT(kvf_swapchain != NULL);
+	return kvf_swapchain->images_count;
+}
+
 void kvfDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain)
 {
 	if(swapchain == VK_NULL_HANDLE)
@@ -1145,66 +1240,134 @@ void kvfDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain)
 	__kvfDestroySwapchain(device, swapchain);
 }
 
-VkImageView* kvfCreateSwapChainImageViewsKHR(VkDevice device, VkSwapchainKHR swapchain, size_t* size)
+VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkDeviceMemory memory)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
-	vkGetSwapchainImagesKHR(device, swapchain, (uint32_t*)size, NULL);
-	VkImage* images = (VkImage*)KVF_MALLOC(sizeof(VkImage) * (*size));
-	VkImageView* views = (VkImageView*)KVF_MALLOC(sizeof(VkImageView) * (*size));
-	vkGetSwapchainImagesKHR(device, swapchain, (uint32_t*)size, images);
-
-	__KvfSwapchain* kvfswapchain = __kvfGetKvfSwapchainFromVkSwapchainKHR(swapchain);
-	KVF_ASSERT(kvfswapchain != NULL);
-
-	for(int i = 0; i < *size; i++)
-	{
-		VkImageViewCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		createInfo.image = images[i];
-		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		createInfo.format = kvfswapchain->images_format;
-		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		createInfo.subresourceRange.baseMipLevel = 0;
-		createInfo.subresourceRange.levelCount = 1;
-		createInfo.subresourceRange.baseArrayLayer = 0;
-		createInfo.subresourceRange.layerCount = 1;
-
-		__kvfCheckVk(vkCreateImageView(device, &createInfo, NULL, &views[i]));
-	}
-	KVF_FREE(images);
-	return views;
+	VkImageCreateInfo image_info = {};
+	image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	image_info.imageType = VK_IMAGE_TYPE_2D;
+	image_info.extent.width = width;
+	image_info.extent.height = height;
+	image_info.extent.depth = 1;
+	image_info.mipLevels = 1;
+	image_info.arrayLayers = 1;
+	image_info.format = format;
+	image_info.tiling = tiling;
+	image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	image_info.usage = usage;
+	image_info.samples = VK_SAMPLE_COUNT_1_BIT;
+	image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	VkImage image;
+	__kvfCheckVk(vkCreateImage(device, &image_info, NULL, &image));
+	__kvfCheckVk(vkBindImageMemory(device, image, memory, 0));
+	return image;
 }
 
-void kvfDestroySwapChainImageViewsKHR(VkDevice device, VkImageView* imageView, size_t size)
+void kvfDestroyImage(VkDevice device, VkImage image)
 {
-	if(imageView == NULL)
+	if(image == VK_NULL_HANDLE)
 		return;
 	KVF_ASSERT(device != VK_NULL_HANDLE);
-	for(int i = 0; i < size; i++)
-		vkDestroyImageView(device, imageView[i], NULL);
+	vkDestroyImage(device, image, NULL);
 }
 
-VkFramebuffer kvfCreateFrameBuffer(VkDevice device, VkRenderPass renderPass, VkImageView swapChainImageView, VkExtent2D extent)
+VkImageView kvfCreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageViewType type, VkImageAspectFlags aspect)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
-	VkFramebuffer frameBuffer = VK_NULL_HANDLE;
-	VkImageView attachments[] = { swapChainImageView };
+	VkImageViewCreateInfo create_info = {};
+	create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	create_info.image = image;
+	create_info.viewType = type;
+	create_info.format = format;
+	create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+	create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+	create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+	create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+	create_info.subresourceRange.aspectMask = aspect;
+	create_info.subresourceRange.baseMipLevel = 0;
+	create_info.subresourceRange.levelCount = 1;
+	create_info.subresourceRange.baseArrayLayer = 0;
+	create_info.subresourceRange.layerCount = 1;
+	VkImageView view;
+	__kvfCheckVk(vkCreateImageView(device, &create_info, NULL, &view));
+	return view;
+}
 
-	VkFramebufferCreateInfo framebufferInfo = {};
-	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	framebufferInfo.renderPass = renderPass;
-	framebufferInfo.attachmentCount = 1;
-	framebufferInfo.pAttachments = attachments;
-	framebufferInfo.width = extent.width;
-	framebufferInfo.height = extent.height;
-	framebufferInfo.layers = 1;
+void kvfDestroyImageView(VkDevice device, VkImageView image_view)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	KVF_ASSERT(image_view != VK_NULL_HANDLE);
+	vkDestroyImageView(device, image_view, NULL);
+}
 
-	__kvfCheckVk(vkCreateFramebuffer(device, &framebufferInfo, NULL, &frameBuffer));
-	return frameBuffer;
+void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cmd, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, bool is_single_time_cmd_buffer)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+
+	if(new_layout == old_layout)
+		return;
+
+	if(is_single_time_cmd_buffer)
+		kvfBeginCommandBuffer(cmd, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+	VkImageMemoryBarrier barrier = {};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.oldLayout = old_layout;
+	barrier.newLayout = new_layout;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = image;
+	barrier.subresourceRange.aspectMask = kvfIsDepthFormat(format) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+	barrier.srcAccessMask = kvfLayoutToAccessMask(old_layout, false);
+	barrier.dstAccessMask = kvfLayoutToAccessMask(new_layout, true);
+	if(kvfIsStencilFormat(format))
+		barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+
+	VkPipelineStageFlags source_stage = 0;
+	if(barrier.oldLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+		source_stage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	else if(barrier.srcAccessMask != 0)
+		source_stage = kvfAccessFlagsToPipelineStage(barrier.srcAccessMask, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+	else
+		source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+	VkPipelineStageFlags destination_stage = 0;
+	if(barrier.newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+		destination_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+	else if(barrier.dstAccessMask != 0)
+		destination_stage = kvfAccessFlagsToPipelineStage(barrier.dstAccessMask, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+	else
+		destination_stage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+
+	vkCmdPipelineBarrier(cmd, source_stage, destination_stage, 0, 0, NULL, 0, NULL, 1, &barrier);
+
+	if(is_single_time_cmd_buffer)
+	{
+		kvfEndCommandBuffer(cmd);
+		VkFence fence = kvfCreateFence(device);
+		kvfSubmitSingleTimeCommandBuffer(device, cmd, KVF_GRAPHICS_QUEUE, fence);
+		kvfDestroyFence(device, fence);
+	}
+}
+
+VkFramebuffer kvfCreateFrameBuffer(VkDevice device, VkRenderPass render_pass, VkImageView image_view, VkExtent2D extent)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	VkFramebufferCreateInfo framebuffer_info = {};
+	framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	framebuffer_info.renderPass = render_pass;
+	framebuffer_info.attachmentCount = 1;
+	framebuffer_info.pAttachments = &image_view;
+	framebuffer_info.width = extent.width;
+	framebuffer_info.height = extent.height;
+	framebuffer_info.layers = 1;
+	VkFramebuffer frame_buffer = VK_NULL_HANDLE;
+	__kvfCheckVk(vkCreateFramebuffer(device, &framebuffer_info, NULL, &frame_buffer));
+	return frame_buffer;
 }
 
 void kvfDestroyFrameBuffer(VkDevice device, VkFramebuffer frameBuffer)
@@ -1253,7 +1416,7 @@ void kvfEndCommandBuffer(VkCommandBuffer buffer)
 	__kvfCheckVk(vkEndCommandBuffer(buffer));
 }
 
-void kvfSubmitCommandBuffer(VkCommandBuffer buffer, VkDevice device, KvfQueueType queue, VkSemaphore signal, VkSemaphore wait, VkFence fence, VkPipelineStageFlags* stages)
+void kvfSubmitCommandBuffer(VkDevice device, VkCommandBuffer buffer, KvfQueueType queue, VkSemaphore signal, VkSemaphore wait, VkFence fence, VkPipelineStageFlags* stages)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 
@@ -1274,8 +1437,23 @@ void kvfSubmitCommandBuffer(VkCommandBuffer buffer, VkDevice device, KvfQueueTyp
 	submit_info.pCommandBuffers = &buffer;
 	submit_info.signalSemaphoreCount = (!signal ? 0 : 1);
 	submit_info.pSignalSemaphores = signal_semaphores;
-
 	__kvfCheckVk(vkQueueSubmit(kvfGetDeviceQueue(device, queue), 1, &submit_info, fence));
+}
+
+void kvfSubmitSingleTimeCommandBuffer(VkDevice device, VkCommandBuffer buffer, KvfQueueType queue, VkFence fence)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+
+	if(fence != VK_NULL_HANDLE)
+		vkResetFences(device, 1, &fence);
+
+	VkSubmitInfo submit_info = {};
+	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit_info.commandBufferCount = 1;
+	submit_info.pCommandBuffers = &buffer;
+	__kvfCheckVk(vkQueueSubmit(kvfGetDeviceQueue(device, queue), 1, &submit_info, fence));
+	if(fence != VK_NULL_HANDLE)
+		vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
 }
 
 VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkFormat format, VkImageLayout initial, VkImageLayout final, bool clear)
