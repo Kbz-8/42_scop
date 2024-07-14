@@ -1,10 +1,15 @@
 #ifndef __SCOP_GRAPHICS_PIPELINE__
 #define __SCOP_GRAPHICS_PIPELINE__
 
+#include <memory>
 #include <vector>
 
+#include <kvf.h>
+
+#include <Renderer/Image.h>
+#include <Renderer/Pipelines/Shader.h>
+#include <Renderer/ShadersLibrary.h>
 #include <Renderer/Pipelines/Pipeline.h>
-#include <Utils/NonOwningPtr.h>
 
 namespace Scop
 {
@@ -13,14 +18,14 @@ namespace Scop
 		public:
 			GraphicPipeline() = default;
 
-			void Init(NonOwningPtr<class Renderer> renderer);
+			void Init(std::shared_ptr<Shader> vertex_shader, std::shared_ptr<Shader> fragment_shader);
 			bool BindPipeline(VkCommandBuffer command_buffer) noexcept override;
 			void EndPipeline(VkCommandBuffer command_buffer) noexcept override;
 			void Destroy() noexcept;
 
-			const VkPipelineLayout& GetPipelineLayout() const override;
-			inline const VkPipeline& GetPipeline() const override { return m_pipeline; }
-			inline const VkPipelineBindPoint& GetPipelineBindPoint() const override { return m_pipeline_bind_point; }
+			inline VkPipeline GetPipeline() const override { return m_pipeline; }
+			inline VkPipelineLayout GetPipelineLayout() const override { return m_pipeline_layout; }
+			inline VkPipelineBindPoint GetPipelineBindPoint() const override { return VK_PIPELINE_BIND_POINT_GRAPHICS; }
 
 			~GraphicPipeline() = default;
 
@@ -30,13 +35,11 @@ namespace Scop
 
 		private:
 			std::vector<VkFramebuffer> m_framebuffers;
-			std::vector<VkDescriptorSetLayout> m_descriptor_sets_layout;
-			std::vector<VkDescriptorSet> m_descriptor_sets;
-			VkRenderPass m_renderpass;
-			VkDescriptorPool m_pool;
+			std::shared_ptr<Shader> m_vertex_shader;
+			std::shared_ptr<Shader> m_fragment_shader;
+			VkRenderPass m_renderpass = VK_NULL_HANDLE;
 			VkPipeline m_pipeline = VK_NULL_HANDLE;
-			VkPipelineBindPoint m_pipeline_bind_point = VK_PIPELINE_BIND_POINT_GRAPHICS;
-			NonOwningPtr<class Renderer> m_renderer;
+			VkPipelineLayout m_pipeline_layout = VK_NULL_HANDLE;
 	};
 }
 

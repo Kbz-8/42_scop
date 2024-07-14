@@ -7,6 +7,7 @@
 #include <Platform/Window.h>
 #include <Platform/Inputs.h>
 #include <Renderer/Renderer.h>
+#include <Renderer/RenderCore.h>
 #include <Core/Logs.h>
 #include <Renderer/Scene.h>
 

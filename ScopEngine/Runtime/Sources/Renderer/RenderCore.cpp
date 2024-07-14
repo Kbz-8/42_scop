@@ -5,6 +5,7 @@
 #include <cstdint>
 
 #include <Renderer/RenderCore.h>
+#include <Renderer/Pipelines/Shader.h>
 #include <Core/Logs.h>
 
 #define KVF_IMPLEMENTATION
@@ -69,10 +70,46 @@ namespace Scop
 
 		vkDestroySurfaceKHR(m_instance, surface, nullptr);
 		SDL_DestroyWindow(win);
+
+		ShaderLayout vertex_shader_layout(
+			{
+				{ 0,
+					ShaderSetLayout({ 
+						{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER }
+					})
+				}
+			}, { ShaderPushConstantLayout({ 0, 16 }) }
+		);
+		m_internal_shaders[0] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/Vertex.spv", ShaderType::Vertex, std::move(vertex_shader_layout));
+
+		ShaderLayout default_fragment_shader_layout(
+			{
+				{ 1,
+					ShaderSetLayout({ 
+						{ 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER }
+					})
+				}
+			}, {}
+		);
+		m_internal_shaders[DEFAULT_FRAGMENT_SHADER_ID] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/DefaultFragment.spv", ShaderType::Fragment, std::move(default_fragment_shader_layout));
+
+		ShaderLayout basic_fragment_shader_layout(
+			{
+				{ 1,
+					ShaderSetLayout({ 
+						{ 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER }
+					})
+				}
+			}, {}
+		);
+		m_internal_shaders[BASIC_FRAGMENT_SHADER_ID] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/BasicFragment.spv", ShaderType::Fragment, std::move(basic_fragment_shader_layout));
 	}
 
 	void RenderCore::Destroy() noexcept
 	{
+		vkDeviceWaitIdle(m_device);
+		for(auto& shader : m_internal_shaders)
+			shader.reset();
 		kvfDestroyDevice(m_device);
 		Message("Vulkan : logical device destroyed");
 		kvfDestroyInstance(m_instance);

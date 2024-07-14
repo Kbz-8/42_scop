@@ -6,7 +6,7 @@
 /*   By: maldavid <kbz_8.dev@akel-engine.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 20:24:11 by maldavid          #+#    #+#             */
-/*   Updated: 2024/07/13 03:58:08 by maldavid         ###   ########.fr       */
+/*   Updated: 2024/07/14 02:26:23 by maldavid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,28 +63,6 @@ namespace Scop
 			m_cmd_fences[i] = kvfCreateFence(render_core.GetDevice());
 			Message("Vulkan : fence created");
 		}
-
-		ShaderLayout vertex_shader_layout(
-			{
-				{ 0,
-					ShaderSetLayout({ 
-						{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER }
-					})
-				}
-			}, { ShaderPushConstantLayout({ 0, 16 }) }
-		);
-		m_internal_shaders.emplace_back(LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/Vertex.spv", ShaderType::Vertex, std::move(vertex_shader_layout)));
-
-		ShaderLayout default_fragment_shader_layout(
-			{
-				{ 1,
-					ShaderSetLayout({ 
-						{ 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER }
-					})
-				}
-			}, {}
-		);
-		m_internal_shaders.emplace_back(LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/DefaultFragment.spv", ShaderType::Fragment, std::move(default_fragment_shader_layout)));
 	}
 
 	bool Renderer::BeginFrame()

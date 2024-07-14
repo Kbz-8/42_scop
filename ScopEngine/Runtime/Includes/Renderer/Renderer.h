@@ -50,7 +50,6 @@ namespace Scop
 			void DestroySwapchain();
 
 		private:
-			std::vector<std::shared_ptr<class Shader> > m_internal_shaders;
 			std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> m_image_available_semaphores;
 			std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> m_render_finished_semaphores;
 			std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT> m_cmd_buffers;

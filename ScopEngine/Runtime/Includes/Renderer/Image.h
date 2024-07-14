@@ -55,6 +55,21 @@ namespace Scop
 			std::uint32_t m_width = 0;
 			std::uint32_t m_height = 0;
 	};
+
+	class DepthImage : public Image
+	{
+		public:
+			DepthImage() = default;
+			inline void Init(std::uint32_t width, std::uint32_t height)
+			{
+				std::vector<VkFormat> candidates = { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
+				VkFormat format = kvfFindSupportedFormat(RenderCore::Get().GetDevice(), candidates.data(), candidates.size(), VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+				Image::Init(width, height, format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, { VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }, "depth_image");
+				Image::CreateImageView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_DEPTH_BIT);
+				Image::TransitionLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+			}
+			~DepthImage() = default;
+	};
 }
 
 #endif

@@ -143,6 +143,7 @@ bool kvfIsDepthFormat(VkFormat format);
 uint32_t kvfFormatSize(VkFormat format);
 VkPipelineStageFlags kvfLayoutToAccessMask(VkImageLayout layout, bool is_destination);
 VkPipelineStageFlags kvfAccessFlagsToPipelineStage(VkAccessFlags access_flags, VkPipelineStageFlags stage_flags);
+VkFormat kvfFindSupportFormatInCandidates(VkDevice device, VkFormat* candidates, size_t candidates_count, VkImageTiling tiling, VkFormatFeatureFlags flags);
 
 VkDescriptorSetLayout kvfCreateDescriptorSetLayout(VkDevice device, VkDescriptorSetLayoutBinding* bindings, size_t bindings_count);
 void kvfDestroyDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout layout);
@@ -559,6 +560,25 @@ VkPipelineStageFlags kvfAccessFlagsToPipelineStage(VkAccessFlags access_flags, V
 		}
 	}
 	return stages;
+}
+
+VkFormat kvfFindSupportFormatInCandidates(VkDevice device, VkFormat* candidates, size_t candidates_count, VkImageTiling tiling, VkFormatFeatureFlags flags)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	__KvfDevice* kvf_device = __kvfGetKvfDeviceFromVkDevice(device);
+	KVF_ASSERT(kvf_device != NULL);
+	for(size_t i = 0; i < candidates_count; i++)
+	{
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(kvf_device->physical, format, &props);
+		if(tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
+			return format;
+		else if(tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
+			return format;
+	}
+
+	KVF_ASSERT(false && "Vulkan : failed to find image format");
+	return VK_FORMAT_R8G8B8A8_SRGB; // just to avoir warning
 }
 
 uint32_t kvfFormatSize(VkFormat format)

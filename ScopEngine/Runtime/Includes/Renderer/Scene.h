@@ -1,17 +1,17 @@
 #ifndef __SCOP_SCENE__
 #define __SCOP_SCENE__
 
+#include <memory>
 #include <string>
 #include <string_view>
 
 #include <Renderer/Actor.h>
-#include <Renderer/ShadersLibrary.h>
 
 namespace Scop
 {
 	struct SceneDescriptor
 	{
-		ShaderID fragment_shader = nullshader;
+		std::shared_ptr<Shader> fragment_shader;
 	};
 
 	class Scene
@@ -27,8 +27,8 @@ namespace Scop
 			~Scene() = default;
 
 		private:
-			ShaderID m_fragment_shader = nullshader;
 			std::string m_name;
+			std::shared_ptr<Shader> m_fragment_shader;
 	};
 }
 

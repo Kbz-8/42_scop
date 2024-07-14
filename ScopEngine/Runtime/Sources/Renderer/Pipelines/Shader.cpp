@@ -35,11 +35,13 @@ namespace Scop
 				bindings[i].stageFlags = m_stage;
 			}
 			m_set_layouts.emplace_back(kvfCreateDescriptorSetLayout(RenderCore::Get().GetDevice(), bindings.data(), bindings.size()));
+			m_pipeline_layout_part.set_layouts.push_back(m_set_layouts.back());
 			m_sets[n] = VK_NULL_HANDLE;
 		}
 
 		std::size_t i = 0;
 		std::vector<VkPushConstantRange> push_constants(layout.push_constants.size());
+		m_pipeline_layout_part.push_constants.resize(layout.push_constants.size())
 		for(auto& pc : layout.push_constants)
 		{
 			VkPushConstantRange push_constant_range = {};
@@ -47,11 +49,9 @@ namespace Scop
 			push_constant_range.size = pc.size;
 			push_constant_range.stageFlags = m_stage;
 			push_constants[i] = push_constant_range;
+			m_pipeline_layout_part.push_constants[i] = push_constant_range;
 			i++;
 		}
-
-		m_pipeline_layout = kvfCreatePipelineLayout(RenderCore::Get().GetDevice(), m_set_layouts.data(), m_set_layouts.size(), push_constants.data(), push_constants.size());
-		Message("Vulkan : generated graphics pipeline layout");
 	}
 
 	void Shader::LoadDescriptorSets() noexcept

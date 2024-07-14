@@ -2,7 +2,6 @@
 
 #include <Core/Engine.h>
 #include <Core/Logs.h>
-#include <Renderer/Shaders/DefaultFragmentShader.h>
 
 #include <climits>
 #include <unistd.h>
@@ -24,7 +23,7 @@ int main(int ac, char** av)
 	Scop::ScopEngine engine(ac, av, "Scop", 1280, 720, GetExecutablePath().parent_path() / "../ScopEngine/Assets");
 
 	Scop::SceneDescriptor main_scene_desc;
-	main_scene_desc.fragment_shader = Scop::DefaultFragmentShader;
+	main_scene_desc.fragment_shader = Scop::RenderCore::Get().GetDefaultFragmentShader();
 
 	Scop::Scene main_scene("main", main_scene_desc);
 	main_scene.CreateActor(Scop::LoadModelFromObjFile(av[ac - 1]));

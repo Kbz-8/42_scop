@@ -13,9 +13,9 @@ namespace Scop
 			inline virtual bool BindPipeline(VkCommandBuffer command_buffer) noexcept { vkCmdBindPipeline(command_buffer, GetPipelineBindPoint(), GetPipeline()); return true; }
 			inline virtual void EndPipeline([[maybe_unused]] VkCommandBuffer command_buffer) noexcept {}
 
-			virtual const VkPipeline& GetPipeline() const = 0;
-			virtual const VkPipelineLayout& GetPipelineLayout() const = 0;
-			virtual const VkPipelineBindPoint& GetPipelineBindPoint() const = 0;
+			virtual VkPipeline GetPipeline() const = 0;
+			virtual VkPipelineLayout GetPipelineLayout() const = 0;
+			virtual VkPipelineBindPoint GetPipelineBindPoint() const = 0;
 
 			virtual ~Pipeline() = default;
 	};
