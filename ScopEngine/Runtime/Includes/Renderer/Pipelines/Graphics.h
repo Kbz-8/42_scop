@@ -16,7 +16,7 @@ namespace Scop
 	class GraphicPipeline : public Pipeline
 	{
 		public:
-			GraphicPipeline();
+			GraphicPipeline() = default;
 
 			void Init(std::shared_ptr<Shader> vertex_shader, std::shared_ptr<Shader> fragment_shader, NonOwningPtr<class Renderer> renderer);
 			void Init(std::shared_ptr<Shader> vertex_shader, std::shared_ptr<Shader> fragment_shader, std::vector<Image> attachments);
@@ -31,20 +31,6 @@ namespace Scop
 			~GraphicPipeline() = default;
 
 		private:
-			class KvfGraphicsPipelineBuilderDestructor
-			{
-				public:
-					KvfGraphicsPipelineBuilderDestructor() = default;
-
-					void operator()(KvfGraphicsPipelineBuilder* builder) const noexcept
-					{
-						kvfDestroyGPipelineBuilder(builder);
-					}
-
-					~KvfGraphicsPipelineBuilderDestructor() = default;
-			};
-
-		private:
 			void CreateFramebuffers(const std::vector<Image>& render_targets);
 			void TransitionAttachments();
 
@@ -56,7 +42,7 @@ namespace Scop
 			std::vector<VkFramebuffer> m_framebuffers;
 			std::shared_ptr<Shader> p_vertex_shader;
 			std::shared_ptr<Shader> p_fragment_shader;
-			std::unique_ptr<KvfGraphicsPipelineBuilder, KvfGraphicsPipelineBuilderDestructor> p_builder;
+			KvfGraphicsPipelineBuilder* p_builder;
 			VkRenderPass m_renderpass = VK_NULL_HANDLE;
 			VkPipeline m_pipeline = VK_NULL_HANDLE;
 			VkPipelineLayout m_pipeline_layout = VK_NULL_HANDLE;

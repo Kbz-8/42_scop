@@ -1,4 +1,6 @@
 #include <Renderer/Scene.h>
+#include <Renderer/Renderer.h>
+#include <Renderer/RenderCore.h>
 
 namespace Scop
 {
@@ -17,5 +19,15 @@ namespace Scop
 	{
 		Actor actor(model);
 		return actor;
+	}
+
+	void Scene::Init(NonOwningPtr<Renderer> renderer)
+	{
+		m_pipeline.Init(RenderCore::Get().GetDefaultVertexShader(), m_fragment_shader, renderer);
+	}
+
+	void Scene::Destroy()
+	{
+		m_pipeline.Destroy();
 	}
 }

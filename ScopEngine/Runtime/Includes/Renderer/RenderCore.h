@@ -10,6 +10,7 @@ namespace Scop
 {
 	constexpr const int MAX_FRAMES_IN_FLIGHT = 3;
 
+	constexpr const int DEFAULT_VERTEX_SHADER_ID = 0;
 	constexpr const int DEFAULT_FRAGMENT_SHADER_ID = 1;
 	constexpr const int BASIC_FRAGMENT_SHADER_ID = 2;
 
@@ -25,6 +26,7 @@ namespace Scop
 			inline VkDevice GetDevice() const noexcept { return m_device; }
 			inline VkPhysicalDevice GetPhysicalDevice() const noexcept { return m_physical_device; }
 
+			inline std::shared_ptr<class Shader> GetDefaultVertexShader() const { return m_internal_shaders[DEFAULT_VERTEX_SHADER_ID]; }
 			inline std::shared_ptr<class Shader> GetBasicFragmentShader() const { return m_internal_shaders[BASIC_FRAGMENT_SHADER_ID]; }
 			inline std::shared_ptr<class Shader> GetDefaultFragmentShader() const { return m_internal_shaders[DEFAULT_FRAGMENT_SHADER_ID]; }
 

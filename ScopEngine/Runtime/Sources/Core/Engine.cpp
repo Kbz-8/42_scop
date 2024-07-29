@@ -56,6 +56,7 @@ namespace Scop
 
 	void ScopEngine::Run()
 	{
+		m_main_scene.Init(&m_renderer);
 		while(m_running)
 		{
 			m_inputs.Update();
@@ -74,6 +75,7 @@ namespace Scop
 
 	ScopEngine::~ScopEngine()
 	{
+		m_main_scene.Destroy();
 		m_window.Destroy();
 		m_renderer.Destroy();
 		RenderCore::Get().Destroy();

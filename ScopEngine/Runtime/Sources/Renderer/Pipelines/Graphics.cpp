@@ -7,8 +7,6 @@
 
 namespace Scop
 {
-	GraphicPipeline::GraphicPipeline() : p_builder(kvfCreateGPipelineBuilder(), GraphicPipeline::KvfGraphicsPipelineBuilderDestructor{}) {}
-
 	void GraphicPipeline::Init(std::shared_ptr<Shader> vertex_shader, std::shared_ptr<Shader> fragment_shader, NonOwningPtr<Renderer> renderer)
 	{
 		std::function<void(const EventBase&)> functor = [this, renderer](const EventBase& event)
@@ -53,19 +51,20 @@ namespace Scop
 		TransitionAttachments();
 		CreateFramebuffers(attachments);
 
-		kvfGPipelineBuilderAddShaderStage(p_builder.get(), vertex_shader->GetShaderStage(), vertex_shader->GetShaderModule(), "main");
-		kvfGPipelineBuilderAddShaderStage(p_builder.get(), fragment_shader->GetShaderStage(), fragment_shader->GetShaderModule(), "main");
-		kvfGPipelineBuilderSetInputTopology(p_builder.get(), VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-		kvfGPipelineBuilderSetPolygonMode(p_builder.get(), VK_POLYGON_MODE_FILL, 1.0f);
-		kvfGPipelineBuilderSetCullMode(p_builder.get(), VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
-		kvfGPipelineBuilderDisableBlending(p_builder.get());
-		kvfGPipelineBuilderEnableDepthTest(p_builder.get(), VK_COMPARE_OP_LESS, true);
+		p_builder = kvfCreateGPipelineBuilder();
+		kvfGPipelineBuilderAddShaderStage(p_builder, vertex_shader->GetShaderStage(), vertex_shader->GetShaderModule(), "main");
+		kvfGPipelineBuilderAddShaderStage(p_builder, fragment_shader->GetShaderStage(), fragment_shader->GetShaderModule(), "main");
+		kvfGPipelineBuilderSetInputTopology(p_builder, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+		kvfGPipelineBuilderSetPolygonMode(p_builder, VK_POLYGON_MODE_FILL, 1.0f);
+		kvfGPipelineBuilderSetCullMode(p_builder, VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
+		kvfGPipelineBuilderDisableBlending(p_builder);
+		kvfGPipelineBuilderEnableDepthTest(p_builder, VK_COMPARE_OP_LESS, true);
 
 		VkVertexInputBindingDescription binding_description = Vertex::GetBindingDescription();
 		auto attributes_description = Vertex::GetAttributeDescriptions();
-		kvfGPipelineBuilderSetVertexInputs(p_builder.get(), binding_description, attributes_description.data(), attributes_description.size());
+		kvfGPipelineBuilderSetVertexInputs(p_builder, binding_description, attributes_description.data(), attributes_description.size());
 
-		m_pipeline = kvfCreateGraphicsPipeline(RenderCore::Get().GetDevice(), m_pipeline_layout, p_builder.get(), m_renderpass);
+		m_pipeline = kvfCreateGraphicsPipeline(RenderCore::Get().GetDevice(), m_pipeline_layout, p_builder, m_renderpass);
 	}
 
 	bool GraphicPipeline::BindPipeline(VkCommandBuffer command_buffer, std::size_t framebuffer_index) noexcept
@@ -100,7 +99,7 @@ namespace Scop
 	{
 		p_vertex_shader.reset();
 		p_fragment_shader.reset();
-		p_builder.reset();
+		kvfDestroyGPipelineBuilder(p_builder);
 		for(auto& fb : m_framebuffers)
 			kvfDestroyFramebuffer(RenderCore::Get().GetDevice(), fb);
 		m_framebuffers.clear();

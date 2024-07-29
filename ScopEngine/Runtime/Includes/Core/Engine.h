@@ -1,6 +1,7 @@
 #ifndef __SCOP_CORE_ENGINE__
 #define __SCOP_CORE_ENGINE__
 
+#include <vector>
 #include <cstdint>
 #include <filesystem>
 
@@ -23,7 +24,7 @@ namespace Scop
 			inline const Window& GetWindow() const noexcept { return m_window; }
 			inline std::filesystem::path GetAssetsPath() const { return m_assets_path; }
 
-			inline void RegisterMainScene(const Scene& scene) noexcept { (void)scene; }
+			inline void RegisterMainScene(const Scene& scene) noexcept { m_main_scene = scene; }
 
 			constexpr void Quit() noexcept { m_running = false; }
 
@@ -37,6 +38,7 @@ namespace Scop
 			Inputs m_inputs;
 			Renderer m_renderer;
 			Window m_window;
+			Scene m_main_scene;
 			std::filesystem::path m_assets_path;
 			bool m_running = true;
 	};

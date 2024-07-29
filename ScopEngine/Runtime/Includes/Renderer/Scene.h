@@ -5,8 +5,11 @@
 #include <string>
 #include <string_view>
 
+#include <Utils/NonOwningPtr.h>
+
 #include <Renderer/Actor.h>
 #include <Renderer/Pipelines/Shader.h>
+#include <Renderer/Pipelines/Graphics.h>
 
 namespace Scop
 {
@@ -17,6 +20,8 @@ namespace Scop
 
 	class Scene
 	{
+		friend class ScopEngine;
+
 		public:
 			Scene(std::string_view name, SceneDescriptor desc);
 
@@ -28,6 +33,13 @@ namespace Scop
 			~Scene() = default;
 
 		private:
+			Scene() = default;
+			void Init(NonOwningPtr<class Renderer> renderer);
+			void Destroy();
+
+		private:
+			GraphicPipeline m_pipeline;
+			std::vector<Scene> m_scene_children;
 			std::string m_name;
 			std::shared_ptr<Shader> m_fragment_shader;
 	};
