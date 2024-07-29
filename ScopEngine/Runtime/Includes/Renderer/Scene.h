@@ -6,6 +6,7 @@
 #include <string_view>
 
 #include <Renderer/Actor.h>
+#include <Renderer/Pipelines/Shader.h>
 
 namespace Scop
 {

@@ -81,6 +81,8 @@ typedef enum
 
 typedef void (*KvfErrorCallback)(const char* message);
 
+typedef struct KvfGraphicsPipelineBuilder KvfGraphicsPipelineBuilder;
+
 void kvfSetErrorCallback(KvfErrorCallback callback);
 void kvfSetValidationErrorCallback(KvfErrorCallback callback);
 void kvfSetValidationWarningCallback(KvfErrorCallback callback);
@@ -108,6 +110,7 @@ void kvfDestroySemaphore(VkDevice device, VkSemaphore semaphore);
 VkSwapchainKHR kvfCreateSwapchainKHR(VkDevice device, VkPhysicalDevice physical, VkSurfaceKHR surface, VkExtent2D extent, bool tryVsync);
 VkFormat kvfGetSwapchainImagesFormat(VkSwapchainKHR swapchain);
 uint32_t kvfGetSwapchainImagesCount(VkSwapchainKHR swapchain);
+VkExtent2D kvfGetSwapchainImagesSize(VkSwapchainKHR swapchain);
 void kvfDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain);
 
 VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkDeviceMemory memory);
@@ -116,8 +119,9 @@ VkImageView kvfCreateImageView(VkDevice device, VkImage image, VkFormat format, 
 void kvfDestroyImageView(VkDevice device, VkImageView image_view);
 void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cmd, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, bool is_single_time_cmd_buffer);
 
-VkFramebuffer kvfCreateFrameBuffer(VkDevice device, VkRenderPass renderPass, VkImageView image_view, VkExtent2D extent);
-void kvfDestroyFrameBuffer(VkDevice device, VkFramebuffer frameBuffer);
+VkFramebuffer kvfCreateFramebuffer(VkDevice device, VkRenderPass renderpass, VkImageView image_view, VkExtent2D extent);
+VkExtent2D kvfGetFramebufferSize(VkFramebuffer buffer);
+void kvfDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer);
 
 VkCommandBuffer kvfCreateCommandBuffer(VkDevice device);
 VkCommandBuffer kvfCreateCommandBufferLeveled(VkDevice device, VkCommandBufferLevel level);
@@ -130,7 +134,7 @@ VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkForma
 VkAttachmentDescription* kvfBuildSwapChainAttachmentDescriptions(VkSwapchainKHR swapchain, bool clear, size_t* count);
 
 VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attachments, size_t attachments_count, VkPipelineBindPoint bind_point);
-void kvfDestroyRenderPass(VkDevice device, VkRenderPass renderPass);
+void kvfDestroyRenderPass(VkDevice device, VkRenderPass renderpass);
 void kvfBeginRenderPass(VkRenderPass pass, VkCommandBuffer cmd, VkFramebuffer framebuffer, VkExtent2D framebuffer_extent, VkClearValue* clears, size_t clears_count);
 
 VkShaderModule kvfCreateShaderModule(VkDevice device, uint32_t* code, size_t size);
@@ -154,6 +158,25 @@ void kvfResetDeviceDescriptorPools(VkDevice device);
 
 VkPipelineLayout kvfCreatePipelineLayout(VkDevice device, VkDescriptorSetLayout* set_layouts, size_t set_layouts_count, VkPushConstantRange* pc, size_t pc_count);
 void kvfDestroyPipelineLayout(VkDevice device, VkPipelineLayout layout);
+
+KvfGraphicsPipelineBuilder* kvfCreateGPipelineBuilder();
+void kvfDestroyGPipelineBuilder(KvfGraphicsPipelineBuilder* builder);
+
+void kvfGPipelineBuilderReset(KvfGraphicsPipelineBuilder* builder);
+void kvfGPipelineBuilderSetInputTopology(KvfGraphicsPipelineBuilder* builder, VkPrimitiveTopology topology);
+void kvfGPipelineBuilderSetPolygonMode(KvfGraphicsPipelineBuilder* builder, VkPolygonMode polygon, float line_width);
+void kvfGPipelineBuilderSetCullMode(KvfGraphicsPipelineBuilder* builder, VkCullModeFlags cull, VkFrontFace face);
+void kvfGPipelineBuilderDisableBlending(KvfGraphicsPipelineBuilder* builder);
+void kvfGPipelineBuilderEnableAdditiveBlending(KvfGraphicsPipelineBuilder* builder);
+void kvfGPipelineBuilderEnableAlphaBlending(KvfGraphicsPipelineBuilder* builder);
+void kvfGPipelineBuilderEnableDepthTest(KvfGraphicsPipelineBuilder* builder, VkCompareOp op, bool write_enabled);
+void kvfGPipelineBuilderDisableDepthTest(KvfGraphicsPipelineBuilder* builder);
+void kvfGPipelineBuilderSetVertexInputs(KvfGraphicsPipelineBuilder* builder, VkVertexInputBindingDescription binds, VkVertexInputAttributeDescription* attributes, size_t attributes_count);
+void kvfGPipelineBuilderAddShaderStage(KvfGraphicsPipelineBuilder* builder, VkShaderStageFlagBits stage, VkShaderModule module, const char* entry);
+void kvfGPipelineBuilderResetShaderStages(KvfGraphicsPipelineBuilder* builder);
+
+VkPipeline kvfCreateGraphicsPipeline(VkDevice device, VkPipelineLayout layout, KvfGraphicsPipelineBuilder* builder, VkRenderPass pass);
+void kvfDestroyPipeline(VkDevice device, VkPipeline pipeline);
 
 #ifdef __cplusplus
 }
@@ -225,9 +248,31 @@ typedef struct
 {
 	__KvfSwapchainSupportInternal support;
 	VkSwapchainKHR swapchain;
+	VkExtent2D images_extent;
 	VkFormat images_format;
 	uint32_t images_count;
 } __KvfSwapchain;
+
+typedef struct
+{
+	VkFramebuffer framebuffer;
+	VkExtent2D extent;
+} __KvfFramebuffer;
+
+struct KvfGraphicsPipelineBuilder
+{
+	VkPipelineShaderStageCreateInfo* shader_stages;
+	VkPipelineVertexInputStateCreateInfo vertex_input_state;
+	VkPipelineInputAssemblyStateCreateInfo input_assembly_state;
+	VkPipelineTessellationStateCreateInfo tessellation_state;
+	VkPipelineViewportStateCreateInfo viewport_state;
+	VkPipelineRasterizationStateCreateInfo rasterization_state;
+	VkPipelineMultisampleStateCreateInfo multisample_state;
+	VkPipelineDepthStencilStateCreateInfo depth_stencil_state;
+	VkPipelineColorBlendAttachmentState color_blend_attachment_state;
+	VkPipelineDynamicStateCreateInfo dynamic_state;
+	size_t shader_stages_count;
+};
 
 // Dynamic arrays
 __KvfDevice* __kvf_internal_devices = NULL;
@@ -237,6 +282,10 @@ size_t __kvf_internal_devices_capacity = 0;
 __KvfSwapchain* __kvf_internal_swapchains = NULL;
 size_t __kvf_internal_swapchains_size = 0;
 size_t __kvf_internal_swapchains_capacity = 0;
+
+__KvfFramebuffer* __kvf_internal_framebuffers = NULL;
+size_t __kvf_internal_framebuffers_size = 0;
+size_t __kvf_internal_framebuffers_capacity = 0;
 
 #ifdef KVF_ENABLE_VALIDATION_LAYERS
 	VkDebugUtilsMessengerEXT __kvf_debug_messenger;
@@ -327,6 +376,11 @@ void __kvfDestroyDevice(VkDevice device)
 			for(size_t j = i; j < __kvf_internal_devices_size - 1; j++)
 				__kvf_internal_devices[j] = __kvf_internal_devices[j + 1];
 			__kvf_internal_devices_size--;
+			if(__kvf_internal_devices_size == 0)
+			{
+				KVF_FREE(__kvf_internal_devices);
+				__kvf_internal_devices_capacity = 0;
+			}
 			return;
 		}
     }
@@ -354,7 +408,7 @@ __KvfDevice* __kvfGetKvfDeviceFromVkDevice(VkDevice device)
 	return NULL;
 }
 
-void __kvfAddSwapchainToArray(VkSwapchainKHR swapchain, __KvfSwapchainSupportInternal support, VkFormat format, uint32_t images_count)
+void __kvfAddSwapchainToArray(VkSwapchainKHR swapchain, __KvfSwapchainSupportInternal support, VkFormat format, uint32_t images_count, VkExtent2D extent)
 {
 	KVF_ASSERT(swapchain != VK_NULL_HANDLE);
 	if(__kvf_internal_swapchains_size == __kvf_internal_swapchains_capacity)
@@ -368,6 +422,7 @@ void __kvfAddSwapchainToArray(VkSwapchainKHR swapchain, __KvfSwapchainSupportInt
 	__kvf_internal_swapchains[__kvf_internal_swapchains_size].support = support;
 	__kvf_internal_swapchains[__kvf_internal_swapchains_size].images_format = format;
 	__kvf_internal_swapchains[__kvf_internal_swapchains_size].images_count = images_count;
+	__kvf_internal_swapchains[__kvf_internal_swapchains_size].images_extent = extent;
 	__kvf_internal_swapchains_size++;
 }
 
@@ -385,6 +440,11 @@ void __kvfDestroySwapchain(VkDevice device, VkSwapchainKHR swapchain)
 			for(size_t j = i; j < __kvf_internal_swapchains_size - 1; j++)
 				__kvf_internal_swapchains[j] = __kvf_internal_swapchains[j + 1];
 			__kvf_internal_swapchains_size--;
+			if(__kvf_internal_swapchains_size == 0)
+			{
+				KVF_FREE(__kvf_internal_swapchains);
+				__kvf_internal_swapchains_capacity = 0;
+			}
 			return;
 		}
     }
@@ -397,6 +457,56 @@ __KvfSwapchain* __kvfGetKvfSwapchainFromVkSwapchainKHR(VkSwapchainKHR swapchain)
 	{
 		if(__kvf_internal_swapchains[i].swapchain == swapchain)
 			return &__kvf_internal_swapchains[i];
+	}
+	return NULL;
+}
+
+void __kvfAddFramebufferToArray(VkFramebuffer framebuffer, VkExtent2D extent)
+{
+	KVF_ASSERT(framebuffer != VK_NULL_HANDLE);
+	if(__kvf_internal_framebuffers_size == __kvf_internal_framebuffers_capacity)
+	{
+		// Resize the dynamic array if necessary
+		__kvf_internal_framebuffers_capacity += 2;
+		__kvf_internal_framebuffers = (__KvfFramebuffer*)KVF_REALLOC(__kvf_internal_framebuffers, __kvf_internal_framebuffers_capacity * sizeof(__KvfFramebuffer));
+	}
+
+	__kvf_internal_framebuffers[__kvf_internal_framebuffers_size].framebuffer = framebuffer;
+	__kvf_internal_framebuffers[__kvf_internal_framebuffers_size].extent = extent;
+	__kvf_internal_framebuffers_size++;
+}
+
+void __kvfDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer)
+{
+	KVF_ASSERT(framebuffer != VK_NULL_HANDLE);
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+
+	for(size_t i = 0; i < __kvf_internal_framebuffers_size; i++)
+	{
+		if(__kvf_internal_framebuffers[i].framebuffer == framebuffer)
+		{
+			vkDestroyFramebuffer(device, framebuffer, NULL);
+			// Shift the elements to fill the gap
+			for(size_t j = i; j < __kvf_internal_framebuffers_size - 1; j++)
+				__kvf_internal_framebuffers[j] = __kvf_internal_framebuffers[j + 1];
+			__kvf_internal_framebuffers_size--;
+			if(__kvf_internal_framebuffers_size == 0)
+			{
+				KVF_FREE(__kvf_internal_framebuffers);
+				__kvf_internal_framebuffers_capacity = 0;
+			}
+			return;
+		}
+    }
+}
+
+__KvfFramebuffer* __kvfGetKvfSwapchainFromVkFramebuffer(VkFramebuffer framebuffer)
+{
+	KVF_ASSERT(framebuffer != VK_NULL_HANDLE);
+	for(size_t i = 0; i < __kvf_internal_framebuffers_size; i++)
+	{
+		if(__kvf_internal_framebuffers[i].framebuffer == framebuffer)
+			return &__kvf_internal_framebuffers[i];
 	}
 	return NULL;
 }
@@ -570,11 +680,11 @@ VkFormat kvfFindSupportFormatInCandidates(VkDevice device, VkFormat* candidates,
 	for(size_t i = 0; i < candidates_count; i++)
 	{
 		VkFormatProperties props;
-		vkGetPhysicalDeviceFormatProperties(kvf_device->physical, format, &props);
-		if(tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
-			return format;
-		else if(tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
-			return format;
+		vkGetPhysicalDeviceFormatProperties(kvf_device->physical, candidates[i], &props);
+		if(tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & flags) == flags)
+			return candidates[i];
+		else if(tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & flags) == flags)
+			return candidates[i];
 	}
 
 	KVF_ASSERT(false && "Vulkan : failed to find image format");
@@ -1234,7 +1344,7 @@ VkSwapchainKHR kvfCreateSwapchainKHR(VkDevice device, VkPhysicalDevice physical,
 	uint32_t images_count;
 	vkGetSwapchainImagesKHR(device, swapchain, (uint32_t*)&images_count, NULL);
 
-	__kvfAddSwapchainToArray(swapchain, support, surfaceFormat.format, images_count);
+	__kvfAddSwapchainToArray(swapchain, support, surfaceFormat.format, images_count, extent);
 
 	return swapchain;
 }
@@ -1251,6 +1361,13 @@ uint32_t kvfGetSwapchainImagesCount(VkSwapchainKHR swapchain)
 	__KvfSwapchain* kvf_swapchain = __kvfGetKvfSwapchainFromVkSwapchainKHR(swapchain);
 	KVF_ASSERT(kvf_swapchain != NULL);
 	return kvf_swapchain->images_count;
+}
+
+VkExtent2D kvfGetSwapchainImagesSize(VkSwapchainKHR swapchain)
+{
+	__KvfSwapchain* kvf_swapchain = __kvfGetKvfSwapchainFromVkSwapchainKHR(swapchain);
+	KVF_ASSERT(kvf_swapchain != NULL);
+	return kvf_swapchain->images_extent;
 }
 
 void kvfDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain)
@@ -1375,7 +1492,7 @@ void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cm
 	}
 }
 
-VkFramebuffer kvfCreateFrameBuffer(VkDevice device, VkRenderPass render_pass, VkImageView image_view, VkExtent2D extent)
+VkFramebuffer kvfCreateFramebuffer(VkDevice device, VkRenderPass render_pass, VkImageView image_view, VkExtent2D extent)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 	VkFramebufferCreateInfo framebuffer_info = {};
@@ -1386,17 +1503,25 @@ VkFramebuffer kvfCreateFrameBuffer(VkDevice device, VkRenderPass render_pass, Vk
 	framebuffer_info.width = extent.width;
 	framebuffer_info.height = extent.height;
 	framebuffer_info.layers = 1;
-	VkFramebuffer frame_buffer = VK_NULL_HANDLE;
-	__kvfCheckVk(vkCreateFramebuffer(device, &framebuffer_info, NULL, &frame_buffer));
-	return frame_buffer;
+	VkFramebuffer framebuffer = VK_NULL_HANDLE;
+	__kvfCheckVk(vkCreateFramebuffer(device, &framebuffer_info, NULL, &framebuffer));
+	__kvfAddFramebufferToArray(framebuffer, extent);
+	return framebuffer;
 }
 
-void kvfDestroyFrameBuffer(VkDevice device, VkFramebuffer frameBuffer)
+VkExtent2D kvfGetFramebufferSize(VkFramebuffer buffer)
 {
-	if(frameBuffer == VK_NULL_HANDLE)
+	__KvfFramebuffer* kvf_framebuffer = __kvfGetKvfSwapchainFromVkFramebuffer(buffer);
+	KVF_ASSERT(kvf_framebuffer != NULL);
+	return kvf_framebuffer->extent;
+}
+
+void kvfDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer)
+{
+	if(framebuffer == VK_NULL_HANDLE)
 		return;
 	KVF_ASSERT(device != VK_NULL_HANDLE);
-	vkDestroyFramebuffer(device, frameBuffer, NULL);
+	__kvfDestroyFramebuffer(device, framebuffer);
 }
 
 VkCommandBuffer kvfCreateCommandBuffer(VkDevice device)
@@ -1651,29 +1776,6 @@ void kvfDestroyDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout layout
 	vkDestroyDescriptorSetLayout(device, layout, NULL);
 }
 
-VkPipelineLayout kvfCreatePipelineLayout(VkDevice device, VkDescriptorSetLayout* set_layouts, size_t set_layouts_count, VkPushConstantRange* pc, size_t pc_count)
-{
-	KVF_ASSERT(device != VK_NULL_HANDLE);
-	VkPipelineLayoutCreateInfo pipeline_layout_info = {};
-	pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipeline_layout_info.setLayoutCount = set_layouts_count;
-	pipeline_layout_info.pSetLayouts = set_layouts;
-	pipeline_layout_info.pushConstantRangeCount = pc_count;
-	pipeline_layout_info.pPushConstantRanges = pc;
-
-	VkPipelineLayout layout;
-	__kvfCheckVk(vkCreatePipelineLayout(device, &pipeline_layout_info, NULL, &layout));
-	return layout;
-}
-
-void kvfDestroyPipelineLayout(VkDevice device, VkPipelineLayout layout)
-{
-	if(layout == VK_NULL_HANDLE)
-		return;
-	KVF_ASSERT(device != VK_NULL_HANDLE);
-	vkDestroyPipelineLayout(device, layout, NULL);
-}
-
 VkDescriptorSet kvfAllocateDescriptorSet(VkDevice device, VkDescriptorSetLayout layout)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
@@ -1700,6 +1802,29 @@ VkDescriptorSet kvfAllocateDescriptorSet(VkDevice device, VkDescriptorSetLayout 
 	return set;
 }
 
+VkPipelineLayout kvfCreatePipelineLayout(VkDevice device, VkDescriptorSetLayout* set_layouts, size_t set_layouts_count, VkPushConstantRange* pc, size_t pc_count)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	VkPipelineLayoutCreateInfo pipeline_layout_info = {};
+	pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipeline_layout_info.setLayoutCount = set_layouts_count;
+	pipeline_layout_info.pSetLayouts = set_layouts;
+	pipeline_layout_info.pushConstantRangeCount = pc_count;
+	pipeline_layout_info.pPushConstantRanges = pc;
+
+	VkPipelineLayout layout;
+	__kvfCheckVk(vkCreatePipelineLayout(device, &pipeline_layout_info, NULL, &layout));
+	return layout;
+}
+
+void kvfDestroyPipelineLayout(VkDevice device, VkPipelineLayout layout)
+{
+	if(layout == VK_NULL_HANDLE)
+		return;
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	vkDestroyPipelineLayout(device, layout, NULL);
+}
+
 void kvfResetDeviceDescriptorPools(VkDevice device)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
@@ -1710,6 +1835,212 @@ void kvfResetDeviceDescriptorPools(VkDevice device)
 		vkResetDescriptorPool(device, kvf_device->sets_pools[i].pool, 0);
 		kvf_device->sets_pools[i].size = 0;
 	}
+}
+
+KvfGraphicsPipelineBuilder* kvfCreateGPipelineBuilder()
+{
+	KvfGraphicsPipelineBuilder* builder = (KvfGraphicsPipelineBuilder*)KVF_MALLOC(sizeof(KvfGraphicsPipelineBuilder));
+	kvfGPipelineBuilderReset(builder);
+	return builder;
+}
+
+void kvfDestroyGPipelineBuilder(KvfGraphicsPipelineBuilder* builder)
+{
+	KVF_ASSERT(builder != NULL);
+	KVF_FREE(builder->shader_stages);
+	if(builder->vertex_input_state.pVertexAttributeDescriptions != NULL)
+		KVF_FREE((VkVertexInputAttributeDescription*)builder->vertex_input_state.pVertexAttributeDescriptions);
+	if(builder->vertex_input_state.pVertexBindingDescriptions != NULL)
+		KVF_FREE((VkVertexInputBindingDescription*)builder->vertex_input_state.pVertexBindingDescriptions);
+	KVF_FREE(builder);
+}
+
+void kvfGPipelineBuilderReset(KvfGraphicsPipelineBuilder* builder)
+{
+	KVF_ASSERT(builder != NULL);
+	KVF_FREE(builder->shader_stages);
+	if(builder->vertex_input_state.pVertexAttributeDescriptions != NULL)
+		KVF_FREE((VkVertexInputAttributeDescription*)builder->vertex_input_state.pVertexAttributeDescriptions);
+	if(builder->vertex_input_state.pVertexBindingDescriptions != NULL)
+		KVF_FREE((VkVertexInputBindingDescription*)builder->vertex_input_state.pVertexBindingDescriptions);
+	memset(builder, 0, sizeof(KvfGraphicsPipelineBuilder));
+	builder->vertex_input_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	builder->input_assembly_state.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	builder->tessellation_state.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
+	builder->viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	builder->rasterization_state.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	builder->multisample_state.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	builder->depth_stencil_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	builder->dynamic_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+}
+
+void kvfGPipelineBuilderSetInputTopology(KvfGraphicsPipelineBuilder* builder, VkPrimitiveTopology topology)
+{
+	KVF_ASSERT(builder != NULL);
+	builder->input_assembly_state.topology = topology;
+	builder->input_assembly_state.primitiveRestartEnable = VK_FALSE;
+}
+
+void kvfGPipelineBuilderSetPolygonMode(KvfGraphicsPipelineBuilder* builder, VkPolygonMode polygon, float line_width)
+{
+	KVF_ASSERT(builder != NULL);
+	builder->rasterization_state.polygonMode = polygon;
+	builder->rasterization_state.lineWidth = line_width;
+}
+
+void kvfGPipelineBuilderSetCullMode(KvfGraphicsPipelineBuilder* builder, VkCullModeFlags cull, VkFrontFace face)
+{
+	KVF_ASSERT(builder != NULL);
+	builder->rasterization_state.cullMode = cull;
+	builder->rasterization_state.frontFace = face;
+}
+
+void kvfGPipelineBuilderDisableBlending(KvfGraphicsPipelineBuilder* builder)
+{
+	KVF_ASSERT(builder != NULL);
+	builder->color_blend_attachment_state.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	builder->color_blend_attachment_state.blendEnable = VK_FALSE;
+}
+
+void kvfGPipelineBuilderEnableAdditiveBlending(KvfGraphicsPipelineBuilder* builder)
+{
+	KVF_ASSERT(builder != NULL);
+	builder->color_blend_attachment_state.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	builder->color_blend_attachment_state.blendEnable = VK_TRUE;
+	builder->color_blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+	builder->color_blend_attachment_state.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+	builder->color_blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
+	builder->color_blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+	builder->color_blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+	builder->color_blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
+}
+
+void kvfGPipelineBuilderEnableAlphaBlending(KvfGraphicsPipelineBuilder* builder)
+{
+	KVF_ASSERT(builder != NULL);
+	builder->color_blend_attachment_state.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	builder->color_blend_attachment_state.blendEnable = VK_TRUE;
+	builder->color_blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+	builder->color_blend_attachment_state.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+	builder->color_blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
+	builder->color_blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+	builder->color_blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+	builder->color_blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
+}
+
+void kvfGPipelineBuilderEnableDepthTest(KvfGraphicsPipelineBuilder* builder, VkCompareOp op, bool write_enabled)
+{
+	KVF_ASSERT(builder != NULL);
+	builder->depth_stencil_state.depthTestEnable = VK_TRUE;
+	builder->depth_stencil_state.depthWriteEnable = write_enabled;
+	builder->depth_stencil_state.depthCompareOp = op;
+	builder->depth_stencil_state.depthBoundsTestEnable = VK_FALSE;
+	builder->depth_stencil_state.stencilTestEnable = VK_FALSE;
+	builder->depth_stencil_state.front = {};
+	builder->depth_stencil_state.back = {};
+	builder->depth_stencil_state.minDepthBounds = 0.f;
+	builder->depth_stencil_state.maxDepthBounds = 1.f;
+}
+
+void kvfGPipelineBuilderDisableDepthTest(KvfGraphicsPipelineBuilder* builder)
+{
+	KVF_ASSERT(builder != NULL);
+	builder->depth_stencil_state.depthTestEnable = VK_FALSE;
+	builder->depth_stencil_state.depthWriteEnable = VK_FALSE;
+	builder->depth_stencil_state.depthCompareOp = VK_COMPARE_OP_NEVER;
+	builder->depth_stencil_state.depthBoundsTestEnable = VK_FALSE;
+	builder->depth_stencil_state.stencilTestEnable = VK_FALSE;
+	builder->depth_stencil_state.front = {};
+	builder->depth_stencil_state.back = {};
+	builder->depth_stencil_state.minDepthBounds = 0.f;
+	builder->depth_stencil_state.maxDepthBounds = 1.f;
+}
+
+void kvfGPipelineBuilderSetVertexInputs(KvfGraphicsPipelineBuilder* builder, VkVertexInputBindingDescription binds, VkVertexInputAttributeDescription* attributes, size_t attributes_count)
+{
+	KVF_ASSERT(builder != NULL);
+	KVF_ASSERT(attributes != NULL);
+	VkVertexInputBindingDescription* binds_ptr = (VkVertexInputBindingDescription*)KVF_MALLOC(sizeof(VkVertexInputBindingDescription));
+	KVF_ASSERT(binds_ptr != NULL);
+	*binds_ptr = binds;
+	VkVertexInputAttributeDescription* attributes_descriptions = (VkVertexInputAttributeDescription*)KVF_MALLOC(sizeof(VkVertexInputAttributeDescription) * attributes_count);
+	KVF_ASSERT(attributes_descriptions != NULL);
+	memcpy(attributes_descriptions, attributes, sizeof(VkVertexInputAttributeDescription) * attributes_count);
+	builder->vertex_input_state.vertexBindingDescriptionCount = 1;
+	builder->vertex_input_state.pVertexBindingDescriptions = binds_ptr;
+	builder->vertex_input_state.vertexAttributeDescriptionCount = attributes_count;
+	builder->vertex_input_state.pVertexAttributeDescriptions = attributes_descriptions;
+}
+
+void kvfGPipelineBuilderAddShaderStage(KvfGraphicsPipelineBuilder* builder, VkShaderStageFlagBits stage, VkShaderModule module, const char* entry)
+{
+	KVF_ASSERT(builder != NULL);
+	builder->shader_stages = (VkPipelineShaderStageCreateInfo*)KVF_REALLOC(builder->shader_stages, sizeof(VkPipelineShaderStageCreateInfo) * (builder->shader_stages_count + 1));
+	KVF_ASSERT(builder->shader_stages != NULL);
+	char* entry_ptr = (char*)KVF_MALLOC(strlen(entry));
+	KVF_ASSERT(entry_ptr != NULL);
+	strcpy(entry_ptr, entry);
+	builder->shader_stages[builder->shader_stages_count].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	builder->shader_stages[builder->shader_stages_count].stage = stage;
+	builder->shader_stages[builder->shader_stages_count].module = module;
+	builder->shader_stages[builder->shader_stages_count].pName = entry_ptr;
+	builder->shader_stages_count++;
+}
+
+void kvfGPipelineBuilderResetShaderStages(KvfGraphicsPipelineBuilder* builder)
+{
+	KVF_ASSERT(builder != NULL);
+	if(builder->shader_stages == NULL)
+		return;
+
+	for(size_t i = 0; builder->shader_stages_count; i++)
+		KVF_FREE((char*)builder->shader_stages[i].pName);
+	KVF_FREE(builder->shader_stages);
+	builder->shader_stages_count = 0;
+}
+
+VkPipeline kvfCreateGraphicsPipeline(VkDevice device, VkPipelineLayout layout, KvfGraphicsPipelineBuilder* builder, VkRenderPass pass)
+{
+	KVF_ASSERT(builder != NULL);
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+
+	VkPipelineColorBlendStateCreateInfo color_blending = {};
+	color_blending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	color_blending.logicOpEnable = VK_FALSE;
+	color_blending.logicOp = VK_LOGIC_OP_COPY;
+	color_blending.attachmentCount = 1;
+	color_blending.pAttachments = &builder->color_blend_attachment_state;
+	color_blending.blendConstants[0] = 0.0f;
+	color_blending.blendConstants[1] = 0.0f;
+	color_blending.blendConstants[2] = 0.0f;
+	color_blending.blendConstants[3] = 0.0f;
+
+	VkGraphicsPipelineCreateInfo pipeline_info = {};
+	pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	pipeline_info.stageCount = builder->shader_stages_count;
+	pipeline_info.pStages = builder->shader_stages;
+	pipeline_info.pVertexInputState = &builder->vertex_input_state;
+	pipeline_info.pInputAssemblyState = &builder->input_assembly_state;
+	pipeline_info.pViewportState = &builder->viewport_state;
+	pipeline_info.pRasterizationState = &builder->rasterization_state;
+	pipeline_info.pMultisampleState = &builder->multisample_state;
+	pipeline_info.pColorBlendState = &color_blending;
+	pipeline_info.pDynamicState = &builder->dynamic_state;
+	pipeline_info.layout = layout;
+	pipeline_info.renderPass = pass;
+	pipeline_info.subpass = 0;
+	pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
+	pipeline_info.pDepthStencilState = &builder->depth_stencil_state;
+
+	VkPipeline pipeline;
+	__kvfCheckVk(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipeline_info, NULL, &pipeline));
+	return pipeline;
+}
+
+void kvfDestroyPipeline(VkDevice device, VkPipeline pipeline)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	vkDestroyPipeline(device, pipeline, NULL);
 }
 
 #endif // KVF_IMPLEMENTATION

@@ -2,6 +2,8 @@
 #define __SCOP_RENDER_CORE__
 
 #include <kvf.h>
+#include <memory>
+#include <array>
 #include <Utils/Singleton.h>
 
 namespace Scop

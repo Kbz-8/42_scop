@@ -41,7 +41,7 @@ namespace Scop
 
 		std::size_t i = 0;
 		std::vector<VkPushConstantRange> push_constants(layout.push_constants.size());
-		m_pipeline_layout_part.push_constants.resize(layout.push_constants.size())
+		m_pipeline_layout_part.push_constants.resize(layout.push_constants.size());
 		for(auto& pc : layout.push_constants)
 		{
 			VkPushConstantRange push_constant_range = {};
@@ -67,7 +67,6 @@ namespace Scop
 	Shader::~Shader()
 	{
 		kvfDestroyShaderModule(RenderCore::Get().GetDevice(), m_module);
-		kvfDestroyPipelineLayout(RenderCore::Get().GetDevice(), m_pipeline_layout);
 		for(auto& layout : m_set_layouts)
 			kvfDestroyDescriptorSetLayout(RenderCore::Get().GetDevice(), layout);
 	}

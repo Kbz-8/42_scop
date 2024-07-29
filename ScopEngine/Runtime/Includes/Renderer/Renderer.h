@@ -10,7 +10,6 @@
 
 #include <array>
 #include <vector>
-#include <memory>
 
 #include <Core/EventBus.h>
 
@@ -21,7 +20,6 @@ namespace Scop
 		std::uint32_t What() const override { return 24; }
 	};
 
-	// Ugly fat god class but I don't care
 	class Renderer
 	{
 		public:
@@ -38,6 +36,7 @@ namespace Scop
 			inline VkSemaphore GetRenderFinishedSemaphore(int index) const noexcept { return m_render_finished_semaphores[index]; }
 			inline VkCommandBuffer GetCommandBuffer(int index) const noexcept { return m_cmd_buffers[index]; }
 			inline VkCommandBuffer GetActiveCommandBuffer() const noexcept { return m_cmd_buffers[m_current_frame_index]; }
+			inline const std::vector<Image>& GetSwapchainImages() const { return m_swapchain_images; }
 
 			constexpr inline void RequireFramebufferResize() noexcept { m_framebuffers_resize = true; }
 

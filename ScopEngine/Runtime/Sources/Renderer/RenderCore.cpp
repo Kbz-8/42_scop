@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 
+#include <Core/Engine.h>
 #include <Renderer/RenderCore.h>
 #include <Renderer/Pipelines/Shader.h>
 #include <Core/Logs.h>

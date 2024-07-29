@@ -6,7 +6,7 @@
 /*   By: maldavid <kbz_8.dev@akel-engine.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 20:24:11 by maldavid          #+#    #+#             */
-/*   Updated: 2024/07/14 02:26:23 by maldavid         ###   ########.fr       */
+/*   Updated: 2024/07/28 14:47:16 by maldavid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,8 +133,6 @@ namespace Scop
 	{
 		auto& render_core = RenderCore::Get();
 		vkDeviceWaitIdle(render_core.GetDevice());
-
-		m_internal_shaders.clear();
 
 		for(std::size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 		{

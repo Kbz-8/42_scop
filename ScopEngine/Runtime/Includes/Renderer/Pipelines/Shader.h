@@ -55,6 +55,7 @@ namespace Scop
 			inline const ShaderPipelineLayoutPart& GetPipelineLayout() const noexcept { return m_pipeline_layout_part; }
 			inline VkDescriptorSet GetDescriptorSet(std::size_t n) const { return m_sets.at(n); }
 			inline VkShaderModule GetShaderModule() const noexcept { return m_module; }
+			inline VkShaderStageFlagBits GetShaderStage() const noexcept { return m_stage; }
 
 			void LoadDescriptorSets() noexcept;
 
