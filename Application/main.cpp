@@ -1,9 +1,10 @@
 #include <filesystem>
 
 #include <Core/Engine.h>
-#include <Core/Logs.h>
+#include <Core/NativeScript.h>
 
 #include <climits>
+#include <memory>
 #include <unistd.h>
 
 std::filesystem::path GetExecutablePath()
@@ -26,7 +27,15 @@ int main(int ac, char** av)
 	main_scene_desc.fragment_shader = Scop::RenderCore::Get().GetDefaultFragmentShader();
 
 	Scop::Scene main_scene("main", main_scene_desc);
-	main_scene.CreateActor(Scop::LoadModelFromObjFile(av[ac - 1]));
+	Scop::Actor& object = main_scene.CreateActor(Scop::LoadModelFromObjFile(av[ac - 1]));
+
+	auto object_update = [](Scop::NonOwningPtr<Scop::Actor> actor, float delta)
+	{
+		std::cout << "caca " << delta << std::endl;
+	};
+
+	using hook = std::function<void(Scop::NonOwningPtr<Scop::Actor>)>;
+	object.AttachScript(std::make_shared<Scop::NativeScript>(hook{}, object_update, hook{}));
 
 	engine.RegisterMainScene(main_scene);
 	engine.Run();

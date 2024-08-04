@@ -6,7 +6,7 @@
 /*   By: maldavid <kbz_8.dev@akel-engine.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 20:24:11 by maldavid          #+#    #+#             */
-/*   Updated: 2024/07/28 14:47:16 by maldavid         ###   ########.fr       */
+/*   Updated: 2024/08/04 22:27:48 by maldavid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,6 @@ namespace Scop
 		Message("Vulkan : surface created");
 
 		CreateSwapchain();
-
-		std::vector<VkAttachmentDescription> attachements;
 
 		for(std::size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 		{

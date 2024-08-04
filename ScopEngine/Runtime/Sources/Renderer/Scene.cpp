@@ -5,25 +5,34 @@
 namespace Scop
 {
 	Scene::Scene(std::string_view name, SceneDescriptor desc)
-	: m_name(name), m_fragment_shader(desc.fragment_shader)
+	: m_name(name), m_fragment_shader(desc.fragment_shader), p_parent(nullptr)
 	{
 	}
 
-	Actor Scene::CreateActor(Model model) noexcept
+	Scene::Scene(std::string_view name, SceneDescriptor desc, NonOwningPtr<Scene> parent)
+	: m_name(name), m_fragment_shader(desc.fragment_shader), p_parent(parent)
 	{
-		Actor actor(model);
-		return actor;
 	}
 
-	Actor Scene::CreateActor(std::string_view name, Model model)
+	Actor& Scene::CreateActor(Model model) noexcept
 	{
-		Actor actor(model);
-		return actor;
+		return m_actors.emplace_back(std::move(model));
+	}
+
+	Actor& Scene::CreateActor(std::string_view name, Model model)
+	{
+		return m_actors.emplace_back(std::move(model));
 	}
 
 	void Scene::Init(NonOwningPtr<Renderer> renderer)
 	{
 		m_pipeline.Init(RenderCore::Get().GetDefaultVertexShader(), m_fragment_shader, renderer);
+	}
+
+	void Scene::Update(float timestep)
+	{
+		for(auto& actor : m_actors)
+			actor.Update(timestep);
 	}
 
 	void Scene::Destroy()

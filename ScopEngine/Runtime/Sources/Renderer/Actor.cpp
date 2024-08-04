@@ -2,9 +2,27 @@
 
 namespace Scop
 {
-	Actor::Actor() {}
+	Actor::Actor()
+	{
+		if(p_script)
+			p_script->OnInit(this);
+	}
 
-	Actor::Actor(Model model) {}
+	Actor::Actor(Model model)
+	{
+		if(p_script)
+			p_script->OnInit(this);
+	}
 
-	Actor::~Actor() {}
+	void Actor::Update(float delta)
+	{
+		if(p_script)
+			p_script->OnUpdate(this, delta);
+	}
+
+	Actor::~Actor()
+	{
+		if(p_script)
+			p_script->OnQuit(this);
+	}
 }

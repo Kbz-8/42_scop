@@ -49,6 +49,7 @@ namespace Scop
 		m_depth.Init(attachments.back().GetWidth(), attachments.back().GetHeight());
 
 		TransitionAttachments();
+		attachments.push_back(m_depth);
 		CreateFramebuffers(attachments);
 
 		p_builder = kvfCreateGPipelineBuilder();
@@ -110,17 +111,22 @@ namespace Scop
 
 	void GraphicPipeline::CreateFramebuffers(const std::vector<Image>& render_targets)
 	{
+		bool swapchain_image_found = false;
 		std::vector<VkAttachmentDescription> attachments;
+		std::vector<VkImageView> attachment_views;
 		for(const auto& image : render_targets)
+		{
+			if(image.GetLayout() == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR && swapchain_image_found)
+				continue;
+			else if(image.GetLayout() == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+				swapchain_image_found = true;
 			attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image.GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image.GetFormat(), image.GetLayout(), image.GetLayout(), true));
+			attachment_views.push_back(image.GetImageView());
+		}
 		m_renderpass = kvfCreateRenderPass(RenderCore::Get().GetDevice(), attachments.data(), attachments.size(), GetPipelineBindPoint());
 
 		for(const auto& image : render_targets)
-		{
-			if(kvfIsDepthFormat(image.GetFormat()))
-				continue;
-			m_framebuffers.push_back(kvfCreateFramebuffer(RenderCore::Get().GetDevice(), m_renderpass, image.GetImageView(), { .width = image.GetWidth(), .height = image.GetHeight() }));
-		}
+			m_framebuffers.push_back(kvfCreateFramebuffer(RenderCore::Get().GetDevice(), m_renderpass, attachment_views.data(), attachment_views.size(), { .width = image.GetWidth(), .height = image.GetHeight() }));
 	}
 
 	void GraphicPipeline::TransitionAttachments()

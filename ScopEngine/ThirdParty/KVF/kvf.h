@@ -113,13 +113,13 @@ uint32_t kvfGetSwapchainImagesCount(VkSwapchainKHR swapchain);
 VkExtent2D kvfGetSwapchainImagesSize(VkSwapchainKHR swapchain);
 void kvfDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain);
 
-VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkDeviceMemory memory);
+VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage);
 void kvfDestroyImage(VkDevice device, VkImage image);
 VkImageView kvfCreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageViewType type, VkImageAspectFlags aspect);
 void kvfDestroyImageView(VkDevice device, VkImageView image_view);
 void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cmd, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, bool is_single_time_cmd_buffer);
 
-VkFramebuffer kvfCreateFramebuffer(VkDevice device, VkRenderPass renderpass, VkImageView image_view, VkExtent2D extent);
+VkFramebuffer kvfCreateFramebuffer(VkDevice device, VkRenderPass renderpass, VkImageView* image_views, size_t image_views_count, VkExtent2D extent);
 VkExtent2D kvfGetFramebufferSize(VkFramebuffer buffer);
 void kvfDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer);
 
@@ -1378,7 +1378,7 @@ void kvfDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain)
 	__kvfDestroySwapchain(device, swapchain);
 }
 
-VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkDeviceMemory memory)
+VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 	VkImageCreateInfo image_info = {};
@@ -1397,7 +1397,6 @@ VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkForma
 	image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	VkImage image;
 	__kvfCheckVk(vkCreateImage(device, &image_info, NULL, &image));
-	__kvfCheckVk(vkBindImageMemory(device, image, memory, 0));
 	return image;
 }
 
@@ -1492,14 +1491,16 @@ void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cm
 	}
 }
 
-VkFramebuffer kvfCreateFramebuffer(VkDevice device, VkRenderPass render_pass, VkImageView image_view, VkExtent2D extent)
+VkFramebuffer kvfCreateFramebuffer(VkDevice device, VkRenderPass render_pass, VkImageView* image_views, size_t image_views_count, VkExtent2D extent)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
+	KVF_ASSERT(image_views != NULL);
+
 	VkFramebufferCreateInfo framebuffer_info = {};
 	framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 	framebuffer_info.renderPass = render_pass;
-	framebuffer_info.attachmentCount = 1;
-	framebuffer_info.pAttachments = &image_view;
+	framebuffer_info.attachmentCount = image_views_count;
+	framebuffer_info.pAttachments = image_views;
 	framebuffer_info.width = extent.width;
 	framebuffer_info.height = extent.height;
 	framebuffer_info.layers = 1;
@@ -1671,11 +1672,13 @@ VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attac
 	}
 
 	VkAttachmentReference* color_references = (VkAttachmentReference*)KVF_MALLOC(color_attachment_count * sizeof(VkAttachmentReference));
+	KVF_ASSERT(color_references != NULL);
 	VkAttachmentReference* depth_references = (VkAttachmentReference*)KVF_MALLOC(depth_attachment_count * sizeof(VkAttachmentReference));
+	KVF_ASSERT(depth_references != NULL);
 
 	for(size_t i = 0, c = 0, d = 0; i < attachments_count; i++)
 	{
-		if(kvfIsDepthFormat(attachments[i].format))
+		if(!kvfIsDepthFormat(attachments[i].format))
 		{
 			VkImageLayout layout = attachments[i].finalLayout;
 			color_references[c].attachment = i;
@@ -1840,6 +1843,7 @@ void kvfResetDeviceDescriptorPools(VkDevice device)
 KvfGraphicsPipelineBuilder* kvfCreateGPipelineBuilder()
 {
 	KvfGraphicsPipelineBuilder* builder = (KvfGraphicsPipelineBuilder*)KVF_MALLOC(sizeof(KvfGraphicsPipelineBuilder));
+	memset(builder, 0, sizeof(KvfGraphicsPipelineBuilder));
 	kvfGPipelineBuilderReset(builder);
 	return builder;
 }

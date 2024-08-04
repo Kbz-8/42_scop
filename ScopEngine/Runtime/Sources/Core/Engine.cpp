@@ -43,7 +43,7 @@ namespace Scop
 		signal(SIGINT, SignalHandler);
 
 		if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0)
-			FatalError("SDL error : unable to init all subsystems : %s", SDL_GetError());
+			FatalError("SDL error : unable to init all subsystems : %", SDL_GetError());
 		RenderCore::Get().Init();
 		m_renderer.Init(&m_window);
 	}
@@ -56,10 +56,16 @@ namespace Scop
 
 	void ScopEngine::Run()
 	{
-		m_main_scene.Init(&m_renderer);
+		Verify(p_current_scene, "no main scene registered");
+		float old_timestep = static_cast<float>(SDL_GetTicks64()) / 1000.0f;
+		p_current_scene->Init(&m_renderer);
 		while(m_running)
 		{
+			float current_timestep = (static_cast<float>(SDL_GetTicks64()) / 1000.0f) - old_timestep;
+			old_timestep = static_cast<float>(SDL_GetTicks64()) / 1000.0f;
+
 			m_inputs.Update();
+			p_current_scene->Update(current_timestep);
 
 			if(m_renderer.BeginFrame())
 			{

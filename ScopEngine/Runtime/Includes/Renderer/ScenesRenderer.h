@@ -1,5 +1,5 @@
-#ifndef __SCOP_SCENE_RENDERER__
-#define __SCOP_SCENE_RENDERER__
+#ifndef __SCOP_SCENES_RENDERER__
+#define __SCOP_SCENES_RENDERER__
 
 namespace Scop
 {

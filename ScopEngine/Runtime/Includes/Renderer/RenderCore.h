@@ -2,8 +2,11 @@
 #define __SCOP_RENDER_CORE__
 
 #include <kvf.h>
-#include <memory>
 #include <array>
+#include <memory>
+#include <cstdint>
+#include <optional>
+
 #include <Utils/Singleton.h>
 
 namespace Scop
@@ -13,6 +16,8 @@ namespace Scop
 	constexpr const int DEFAULT_VERTEX_SHADER_ID = 0;
 	constexpr const int DEFAULT_FRAGMENT_SHADER_ID = 1;
 	constexpr const int BASIC_FRAGMENT_SHADER_ID = 2;
+
+	std::optional<std::uint32_t> FindMemoryType(std::uint32_t type_filter, VkMemoryPropertyFlags properties, bool error);
 
 	class RenderCore : public Singleton<RenderCore>
 	{

@@ -17,6 +17,21 @@
 
 namespace Scop
 {
+	std::optional<std::uint32_t> FindMemoryType(std::uint32_t type_filter, VkMemoryPropertyFlags properties, bool error)
+	{
+		VkPhysicalDeviceMemoryProperties mem_properties;
+		vkGetPhysicalDeviceMemoryProperties(RenderCore::Get().GetPhysicalDevice(), &mem_properties);
+
+		for(std::uint32_t i = 0; i < mem_properties.memoryTypeCount; i++)
+		{
+			if((type_filter & (1 << i)) && (mem_properties.memoryTypes[i].propertyFlags & properties) == properties)
+				return i;
+		}
+		if(error)
+			FatalError("Vulkan : failed to find suitable memory type");
+		return std::nullopt;
+	}
+
 	void ErrorCallback(const char* message) noexcept
 	{
 		FatalError(message);
