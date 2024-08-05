@@ -1,8 +1,8 @@
 SRCS =  $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Core))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Platform))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer))
-SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer/Pipelines))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer/Vulkan))
+SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer/Pipelines))
 
 BIN_DIR = Bin
 OBJ_DIR = Objects

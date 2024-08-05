@@ -7,6 +7,7 @@
 #include <Core/Engine.h>
 #include <Renderer/RenderCore.h>
 #include <Renderer/Pipelines/Shader.h>
+#include <Renderer/Vulkan/VulkanLoader.h>
 #include <Core/Logs.h>
 
 #define KVF_IMPLEMENTATION
@@ -17,6 +18,8 @@
 
 namespace Scop
 {
+	static VulkanLoader loader;
+
 	std::optional<std::uint32_t> FindMemoryType(std::uint32_t type_filter, VkMemoryPropertyFlags properties, bool error)
 	{
 		VkPhysicalDeviceMemoryProperties mem_properties;
@@ -71,7 +74,7 @@ namespace Scop
 		m_instance = kvfCreateInstance(extensions.data(), extensions.size());
 		Message("Vulkan : instance created");
 
-		m_loader.LoadInstance(m_instance);
+		loader.LoadInstance(m_instance);
 
 		VkSurfaceKHR surface = VK_NULL_HANDLE;
 		SDL_Vulkan_CreateSurface(win, m_instance, &surface);
