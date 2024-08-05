@@ -71,6 +71,8 @@ namespace Scop
 		m_instance = kvfCreateInstance(extensions.data(), extensions.size());
 		Message("Vulkan : instance created");
 
+		m_loader.LoadInstance(m_instance);
+
 		VkSurfaceKHR surface = VK_NULL_HANDLE;
 		SDL_Vulkan_CreateSurface(win, m_instance, &surface);
 

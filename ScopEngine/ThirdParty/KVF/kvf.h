@@ -288,7 +288,7 @@ size_t __kvf_internal_framebuffers_size = 0;
 size_t __kvf_internal_framebuffers_capacity = 0;
 
 #ifdef KVF_ENABLE_VALIDATION_LAYERS
-	VkDebugUtilsMessengerEXT __kvf_debug_messenger;
+	VkDebugUtilsMessengerEXT __kvf_debug_messenger = VK_NULL_HANDLE;
 #endif
 
 KvfErrorCallback __kvf_error_callback = NULL;
@@ -900,53 +900,100 @@ const char* kvfVerbaliseVkResult(VkResult result)
 		return VK_FALSE;
 	}
 
-	void __kvfPopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* createInfo)
+	void __kvfPopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* create_info)
 	{
-		createInfo->sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-		createInfo->messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-		createInfo->messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-		createInfo->pfnUserCallback = __kvfDebugCallback;
+		create_info->sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+		create_info->messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		create_info->messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		create_info->pfnUserCallback = __kvfDebugCallback;
+	}
+
+	VkResult __kvfCreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* create_info, VkDebugUtilsMessengerEXT* messenger)
+	{
+		PFN_vkCreateDebugUtilsMessengerEXT func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+		return func ? func(instance, create_info, NULL, messenger) : VK_ERROR_EXTENSION_NOT_PRESENT;
+	}
+
+	void __kvfInitValidationLayers(VkInstance instance)
+	{
+		uint32_t extension_count;
+		vkEnumerateInstanceExtensionProperties(NULL, &extension_count, NULL);
+		VkExtensionProperties* extensions = (VkExtensionProperties*)KVF_MALLOC(extension_count * sizeof(VkExtensionProperties));
+		vkEnumerateInstanceExtensionProperties(NULL, &extension_count, extensions);
+		bool extension_found = false;
+		for(uint32_t i = 0; i < extension_count; i++)
+		{
+			if(strcmp(extensions[i].extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0)
+			{
+				extension_found = true;
+				break;
+			}
+		}
+		if(!extension_found)
+		{
+			if(__kvf_validation_warning_callback != NULL)
+			{
+				char buffer[1024];
+				snprintf(buffer, 1024, "KVF Vulkan warning: %s is not present; cannot enable validation layers", VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+				__kvf_validation_warning_callback(buffer);
+				return;
+			}
+			printf("KVF Vulkan warning: %s is not present; cannot enable validation layers", VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+			KVF_FREE(extensions);
+			return;
+		}
+		VkDebugUtilsMessengerCreateInfoEXT create_info = {};
+		__kvfPopulateDebugMessengerCreateInfo(&create_info);
+		__kvfCheckVk(__kvfCreateDebugUtilsMessengerEXT(instance, &create_info, &__kvf_debug_messenger));
+	}
+
+	void __kvfDestroyDebugUtilsMessengerEXT(VkInstance instance)
+	{
+		PFN_vkDestroyDebugUtilsMessengerEXT func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+		if(func)
+			func(instance, __kvf_debug_messenger, NULL);
 	}
 #endif // KVF_ENABLE_VALIDATION_LAYERS
 
-VkInstance kvfCreateInstance(const char** extensionsEnabled, uint32_t extensionsCount)
+VkInstance kvfCreateInstance(const char** extensions_enabled, uint32_t extensions_count)
 {
-	VkInstance vk_instance = VK_NULL_HANDLE;
+	VkInstance instance = VK_NULL_HANDLE;
 
-	VkInstanceCreateInfo createInfo;
-	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	createInfo.pApplicationInfo = NULL;
-	createInfo.flags = 0;
-	createInfo.enabledExtensionCount = extensionsCount;
-	createInfo.ppEnabledExtensionNames = extensionsEnabled;
-	createInfo.enabledLayerCount = 0;
-	createInfo.ppEnabledLayerNames = NULL;
-	createInfo.pNext = NULL;
+	VkInstanceCreateInfo create_info = {};
+	create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	create_info.pApplicationInfo = NULL;
+	create_info.flags = 0;
+	create_info.enabledExtensionCount = extensions_count;
+	create_info.ppEnabledExtensionNames = extensions_enabled;
+	create_info.enabledLayerCount = 0;
+	create_info.ppEnabledLayerNames = NULL;
+	create_info.pNext = NULL;
 
 #ifdef KVF_ENABLE_VALIDATION_LAYERS
 	const char** new_extension_set = NULL;
 	if(__kvfCheckValidationLayerSupport())
 	{
 		const char* layers[] = { "VK_LAYER_KHRONOS_validation" };
-		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
-		__kvfPopulateDebugMessengerCreateInfo(&debugCreateInfo);
-		new_extension_set = (const char**)KVF_MALLOC(sizeof(char*) * (extensionsCount + 1));
-		memcpy(new_extension_set, extensionsEnabled, sizeof(char*) * extensionsCount);
-		new_extension_set[extensionsCount] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+		VkDebugUtilsMessengerCreateInfoEXT debug_create_info = {};
+		__kvfPopulateDebugMessengerCreateInfo(&debug_create_info);
+		new_extension_set = (const char**)KVF_MALLOC(sizeof(char*) * (extensions_count + 1));
+		memcpy(new_extension_set, extensions_enabled, sizeof(char*) * extensions_count);
+		new_extension_set[extensions_count] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
 
-		createInfo.enabledExtensionCount = extensionsCount + 1;
-		createInfo.ppEnabledExtensionNames = new_extension_set;
-		createInfo.enabledLayerCount = 1;
-		createInfo.ppEnabledLayerNames = layers;
-		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
+		create_info.enabledExtensionCount = extensions_count + 1;
+		create_info.ppEnabledExtensionNames = new_extension_set;
+		create_info.enabledLayerCount = 1;
+		create_info.ppEnabledLayerNames = layers;
+		create_info.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debug_create_info;
 	}
 #endif
 
-	__kvfCheckVk(vkCreateInstance(&createInfo, NULL, &vk_instance));
+	__kvfCheckVk(vkCreateInstance(&create_info, NULL, &instance));
 #ifdef KVF_ENABLE_VALIDATION_LAYERS
 	KVF_FREE(new_extension_set);
+	__kvfInitValidationLayers(instance);
 #endif
-	return vk_instance;
+	return instance;
 }
 
 void kvfDestroyInstance(VkInstance instance)
@@ -954,9 +1001,7 @@ void kvfDestroyInstance(VkInstance instance)
 	if(instance == VK_NULL_HANDLE)
 		return;
 #ifdef KVF_ENABLE_VALIDATION_LAYERS
-	PFN_vkDestroyDebugUtilsMessengerEXT func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-	if(func)
-		func(instance, __kvf_debug_messenger, NULL);
+	__kvfDestroyDebugUtilsMessengerEXT(instance);
 #endif
 	vkDestroyInstance(instance, NULL);
 }

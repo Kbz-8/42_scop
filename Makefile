@@ -9,9 +9,9 @@ RES_DIR = Resources
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 
 CXX = clang++
-CXXFLAGS = -std=c++17 -I ScopEngine/Runtime/Includes -I Application -I ScopEngine/ThirdParty/KVF
+CXXFLAGS = -std=c++17 -I ScopEngine/Runtime/Includes -I Application -I ScopEngine/ThirdParty/KVF -D KVF_IMPL_VK_NO_PROTOTYPES
 
-LDFLAGS = -lvulkan -lSDL2 ScopEngine/Bin/engine.a
+LDFLAGS = -lSDL2 ScopEngine/Bin/engine.a
 
 DEBUG ?= false
 MODE = "release"

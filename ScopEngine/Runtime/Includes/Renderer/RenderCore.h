@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <optional>
 
+#include <Renderer/Vulkan/VulkanLoader.h>
+
 #include <Utils/Singleton.h>
 
 namespace Scop
@@ -44,6 +46,7 @@ namespace Scop
 			VkInstance m_instance = VK_NULL_HANDLE;
 			VkDevice m_device = VK_NULL_HANDLE;
 			VkPhysicalDevice m_physical_device = VK_NULL_HANDLE;
+			VulkanLoader m_loader;
 	};
 }
 

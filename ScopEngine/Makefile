@@ -2,6 +2,7 @@ SRCS =  $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Core))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Platform))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer/Pipelines))
+SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer/Vulkan))
 
 BIN_DIR = Bin
 OBJ_DIR = Objects
@@ -9,11 +10,11 @@ OBJ_DIR = Objects
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 
 CXX = clang++
-CXXFLAGS = -std=c++17 -I Runtime/Includes -I ThirdParty/KVF
+CXXFLAGS = -std=c++17 -I Runtime/Includes -I Runtime/Sources -I ThirdParty/KVF -D KVF_IMPL_VK_NO_PROTOTYPES
 
 AR = ar rc
 
-LDFLAGS = -lvulkan -lSDL2
+LDFLAGS = -lSDL2
 
 SHARED ?= false
 DEBUG ?= false
