@@ -265,12 +265,9 @@ struct KvfGraphicsPipelineBuilder
 	VkPipelineVertexInputStateCreateInfo vertex_input_state;
 	VkPipelineInputAssemblyStateCreateInfo input_assembly_state;
 	VkPipelineTessellationStateCreateInfo tessellation_state;
-	VkPipelineViewportStateCreateInfo viewport_state;
 	VkPipelineRasterizationStateCreateInfo rasterization_state;
-	VkPipelineMultisampleStateCreateInfo multisample_state;
 	VkPipelineDepthStencilStateCreateInfo depth_stencil_state;
 	VkPipelineColorBlendAttachmentState color_blend_attachment_state;
-	VkPipelineDynamicStateCreateInfo dynamic_state;
 	size_t shader_stages_count;
 };
 
@@ -1916,11 +1913,8 @@ void kvfGPipelineBuilderReset(KvfGraphicsPipelineBuilder* builder)
 	builder->vertex_input_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	builder->input_assembly_state.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 	builder->tessellation_state.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
-	builder->viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	builder->rasterization_state.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-	builder->multisample_state.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 	builder->depth_stencil_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-	builder->dynamic_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 }
 
 void kvfGPipelineBuilderSetInputTopology(KvfGraphicsPipelineBuilder* builder, VkPrimitiveTopology topology)
@@ -2026,6 +2020,7 @@ void kvfGPipelineBuilderAddShaderStage(KvfGraphicsPipelineBuilder* builder, VkSh
 	KVF_ASSERT(builder != NULL);
 	builder->shader_stages = (VkPipelineShaderStageCreateInfo*)KVF_REALLOC(builder->shader_stages, sizeof(VkPipelineShaderStageCreateInfo) * (builder->shader_stages_count + 1));
 	KVF_ASSERT(builder->shader_stages != NULL);
+	memset(&builder->shader_stages[builder->shader_stages_count], 0, sizeof(VkPipelineShaderStageCreateInfo));
 	char* entry_ptr = (char*)KVF_MALLOC(strlen(entry));
 	KVF_ASSERT(entry_ptr != NULL);
 	strcpy(entry_ptr, entry);
@@ -2064,17 +2059,36 @@ VkPipeline kvfCreateGraphicsPipeline(VkDevice device, VkPipelineLayout layout, K
 	color_blending.blendConstants[2] = 0.0f;
 	color_blending.blendConstants[3] = 0.0f;
 
+	VkDynamicState states[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+
+	VkPipelineDynamicStateCreateInfo dynamic_states = {};
+	dynamic_states.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dynamic_states.dynamicStateCount = sizeof(states) / sizeof(VkDynamicState);
+	dynamic_states.pDynamicStates = states;
+
+	VkPipelineViewportStateCreateInfo viewport_state = {};
+	viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	viewport_state.viewportCount = 1;
+	viewport_state.pViewports = NULL;
+	viewport_state.scissorCount = 1;
+	viewport_state.pScissors = NULL;
+
+	VkPipelineMultisampleStateCreateInfo multisampling{};
+	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	multisampling.sampleShadingEnable = VK_FALSE;
+	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
 	VkGraphicsPipelineCreateInfo pipeline_info = {};
 	pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipeline_info.stageCount = builder->shader_stages_count;
 	pipeline_info.pStages = builder->shader_stages;
 	pipeline_info.pVertexInputState = &builder->vertex_input_state;
 	pipeline_info.pInputAssemblyState = &builder->input_assembly_state;
-	pipeline_info.pViewportState = &builder->viewport_state;
+	pipeline_info.pViewportState = &viewport_state;
 	pipeline_info.pRasterizationState = &builder->rasterization_state;
-	pipeline_info.pMultisampleState = &builder->multisample_state;
+	pipeline_info.pMultisampleState = &multisampling;
 	pipeline_info.pColorBlendState = &color_blending;
-	pipeline_info.pDynamicState = &builder->dynamic_state;
+	pipeline_info.pDynamicState = &dynamic_states;
 	pipeline_info.layout = layout;
 	pipeline_info.renderPass = pass;
 	pipeline_info.subpass = 0;

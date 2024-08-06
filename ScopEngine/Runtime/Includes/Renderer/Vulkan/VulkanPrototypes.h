@@ -151,7 +151,7 @@
 	extern PFN_vkUnmapMemory vkUnmapMemory;
 	extern PFN_vkUpdateDescriptorSets vkUpdateDescriptorSets;
 	extern PFN_vkWaitForFences vkWaitForFences;
-#endif
+#endif /* defined(VK_VERSION_1_0) */
 #if defined(VK_KHR_swapchain)
 	extern PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR;
 	extern PFN_vkCreateSwapchainKHR vkCreateSwapchainKHR;

@@ -37,6 +37,7 @@ namespace Scop
 
 	void Scene::Destroy()
 	{
+		m_fragment_shader.reset();
 		m_pipeline.Destroy();
 	}
 }

@@ -66,6 +66,7 @@ namespace Scop
 		kvfGPipelineBuilderSetVertexInputs(p_builder, binding_description, attributes_description.data(), attributes_description.size());
 
 		m_pipeline = kvfCreateGraphicsPipeline(RenderCore::Get().GetDevice(), m_pipeline_layout, p_builder, m_renderpass);
+		Message("Vulkan : graphics pipeline created");
 	}
 
 	bool GraphicPipeline::BindPipeline(VkCommandBuffer command_buffer, std::size_t framebuffer_index) noexcept
@@ -98,15 +99,22 @@ namespace Scop
 
 	void GraphicPipeline::Destroy() noexcept
 	{
+		m_depth.Destroy();
 		p_vertex_shader.reset();
 		p_fragment_shader.reset();
 		kvfDestroyGPipelineBuilder(p_builder);
 		for(auto& fb : m_framebuffers)
+		{
 			kvfDestroyFramebuffer(RenderCore::Get().GetDevice(), fb);
+			Message("Vulkan : framebuffer destroyed");
+		}
 		m_framebuffers.clear();
 		kvfDestroyPipelineLayout(RenderCore::Get().GetDevice(), m_pipeline_layout);
+		Message("Vulkan : graphics pipeline layout destroyed");
 		kvfDestroyRenderPass(RenderCore::Get().GetDevice(), m_renderpass);
+		Message("Vulkan : renderpass destroyed");
 		kvfDestroyPipeline(RenderCore::Get().GetDevice(), m_pipeline);
+		Message("Vulkan : graphics pipeline destroyed");
 	}
 
 	void GraphicPipeline::CreateFramebuffers(const std::vector<Image>& render_targets)
@@ -124,9 +132,13 @@ namespace Scop
 			attachment_views.push_back(image.GetImageView());
 		}
 		m_renderpass = kvfCreateRenderPass(RenderCore::Get().GetDevice(), attachments.data(), attachments.size(), GetPipelineBindPoint());
+		Message("Vulkan : renderpass created");
 
 		for(const auto& image : render_targets)
+		{
 			m_framebuffers.push_back(kvfCreateFramebuffer(RenderCore::Get().GetDevice(), m_renderpass, attachment_views.data(), attachment_views.size(), { .width = image.GetWidth(), .height = image.GetHeight() }));
+			Message("Vulkan : framebuffer created");
+		}
 	}
 
 	void GraphicPipeline::TransitionAttachments()

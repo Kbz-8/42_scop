@@ -21,7 +21,7 @@ int main(int ac, char** av)
 		Scop::Error("not enough arguments");
 		return 1;
 	}
-	Scop::ScopEngine engine(ac, av, "Scop", 1280, 720, GetExecutablePath().parent_path() / "../ScopEngine/Assets");
+	Scop::ScopEngine engine(ac, av, "Scop", 1280, 720, GetExecutablePath().parent_path().parent_path() / "ScopEngine/Assets");
 
 	Scop::SceneDescriptor main_scene_desc;
 	main_scene_desc.fragment_shader = Scop::RenderCore::Get().GetDefaultFragmentShader();
@@ -31,7 +31,6 @@ int main(int ac, char** av)
 
 	auto object_update = [](Scop::NonOwningPtr<Scop::Actor> actor, float delta)
 	{
-		std::cout << "caca " << delta << std::endl;
 	};
 
 	using hook = std::function<void(Scop::NonOwningPtr<Scop::Actor>)>;

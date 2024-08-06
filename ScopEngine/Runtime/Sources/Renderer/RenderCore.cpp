@@ -99,7 +99,7 @@ namespace Scop
 						{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER }
 					})
 				}
-			}, { ShaderPushConstantLayout({ 0, 16 }) }
+			}, { ShaderPushConstantLayout({ 0, 64 }) }
 		);
 		m_internal_shaders[0] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/Vertex.spv", ShaderType::Vertex, std::move(vertex_shader_layout));
 
