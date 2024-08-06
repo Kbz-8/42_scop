@@ -9,7 +9,7 @@
 #include <Renderer/Renderer.h>
 #include <Renderer/RenderCore.h>
 #include <Core/Logs.h>
-#include <Renderer/Scene.h>
+#include <Graphics/Scene.h>
 
 namespace Scop
 {

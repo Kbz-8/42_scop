@@ -1,5 +1,6 @@
 SRCS =  $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Core))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Platform))
+SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Graphics))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer/Vulkan))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer/Pipelines))

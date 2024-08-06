@@ -4,7 +4,7 @@
 #include <Maths/Vec3.h>
 #include <Maths/Vec4.h>
 #include <Core/Script.h>
-#include <Renderer/Model.h>
+#include <Graphics/Model.h>
 
 namespace Scop
 {

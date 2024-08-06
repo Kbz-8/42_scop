@@ -5,8 +5,8 @@
 #include <vector>
 #include <filesystem>
 
-#include <Renderer/Material.h>
-#include <Renderer/Mesh.h>
+#include <Graphics/Material.h>
+#include <Graphics/Mesh.h>
 
 namespace Scop
 {

@@ -1,4 +1,4 @@
-#include <Renderer/Model.h>
+#include <Graphics/Model.h>
 
 namespace Scop
 {

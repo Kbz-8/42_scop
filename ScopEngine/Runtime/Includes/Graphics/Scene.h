@@ -7,7 +7,7 @@
 
 #include <Utils/NonOwningPtr.h>
 
-#include <Renderer/Actor.h>
+#include <Graphics/Actor.h>
 #include <Renderer/Pipelines/Shader.h>
 #include <Renderer/Pipelines/Graphics.h>
 

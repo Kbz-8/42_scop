@@ -1,4 +1,4 @@
-#include <Renderer/Actor.h>
+#include <Graphics/Actor.h>
 
 namespace Scop
 {
