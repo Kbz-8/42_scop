@@ -1,7 +1,6 @@
 #include <filesystem>
 
-#include <Core/Engine.h>
-#include <Core/NativeScript.h>
+#include <ScopCore.h>
 
 #include <climits>
 #include <memory>

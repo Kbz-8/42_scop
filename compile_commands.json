@@ -2,55 +2,7 @@
   {
     "arguments": [
       "/usr/bin/clang++",
-      "-std=c++17",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Core/EventBus.o",
-      "Runtime/Sources/Core/EventBus.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Core/EventBus.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Core/EventBus.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++17",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Core/Logs.o",
-      "Runtime/Sources/Core/Logs.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Core/Logs.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Core/Logs.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++17",
+      "-std=c++20",
       "-I",
       "Runtime/Includes",
       "-I",
@@ -74,31 +26,7 @@
   {
     "arguments": [
       "/usr/bin/clang++",
-      "-std=c++17",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Renderer/RenderCore.o",
-      "Runtime/Sources/Renderer/RenderCore.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/RenderCore.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/RenderCore.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++17",
+      "-std=c++20",
       "-I",
       "Runtime/Includes",
       "-I",
@@ -122,55 +50,7 @@
   {
     "arguments": [
       "/usr/bin/clang++",
-      "-std=c++17",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Renderer/Image.o",
-      "Runtime/Sources/Renderer/Image.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Image.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Image.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++17",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Renderer/Scene.o",
-      "Runtime/Sources/Renderer/Scene.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Scene.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Scene.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++17",
+      "-std=c++20",
       "-I",
       "Runtime/Includes",
       "-I",
@@ -194,7 +74,31 @@
   {
     "arguments": [
       "/usr/bin/clang++",
-      "-std=c++17",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-g",
+      "-D",
+      "DEBUG",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Core/Logs.o",
+      "Runtime/Sources/Core/Logs.cpp"
+    ],
+    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Core/Logs.cpp",
+    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Core/Logs.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
       "-I",
       "Runtime/Includes",
       "-I",
@@ -218,31 +122,7 @@
   {
     "arguments": [
       "/usr/bin/clang++",
-      "-std=c++17",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Renderer/Renderer.o",
-      "Runtime/Sources/Renderer/Renderer.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Renderer.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Renderer.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++17",
+      "-std=c++20",
       "-I",
       "Runtime/Includes",
       "-I",
@@ -266,7 +146,79 @@
   {
     "arguments": [
       "/usr/bin/clang++",
-      "-std=c++17",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-g",
+      "-D",
+      "DEBUG",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Renderer/Renderer.o",
+      "Runtime/Sources/Renderer/Renderer.cpp"
+    ],
+    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Renderer.cpp",
+    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Renderer.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-g",
+      "-D",
+      "DEBUG",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Renderer/Image.o",
+      "Runtime/Sources/Renderer/Image.cpp"
+    ],
+    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Image.cpp",
+    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Image.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-g",
+      "-D",
+      "DEBUG",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Core/EventBus.o",
+      "Runtime/Sources/Core/EventBus.cpp"
+    ],
+    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Core/EventBus.cpp",
+    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Core/EventBus.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
       "-I",
       "Runtime/Includes",
       "-I",
@@ -290,7 +242,7 @@
   {
     "arguments": [
       "/usr/bin/clang++",
-      "-std=c++17",
+      "-std=c++20",
       "-I",
       "Runtime/Includes",
       "-I",
@@ -314,7 +266,7 @@
   {
     "arguments": [
       "/usr/bin/clang++",
-      "-std=c++17",
+      "-std=c++20",
       "-I",
       "Runtime/Includes",
       "-I",
@@ -328,17 +280,17 @@
       "DEBUG",
       "-c",
       "-o",
-      "Objects/./Runtime/Sources/Renderer/Pipelines/Shader.o",
-      "Runtime/Sources/Renderer/Pipelines/Shader.cpp"
+      "Objects/./Runtime/Sources/Renderer/RenderCore.o",
+      "Runtime/Sources/Renderer/RenderCore.cpp"
     ],
     "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Pipelines/Shader.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Pipelines/Shader.o"
+    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/RenderCore.cpp",
+    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/RenderCore.o"
   },
   {
     "arguments": [
       "/usr/bin/clang++",
-      "-std=c++17",
+      "-std=c++20",
       "-I",
       "Runtime/Includes",
       "-I",
@@ -362,7 +314,55 @@
   {
     "arguments": [
       "/usr/bin/clang++",
-      "-std=c++17",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-g",
+      "-D",
+      "DEBUG",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Renderer/Scene.o",
+      "Runtime/Sources/Renderer/Scene.cpp"
+    ],
+    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Scene.cpp",
+    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Scene.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-g",
+      "-D",
+      "DEBUG",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Renderer/Pipelines/Shader.o",
+      "Runtime/Sources/Renderer/Pipelines/Shader.cpp"
+    ],
+    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Pipelines/Shader.cpp",
+    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Pipelines/Shader.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
       "-I",
       "ScopEngine/Runtime/Includes",
       "-I",

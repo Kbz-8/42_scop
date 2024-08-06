@@ -10,7 +10,7 @@ OBJ_DIR = Objects
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 
 CXX = clang++
-CXXFLAGS = -std=c++17 -I Runtime/Includes -I Runtime/Sources -I ThirdParty/KVF -D KVF_IMPL_VK_NO_PROTOTYPES
+CXXFLAGS = -std=c++20 -I Runtime/Includes -I Runtime/Sources -I ThirdParty/KVF -D KVF_IMPL_VK_NO_PROTOTYPES
 
 AR = ar rc
 
