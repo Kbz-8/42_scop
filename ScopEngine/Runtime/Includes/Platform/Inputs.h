@@ -15,16 +15,20 @@ namespace Scop
 		public:
 			Inputs() = default;
 
-			bool IsKeyPressed(const std::uint32_t button) const noexcept;
-			bool IsKeyReleased(const std::uint32_t button) const noexcept;
-			bool IsMouseButtonPressed(const std::uint8_t button) const noexcept;
-			bool IsMouseButtonReleased(const std::uint8_t button) const noexcept;
-			inline std::int32_t GetX() const noexcept { return m_x; }
-			inline std::int32_t GetY() const noexcept { return m_y; }
-			inline std::int32_t GetXRel() const noexcept { return m_x_rel; }
-			inline std::int32_t GetYRel() const noexcept { return m_y_rel; }
+			[[nodiscard]] bool IsKeyPressed(const std::uint32_t button) const noexcept;
+			[[nodiscard]] bool IsKeyReleased(const std::uint32_t button) const noexcept;
+			[[nodiscard]] bool IsMouseButtonPressed(const std::uint8_t button) const noexcept;
+			[[nodiscard]] bool IsMouseButtonReleased(const std::uint8_t button) const noexcept;
+			[[nodiscard]] inline std::int32_t GetX() const noexcept { return m_x; }
+			[[nodiscard]] inline std::int32_t GetY() const noexcept { return m_y; }
+			[[nodiscard]] inline std::int32_t GetXRel() const noexcept { return m_x_rel; }
+			[[nodiscard]] inline std::int32_t GetYRel() const noexcept { return m_y_rel; }
 
-			inline bool HasRecievedCloseEvent() const noexcept { return m_has_recieved_close_event; }
+			inline void GrabMouse() noexcept { SDL_SetRelativeMouseMode(SDL_TRUE); m_is_mouse_grabbed = true; }
+			inline void ReleaseMouse() noexcept { SDL_SetRelativeMouseMode(SDL_FALSE); m_is_mouse_grabbed = false; }
+			[[nodiscard]] inline bool IsMouseGrabbed() const noexcept { return m_is_mouse_grabbed; }
+
+			[[nodiscard]] inline bool HasRecievedCloseEvent() const noexcept { return m_has_recieved_close_event; }
 
 			~Inputs() = default;
 
@@ -40,6 +44,7 @@ namespace Scop
 			std::int32_t m_x_rel = 0;
 			std::int32_t m_y_rel = 0;
 			bool m_has_recieved_close_event = false;
+			bool m_is_mouse_grabbed = false;
 	};
 }
 

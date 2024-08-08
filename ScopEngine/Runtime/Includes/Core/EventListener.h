@@ -13,7 +13,7 @@ namespace Scop
 			EventListener() = delete;
 			EventListener(std::function<void(const EventBase&)> functor, std::string name);
 
-			inline const std::string& GetName() const { return m_name; }
+			[[nodiscard]] inline const std::string& GetName() const { return m_name; }
 			inline void Call(const EventBase& event) const noexcept { m_listen_functor(event); }
 
 			~EventListener() = default;

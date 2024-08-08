@@ -32,17 +32,17 @@ namespace Scop
 			void DestroyImageView() noexcept;
 			virtual void Destroy() noexcept;
 
-			inline VkImage Get() const noexcept { return m_image; }
-			inline VkImage operator()() const noexcept { return m_image; }
-			inline VkDeviceMemory GetDeviceMemory() const noexcept { return m_memory; }
-			inline VkImageView GetImageView() const noexcept { return m_image_view; }
-			inline VkFormat GetFormat() const noexcept { return m_format; }
-			inline VkImageTiling GetTiling() const noexcept { return m_tiling; }
-			inline VkImageLayout GetLayout() const noexcept { return m_layout; }
-			inline VkSampler GetSampler() const noexcept { return m_sampler; }
-			inline std::uint32_t GetWidth() const noexcept { return m_width; }
-			inline std::uint32_t GetHeight() const noexcept { return m_height; }
-			inline bool IsInit() const noexcept { return m_image != VK_NULL_HANDLE; }
+			[[nodiscard]] inline VkImage Get() const noexcept { return m_image; }
+			[[nodiscard]] inline VkImage operator()() const noexcept { return m_image; }
+			[[nodiscard]] inline VkDeviceMemory GetDeviceMemory() const noexcept { return m_memory; }
+			[[nodiscard]] inline VkImageView GetImageView() const noexcept { return m_image_view; }
+			[[nodiscard]] inline VkFormat GetFormat() const noexcept { return m_format; }
+			[[nodiscard]] inline VkImageTiling GetTiling() const noexcept { return m_tiling; }
+			[[nodiscard]] inline VkImageLayout GetLayout() const noexcept { return m_layout; }
+			[[nodiscard]] inline VkSampler GetSampler() const noexcept { return m_sampler; }
+			[[nodiscard]] inline std::uint32_t GetWidth() const noexcept { return m_width; }
+			[[nodiscard]] inline std::uint32_t GetHeight() const noexcept { return m_height; }
+			[[nodiscard]] inline bool IsInit() const noexcept { return m_image != VK_NULL_HANDLE; }
 
 			virtual ~Image() = default;
 

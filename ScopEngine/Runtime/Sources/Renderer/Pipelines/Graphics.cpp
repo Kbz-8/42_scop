@@ -74,6 +74,9 @@ namespace Scop
 		VkFramebuffer fb = m_framebuffers[framebuffer_index];
 		VkExtent2D fb_extent = kvfGetFramebufferSize(fb);
 
+		p_vertex_shader->LoadDescriptorSets();
+		p_fragment_shader->LoadDescriptorSets();
+
 		VkViewport viewport{};
 		viewport.x = 0.0f;
 		viewport.y = 0.0f;

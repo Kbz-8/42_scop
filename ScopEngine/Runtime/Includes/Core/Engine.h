@@ -22,15 +22,15 @@ namespace Scop
 
 			void Run();
 
-			inline const Window& GetWindow() const noexcept { return m_window; }
-			inline std::filesystem::path GetAssetsPath() const { return m_assets_path; }
+			[[nodiscard]] inline const Window& GetWindow() const noexcept { return m_window; }
+			[[nodiscard]] inline std::filesystem::path GetAssetsPath() const { return m_assets_path; }
 
 			inline void RegisterMainScene(const Scene& scene) noexcept { m_main_scene = scene; p_current_scene = &m_main_scene; }
 
 			constexpr void Quit() noexcept { m_running = false; }
 
-			static inline bool IsInit() noexcept { return s_instance != nullptr; }
-			static ScopEngine& Get() noexcept;
+			[[nodiscard]] static inline bool IsInit() noexcept { return s_instance != nullptr; }
+			[[nodiscard]] static ScopEngine& Get() noexcept;
 
 			~ScopEngine();
 

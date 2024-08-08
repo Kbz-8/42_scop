@@ -19,7 +19,7 @@ namespace Scop
 	constexpr const int DEFAULT_FRAGMENT_SHADER_ID = 1;
 	constexpr const int BASIC_FRAGMENT_SHADER_ID = 2;
 
-	std::optional<std::uint32_t> FindMemoryType(std::uint32_t type_filter, VkMemoryPropertyFlags properties, bool error);
+	std::optional<std::uint32_t> FindMemoryType(std::uint32_t type_filter, VkMemoryPropertyFlags properties, bool error = true);
 
 	class RenderCore : public Singleton<RenderCore>
 	{
@@ -29,13 +29,13 @@ namespace Scop
 			void Init() noexcept;
 			void Destroy() noexcept;
 
-			inline VkInstance GetInstance() const noexcept { return m_instance; }
-			inline VkDevice GetDevice() const noexcept { return m_device; }
-			inline VkPhysicalDevice GetPhysicalDevice() const noexcept { return m_physical_device; }
+			[[nodiscard]] inline VkInstance GetInstance() const noexcept { return m_instance; }
+			[[nodiscard]] inline VkDevice GetDevice() const noexcept { return m_device; }
+			[[nodiscard]] inline VkPhysicalDevice GetPhysicalDevice() const noexcept { return m_physical_device; }
 
-			inline std::shared_ptr<class Shader> GetDefaultVertexShader() const { return m_internal_shaders[DEFAULT_VERTEX_SHADER_ID]; }
-			inline std::shared_ptr<class Shader> GetBasicFragmentShader() const { return m_internal_shaders[BASIC_FRAGMENT_SHADER_ID]; }
-			inline std::shared_ptr<class Shader> GetDefaultFragmentShader() const { return m_internal_shaders[DEFAULT_FRAGMENT_SHADER_ID]; }
+			[[nodiscard]] inline std::shared_ptr<class Shader> GetDefaultVertexShader() const { return m_internal_shaders[DEFAULT_VERTEX_SHADER_ID]; }
+			[[nodiscard]] inline std::shared_ptr<class Shader> GetBasicFragmentShader() const { return m_internal_shaders[BASIC_FRAGMENT_SHADER_ID]; }
+			[[nodiscard]] inline std::shared_ptr<class Shader> GetDefaultFragmentShader() const { return m_internal_shaders[DEFAULT_FRAGMENT_SHADER_ID]; }
 
 		private:
 			RenderCore() = default;

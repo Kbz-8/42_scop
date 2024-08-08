@@ -1,6 +1,8 @@
 #ifndef __SCOP_SCENES_RENDERER__
 #define __SCOP_SCENES_RENDERER__
 
+#include <Graphics/Scene.h>
+
 namespace Scop
 {
 	class SceneRenderer
@@ -8,7 +10,7 @@ namespace Scop
 		public:
 			SceneRenderer();
 
-			void Render(); // TODO : add RTT support
+			void Render(Scene& scene); // TODO : add RTT support
 
 			~SceneRenderer();
 

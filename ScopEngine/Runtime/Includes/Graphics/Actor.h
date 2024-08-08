@@ -15,17 +15,17 @@ namespace Scop
 			Actor(Model model);
 
 			inline void AttachScript(std::shared_ptr<Script> script) { p_script = script; }
-			void Update(float timestep);
+			void Update(class Inputs& input, float timestep);
 
 			inline void SetColor(Vec4f color) noexcept { m_color = color; }
 			inline void SetPosition(Vec3f position) noexcept { m_position = position; }
 			inline void SetScale(Vec3f scale) noexcept { m_scale = scale; }
 			inline void SetOrientation(Vec3f orientation) noexcept { m_orientation = orientation; }
 
-			inline const Vec4f& GetColor() const noexcept { return m_color; }
-			inline const Vec3f& GetPosition() const noexcept { return m_position; }
-			inline const Vec3f& GetScale() const noexcept { return m_scale; }
-			inline const Vec3f& GetOrientation() const noexcept { return m_orientation; }
+			[[nodiscard]] inline const Vec4f& GetColor() const noexcept { return m_color; }
+			[[nodiscard]] inline const Vec3f& GetPosition() const noexcept { return m_position; }
+			[[nodiscard]] inline const Vec3f& GetScale() const noexcept { return m_scale; }
+			[[nodiscard]] inline const Vec3f& GetOrientation() const noexcept { return m_orientation; }
 
 			~Actor();
 

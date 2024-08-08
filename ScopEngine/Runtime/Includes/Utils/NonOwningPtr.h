@@ -15,11 +15,11 @@ namespace Scop
 			NonOwningPtr& operator=(const NonOwningPtr&) = default;
 			NonOwningPtr& operator=(NonOwningPtr&& ptr) noexcept;
 
-			inline operator bool() const noexcept;
+			[[nodiscard]] inline operator bool() const noexcept;
 
-			inline T* Get() const noexcept;
-			inline T* operator->() const noexcept;
-			inline T& operator*() const noexcept;
+			[[nodiscard]] inline T* Get() const noexcept;
+			[[nodiscard]] inline T* operator->() const noexcept;
+			[[nodiscard]] inline T& operator*() const noexcept;
 
 			~NonOwningPtr() = default;
 

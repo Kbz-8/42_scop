@@ -14,10 +14,10 @@ namespace Scop
 		public:
 			Window(const std::string& title, std::uint32_t width, std::uint32_t height);
 
-			inline const std::string& GetTitle() const noexcept { return m_title; }
-			inline std::uint32_t GetWidth() const noexcept { return m_width; } 
-			inline std::uint32_t GetHeight() const noexcept { return m_height; } 
-			inline SDL_Window* GetSDLWindow() const noexcept { return m_window; }
+			[[nodiscard]] inline const std::string& GetTitle() const noexcept { return m_title; }
+			[[nodiscard]] inline std::uint32_t GetWidth() const noexcept { return m_width; } 
+			[[nodiscard]] inline std::uint32_t GetHeight() const noexcept { return m_height; } 
+			[[nodiscard]] inline SDL_Window* GetSDLWindow() const noexcept { return m_window; }
 
 			~Window();
 

@@ -9,7 +9,7 @@ namespace Scop
 	class Singleton : public NonCopyable
 	{
 		public:
-			inline static T& Get()
+			[[nodiscard]] inline static T& Get()
 			{
 				static T instance;
 				return instance;

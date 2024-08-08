@@ -30,13 +30,13 @@ namespace Scop
 			bool BeginFrame();
 			void EndFrame();
 
-			inline VkSwapchainKHR GetSwapchain() const noexcept { return m_swapchain; }
-			inline VkSurfaceKHR GetSurface() const noexcept { return m_surface; }
-			inline VkSemaphore GetImageAvailableSemaphore(int index) const noexcept { return m_image_available_semaphores[index]; }
-			inline VkSemaphore GetRenderFinishedSemaphore(int index) const noexcept { return m_render_finished_semaphores[index]; }
-			inline VkCommandBuffer GetCommandBuffer(int index) const noexcept { return m_cmd_buffers[index]; }
-			inline VkCommandBuffer GetActiveCommandBuffer() const noexcept { return m_cmd_buffers[m_current_frame_index]; }
-			inline const std::vector<Image>& GetSwapchainImages() const { return m_swapchain_images; }
+			[[nodiscard]] inline VkSwapchainKHR GetSwapchain() const noexcept { return m_swapchain; }
+			[[nodiscard]] inline VkSurfaceKHR GetSurface() const noexcept { return m_surface; }
+			[[nodiscard]] inline VkSemaphore GetImageAvailableSemaphore(int index) const noexcept { return m_image_available_semaphores[index]; }
+			[[nodiscard]] inline VkSemaphore GetRenderFinishedSemaphore(int index) const noexcept { return m_render_finished_semaphores[index]; }
+			[[nodiscard]] inline VkCommandBuffer GetCommandBuffer(int index) const noexcept { return m_cmd_buffers[index]; }
+			[[nodiscard]] inline VkCommandBuffer GetActiveCommandBuffer() const noexcept { return m_cmd_buffers[m_current_frame_index]; }
+			[[nodiscard]] inline const std::vector<Image>& GetSwapchainImages() const { return m_swapchain_images; }
 
 			constexpr inline void RequireFramebufferResize() noexcept { m_framebuffers_resize = true; }
 

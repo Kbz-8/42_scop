@@ -102,6 +102,7 @@ VkDevice kvfCreateDevice(VkPhysicalDevice physical, const char** extensions, uin
 void kvfDestroyDevice(VkDevice device);
 
 VkFence kvfCreateFence(VkDevice device);
+void kvfWaitForFence(VkDevice device, VkFence fence);
 void kvfDestroyFence(VkDevice device, VkFence fence);
 
 VkSemaphore kvfCreateSemaphore(VkDevice device);
@@ -118,6 +119,10 @@ void kvfDestroyImage(VkDevice device, VkImage image);
 VkImageView kvfCreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageViewType type, VkImageAspectFlags aspect);
 void kvfDestroyImageView(VkDevice device, VkImageView image_view);
 void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cmd, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, bool is_single_time_cmd_buffer);
+
+VkBuffer kvfCreateBuffer(VkDevice device, VkBufferUsageFlags usage, VkDeviceSize size);
+void kvfCopyBufferToBuffer(VkCommandBuffer cmd, VkBuffer dst, VkBuffer src, size_t size);
+void kvfDestroyBuffer(VkDevice device, VkBuffer buffer);
 
 VkFramebuffer kvfCreateFramebuffer(VkDevice device, VkRenderPass renderpass, VkImageView* image_views, size_t image_views_count, VkExtent2D extent);
 VkExtent2D kvfGetFramebufferSize(VkFramebuffer buffer);
@@ -153,6 +158,12 @@ VkDescriptorSetLayout kvfCreateDescriptorSetLayout(VkDevice device, VkDescriptor
 void kvfDestroyDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout layout);
 
 VkDescriptorSet kvfAllocateDescriptorSet(VkDevice device, VkDescriptorSetLayout layout);
+void kvfUpdateBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding);
+void kvfUpdateBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding);
+void kvfUpdateImageToDescriptorSet(VkDevice device, VkDescriptorSet set, VkImageView view, VkSampler sampler, uint32_t binding);
+VkWriteDescriptorSet kvfWriteBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding);
+VkWriteDescriptorSet kvfWriteBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding);
+VkWriteDescriptorSet kvfWriteImageToDescriptorSet(VkDevice device, VkDescriptorSet set, VkImageView view, VkSampler sampler, uint32_t binding);
 
 void kvfResetDeviceDescriptorPools(VkDevice device);
 
@@ -1254,6 +1265,13 @@ VkFence kvfCreateFence(VkDevice device)
 	return fence;
 }
 
+void kvfWaitForFence(VkDevice device, VkFence fence)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	KVF_ASSERT(fence != VK_NULL_HANDLE);
+	vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
+}
+
 void kvfDestroyFence(VkDevice device, VkFence fence)
 {
 	if(fence == VK_NULL_HANDLE)
@@ -1531,6 +1549,37 @@ void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cm
 		kvfSubmitSingleTimeCommandBuffer(device, cmd, KVF_GRAPHICS_QUEUE, fence);
 		kvfDestroyFence(device, fence);
 	}
+}
+
+VkBuffer kvfCreateBuffer(VkDevice device, VkBufferUsageFlags usage, VkDeviceSize size)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	VkBufferCreateInfo buffer_info = {};
+	buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	buffer_info.size = size;
+	buffer_info.usage = usage;
+	buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	VkBuffer buffer;
+	__kvfCheckVk(vkCreateBuffer(device, &buffer_info, NULL, &buffer));
+	return buffer;
+}
+
+void kvfCopyBufferToBuffer(VkCommandBuffer cmd, VkBuffer dst, VkBuffer src, size_t size)
+{
+	KVF_ASSERT(cmd != VK_NULL_HANDLE);
+	KVF_ASSERT(dst != VK_NULL_HANDLE);
+	KVF_ASSERT(src != VK_NULL_HANDLE);
+	VkBufferCopy copy_region = {};
+	copy_region.size = size;
+	vkCmdCopyBuffer(cmd, src, dst, 1, &copy_region);
+}
+
+void kvfDestroyBuffer(VkDevice device, VkBuffer buffer)
+{
+	if(buffer != VK_NULL_HANDLE)
+		return;
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	vkDestroyBuffer(device, buffer, NULL);
 }
 
 VkFramebuffer kvfCreateFramebuffer(VkDevice device, VkRenderPass render_pass, VkImageView* image_views, size_t image_views_count, VkExtent2D extent)
@@ -1845,6 +1894,69 @@ VkDescriptorSet kvfAllocateDescriptorSet(VkDevice device, VkDescriptorSetLayout 
 	__kvfCheckVk(vkAllocateDescriptorSets(device, &alloc_info, &set));
 	KVF_ASSERT(set != VK_NULL_HANDLE);
 	return set;
+}
+
+void kvfUpdateBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding)
+{
+	kvfUpdateBufferRangeToDescriptorSet(device, set, buffer, VK_WHOLE_SIZE, 0, binding);
+}
+
+void kvfUpdateBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding)
+{
+	VkWriteDescriptorSet write = kvfWriteBufferToDescriptorSet(device, set, buffer, size, offset, binding);
+	vkUpdateDescriptorSets(device, 1, &descriptor_write, 0, NULL);
+}
+
+void kvfUpdateImageToDescriptorSet(VkDevice device, VkDescriptorSet set, VkImageView view, VkSampler sampler, uint32_t binding)
+{
+	VkWriteDescriptorSet write = kvfWriteImageToDescriptorSet(device, set, view, sampler, binding);
+	vkUpdateDescriptorSets(device, 1, &descriptor_write, 0, NULL);
+}
+
+VkWriteDescriptorSet kvfWriteBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding)
+{
+	return kvfWriteBufferRangeToDescriptorSet(device, set, buffer, VK_WHOLE_SIZE, 0, binding);
+}
+
+VkWriteDescriptorSet kvfWriteBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	KVF_ASSERT(buffer != VK_NULL_HANDLE);
+	KVF_ASSERT(set != VK_NULL_HANDLE);
+	VkDescriptorBufferInfo buffer_info = {};
+	buffer_info.buffer = buffer;
+	buffer_info.offset = offset;
+	buffer_info.range = size;
+	VkWriteDescriptorSet descriptor_write = {};
+	descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptor_write.dstSet = set;
+	descriptor_write.dstBinding = binding;
+	descriptor_write.dstArrayElement = 0;
+	descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	descriptor_write.descriptorCount = 1;
+	descriptor_write.pBufferInfo = &buffer_info;
+	return descriptor_write;
+}
+
+VkWriteDescriptorSet kvfWriteImageToDescriptorSet(VkDevice device, VkDescriptorSet set, VkImageView view, VkSampler sampler, uint32_t binding)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	KVF_ASSERT(view != VK_NULL_HANDLE);
+	KVF_ASSERT(sampler != VK_NULL_HANDLE);
+	KVF_ASSERT(set != VK_NULL_HANDLE);
+	VkDescriptorImageInfo image_info = {};
+	image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	image_info.imageView = view;
+	image_info.sampler = sampler;
+	VkWriteDescriptorSet descriptor_write = {};
+	descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptor_write.dstSet = set;
+	descriptor_write.dstBinding = binding;
+	descriptor_write.dstArrayElement = 0;
+	descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descriptor_write.descriptorCount = 1;
+	descriptor_write.pImageInfo = &image_info;
+	return descriptor_write;
 }
 
 VkPipelineLayout kvfCreatePipelineLayout(VkDevice device, VkDescriptorSetLayout* set_layouts, size_t set_layouts_count, VkPushConstantRange* pc, size_t pc_count)

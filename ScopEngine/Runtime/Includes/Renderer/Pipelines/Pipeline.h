@@ -2,6 +2,7 @@
 #define __SCOP_PIPELINE__
 
 #include <kvf.h>
+#include <Renderer/Vulkan/VulkanPrototypes.h>
 
 namespace Scop
 {

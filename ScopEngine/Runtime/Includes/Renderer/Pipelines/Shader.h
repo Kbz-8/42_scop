@@ -4,7 +4,6 @@
 #include <vector>
 #include <cstdint>
 #include <filesystem>
-#include <unordered_map>
 
 #include <kvf.h>
 
@@ -51,13 +50,10 @@ namespace Scop
 		public:
 			Shader(const std::vector<std::uint32_t>& bytecode, ShaderType type, ShaderLayout layout);
 
-			inline const std::vector<std::uint32_t>& GetByteCode() const noexcept { return m_bytecode; }
-			inline const ShaderPipelineLayoutPart& GetPipelineLayout() const noexcept { return m_pipeline_layout_part; }
-			inline VkDescriptorSet GetDescriptorSet(std::size_t n) const { return m_sets.at(n); }
-			inline VkShaderModule GetShaderModule() const noexcept { return m_module; }
-			inline VkShaderStageFlagBits GetShaderStage() const noexcept { return m_stage; }
-
-			void LoadDescriptorSets() noexcept;
+			[[nodiscard]] inline const std::vector<std::uint32_t>& GetByteCode() const noexcept { return m_bytecode; }
+			[[nodiscard]] inline const ShaderPipelineLayoutPart& GetPipelineLayout() const noexcept { return m_pipeline_layout_part; }
+			[[nodiscard]] inline VkShaderModule GetShaderModule() const noexcept { return m_module; }
+			[[nodiscard]] inline VkShaderStageFlagBits GetShaderStage() const noexcept { return m_stage; }
 
 			~Shader();
 
@@ -67,7 +63,6 @@ namespace Scop
 		private:
 			ShaderPipelineLayoutPart m_pipeline_layout_part;
 			std::vector<std::uint32_t> m_bytecode;
-			std::unordered_map<std::size_t, VkDescriptorSet> m_sets;
 			std::vector<VkDescriptorSetLayout> m_set_layouts;
 			VkShaderStageFlagBits m_stage;
 			VkShaderModule m_module = VK_NULL_HANDLE;

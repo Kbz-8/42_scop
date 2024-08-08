@@ -6,5 +6,7 @@
 #include <Graphics/Mesh.h>
 #include <Graphics/Model.h>
 #include <Graphics/Scene.h>
+#include <Graphics/Cameras/Base.h>
+#include <Graphics/Cameras/FirstPerson3D.h>
 
 #endif

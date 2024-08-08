@@ -37,7 +37,6 @@ namespace Scop
 			m_set_layouts.emplace_back(kvfCreateDescriptorSetLayout(RenderCore::Get().GetDevice(), bindings.data(), bindings.size()));
 			Message("Vulkan : descriptor set layout created");
 			m_pipeline_layout_part.set_layouts.push_back(m_set_layouts.back());
-			m_sets[n] = VK_NULL_HANDLE;
 		}
 
 		std::size_t i = 0;
@@ -52,16 +51,6 @@ namespace Scop
 			push_constants[i] = push_constant_range;
 			m_pipeline_layout_part.push_constants[i] = push_constant_range;
 			i++;
-		}
-	}
-
-	void Shader::LoadDescriptorSets() noexcept
-	{
-		auto it = m_set_layouts.begin();
-		for(auto& [_, set] : m_sets)
-		{
-			set = kvfAllocateDescriptorSet(RenderCore::Get().GetDevice(), *it);
-			++it;
 		}
 	}
 

@@ -1,6 +1,7 @@
 #include <filesystem>
 
 #include <ScopCore.h>
+#include <ScopGraphics.h>
 
 #include <climits>
 #include <memory>
@@ -24,11 +25,12 @@ int main(int ac, char** av)
 
 	Scop::SceneDescriptor main_scene_desc;
 	main_scene_desc.fragment_shader = Scop::RenderCore::Get().GetDefaultFragmentShader();
+	main_scene_desc.camera = std::make_shared<Scop::FirstPerson3D>(Scop::Vec3f{ 1.0f, 1.0f, 1.0f });
 
 	Scop::Scene main_scene("main", main_scene_desc);
 	Scop::Actor& object = main_scene.CreateActor(Scop::LoadModelFromObjFile(av[ac - 1]));
 
-	auto object_update = [](Scop::NonOwningPtr<Scop::Actor> actor, float delta)
+	auto object_update = [](Scop::NonOwningPtr<Scop::Actor> actor, Scop::Inputs& input, float delta)
 	{
 	};
 

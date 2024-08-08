@@ -8,6 +8,7 @@
 #include <Renderer/RenderCore.h>
 #include <Renderer/Pipelines/Shader.h>
 #include <Renderer/Vulkan/VulkanLoader.h>
+#include <Maths/Mat4.h>
 #include <Core/Logs.h>
 
 #define KVF_IMPLEMENTATION
@@ -99,7 +100,7 @@ namespace Scop
 						{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER }
 					})
 				}
-			}, { ShaderPushConstantLayout({ 0, 64 }) }
+			}, { ShaderPushConstantLayout({ 0, sizeof(Mat4f) }) }
 		);
 		m_internal_shaders[0] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/Vertex.spv", ShaderType::Vertex, std::move(vertex_shader_layout));
 

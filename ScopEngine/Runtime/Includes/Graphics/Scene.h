@@ -8,6 +8,7 @@
 #include <Utils/NonOwningPtr.h>
 
 #include <Graphics/Actor.h>
+#include <Graphics/Cameras/Base.h>
 #include <Renderer/Pipelines/Shader.h>
 #include <Renderer/Pipelines/Graphics.h>
 
@@ -16,6 +17,7 @@ namespace Scop
 	struct SceneDescriptor
 	{
 		std::shared_ptr<Shader> fragment_shader;
+		std::shared_ptr<BaseCamera> camera;
 	};
 
 	class Scene
@@ -25,14 +27,14 @@ namespace Scop
 		public:
 			Scene(std::string_view name, SceneDescriptor desc);
 
-			Actor& CreateActor(Model model) noexcept;
-			Actor& CreateActor(std::string_view name, Model model);
+			[[nodiscard]] Actor& CreateActor(Model model) noexcept;
+			[[nodiscard]] Actor& CreateActor(std::string_view name, Model model);
 
-			inline Scene& AddChildScene(std::string_view name, SceneDescriptor desc) { return m_scene_children.emplace_back(name, std::move(desc)); }
+			[[nodiscard]] inline Scene& AddChildScene(std::string_view name, SceneDescriptor desc) { return m_scene_children.emplace_back(name, std::move(desc)); }
 			void SwitchToChild(std::string_view name);
 			void SwitchToParent();
 
-			inline const std::string& GetName() const noexcept { return m_name; }
+			[[nodiscard]] inline const std::string& GetName() const noexcept { return m_name; }
 
 			~Scene() = default;
 
@@ -40,7 +42,7 @@ namespace Scop
 			Scene() = default;
 			Scene(std::string_view name, SceneDescriptor desc, NonOwningPtr<Scene> parent);
 			void Init(NonOwningPtr<class Renderer> renderer);
-			void Update(float delta);
+			void Update(class Inputs& input, float delta, float aspect);
 			void Destroy();
 
 		private:
@@ -50,6 +52,7 @@ namespace Scop
 			NonOwningPtr<Scene> p_parent;
 			std::string m_name;
 			std::shared_ptr<Shader> m_fragment_shader;
+			std::shared_ptr<BaseCamera> p_camera;
 	};
 }
 

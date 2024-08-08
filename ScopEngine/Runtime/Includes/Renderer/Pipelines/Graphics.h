@@ -24,9 +24,9 @@ namespace Scop
 			void EndPipeline(VkCommandBuffer command_buffer) noexcept override;
 			void Destroy() noexcept;
 
-			inline VkPipeline GetPipeline() const override { return m_pipeline; }
-			inline VkPipelineLayout GetPipelineLayout() const override { return m_pipeline_layout; }
-			inline VkPipelineBindPoint GetPipelineBindPoint() const override { return VK_PIPELINE_BIND_POINT_GRAPHICS; }
+			[[nodiscard]] inline VkPipeline GetPipeline() const override { return m_pipeline; }
+			[[nodiscard]] inline VkPipelineLayout GetPipelineLayout() const override { return m_pipeline_layout; }
+			[[nodiscard]] inline VkPipelineBindPoint GetPipelineBindPoint() const override { return VK_PIPELINE_BIND_POINT_GRAPHICS; }
 
 			~GraphicPipeline() = default;
 

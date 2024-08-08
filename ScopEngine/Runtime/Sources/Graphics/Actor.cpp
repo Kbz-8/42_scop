@@ -1,4 +1,5 @@
 #include <Graphics/Actor.h>
+#include <Platform/Inputs.h>
 
 namespace Scop
 {
@@ -14,10 +15,10 @@ namespace Scop
 			p_script->OnInit(this);
 	}
 
-	void Actor::Update(float delta)
+	void Actor::Update(Inputs& input, float delta)
 	{
 		if(p_script)
-			p_script->OnUpdate(this, delta);
+			p_script->OnUpdate(this, input, delta);
 	}
 
 	Actor::~Actor()

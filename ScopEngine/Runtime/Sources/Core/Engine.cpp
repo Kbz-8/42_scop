@@ -65,7 +65,7 @@ namespace Scop
 			old_timestep = static_cast<float>(SDL_GetTicks64()) / 1000.0f;
 
 			m_inputs.Update();
-			p_current_scene->Update(current_timestep);
+			p_current_scene->Update(m_inputs, current_timestep, static_cast<float>(m_window.GetWidth()) / static_cast<float>(m_window.GetHeight()));
 
 			if(m_renderer.BeginFrame())
 			{
