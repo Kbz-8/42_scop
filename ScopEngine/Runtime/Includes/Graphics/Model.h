@@ -5,27 +5,19 @@
 #include <vector>
 #include <filesystem>
 
-#include <Graphics/Material.h>
 #include <Graphics/Mesh.h>
+#include <Graphics/Material.h>
 
 namespace Scop
 {
 	class Model
 	{
 		public:
-			Model() = default;
+			Model(const Mesh& mesh);
+			Model(const std::vector<Mesh>& meshes);
 
 			~Model() = default;
 
-		private:
-			struct SubMeshData
-			{
-				std::shared_ptr<Material> p_material;
-				Mesh m_mesh;
-			};
-
-		private:
-			std::vector<SubMeshData> m_sub_meshes;
 	};
 
 	Model LoadModelFromObjFile(std::filesystem::path path) noexcept;

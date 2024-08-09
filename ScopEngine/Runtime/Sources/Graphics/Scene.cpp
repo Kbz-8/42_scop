@@ -1,3 +1,4 @@
+#include <Maths/Mat4.h>
 #include <Graphics/Scene.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/RenderCore.h>
@@ -6,6 +7,12 @@
 
 namespace Scop
 {
+	struct VertexMatricesData
+	{
+		Mat4f view;
+		Mat4f projection;
+	};
+
 	Scene::Scene(std::string_view name, SceneDescriptor desc)
 	: m_name(name), m_fragment_shader(desc.fragment_shader), p_parent(nullptr), p_camera(desc.camera)
 	{
@@ -30,7 +37,12 @@ namespace Scop
 
 	void Scene::Init(NonOwningPtr<Renderer> renderer)
 	{
-		m_pipeline.Init(RenderCore::Get().GetDefaultVertexShader(), m_fragment_shader, renderer);
+		auto vertex_shader = RenderCore::Get().GetDefaultVertexShader();
+		m_pipeline.Init(vertex_shader, m_fragment_shader, renderer);
+		for(std::size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+			m_forward.matrices_set[i] = std::make_shared<DescriptorSet>(vertex_shader->GetPipelineLayout().set_layouts[0], m_pipeline.GetPipelineLayout(), ShaderType::Vertex);
+		m_forward.matrices_buffer = std::make_shared<UniformBuffer>();
+		m_forward.matrices_buffer->Init(sizeof(VertexMatricesData));
 	}
 
 	void Scene::Update(Inputs& input, float timestep, float aspect)
@@ -42,6 +54,7 @@ namespace Scop
 
 	void Scene::Destroy()
 	{
+		m_forward.matrices_buffer->Destroy();
 		m_fragment_shader.reset();
 		m_pipeline.Destroy();
 	}

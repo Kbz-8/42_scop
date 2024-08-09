@@ -8,6 +8,9 @@
 #include <Utils/NonOwningPtr.h>
 
 #include <Graphics/Actor.h>
+#include <Renderer/Buffer.h>
+#include <Renderer/Descriptor.h>
+#include <Renderer/RenderCore.h>
 #include <Graphics/Cameras/Base.h>
 #include <Renderer/Pipelines/Shader.h>
 #include <Renderer/Pipelines/Graphics.h>
@@ -25,6 +28,13 @@ namespace Scop
 		friend class ScopEngine;
 
 		public:
+			struct ForwardData
+			{
+				std::array<std::shared_ptr<DescriptorSet>, MAX_FRAMES_IN_FLIGHT> matrices_set;
+				std::shared_ptr<UniformBuffer> matrices_buffer;
+			};
+
+		public:
 			Scene(std::string_view name, SceneDescriptor desc);
 
 			[[nodiscard]] Actor& CreateActor(Model model) noexcept;
@@ -34,6 +44,7 @@ namespace Scop
 			void SwitchToChild(std::string_view name);
 			void SwitchToParent();
 
+			[[nodiscard]] inline ForwardData& GetForwardData() noexcept { return m_forward; }
 			[[nodiscard]] inline const std::string& GetName() const noexcept { return m_name; }
 
 			~Scene() = default;
@@ -47,12 +58,13 @@ namespace Scop
 
 		private:
 			GraphicPipeline m_pipeline;
+			ForwardData m_forward;
 			std::vector<Actor> m_actors;
 			std::vector<Scene> m_scene_children;
-			NonOwningPtr<Scene> p_parent;
 			std::string m_name;
 			std::shared_ptr<Shader> m_fragment_shader;
 			std::shared_ptr<BaseCamera> p_camera;
+			NonOwningPtr<Scene> p_parent;
 	};
 }
 

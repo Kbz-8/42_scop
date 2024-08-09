@@ -69,13 +69,10 @@ namespace Scop
 		Message("Vulkan : graphics pipeline created");
 	}
 
-	bool GraphicPipeline::BindPipeline(VkCommandBuffer command_buffer, std::size_t framebuffer_index) noexcept
+	bool GraphicPipeline::BindPipeline(VkCommandBuffer command_buffer, std::size_t framebuffer_index, std::array<float, 4> clear) noexcept
 	{
 		VkFramebuffer fb = m_framebuffers[framebuffer_index];
 		VkExtent2D fb_extent = kvfGetFramebufferSize(fb);
-
-		p_vertex_shader->LoadDescriptorSets();
-		p_fragment_shader->LoadDescriptorSets();
 
 		VkViewport viewport{};
 		viewport.x = 0.0f;
@@ -91,7 +88,18 @@ namespace Scop
 		scissor.extent = fb_extent;
 		vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 
+		for(int i = 0; i < m_clears.size(); i++)
+		{
+			m_clears[i].color.float32[0] = clear[0];
+			m_clears[i].color.float32[1] = clear[1];
+			m_clears[i].color.float32[2] = clear[2];
+			m_clears[i].color.float32[3] = clear[3];
+		}
+
+		m_clears.back().depthStencil = VkClearDepthStencilValue{ 1.0f, 0 };
+
 		vkCmdBindPipeline(command_buffer, GetPipelineBindPoint(), GetPipeline());
+		kvfBeginRenderPass(m_renderpass, command_buffer, fb, fb_extent, m_clears.data(), m_clears.size());
 		return true;
 	}
 
@@ -135,6 +143,8 @@ namespace Scop
 			attachment_views.push_back(image.GetImageView());
 		}
 		m_renderpass = kvfCreateRenderPass(RenderCore::Get().GetDevice(), attachments.data(), attachments.size(), GetPipelineBindPoint());
+		m_clears.clear();
+		m_clears.resize(attachments.size());
 		Message("Vulkan : renderpass created");
 
 		for(const auto& image : render_targets)

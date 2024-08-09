@@ -67,6 +67,14 @@ namespace Scop
 			inline void Bind(VkCommandBuffer cmd) const noexcept { vkCmdBindVertexBuffers(cmd, 0, 1, &m_buffer, &m_offset); }
 	};
 
+	class IndexBuffer : public GPUBuffer
+	{
+		public:
+			inline void Init(std::uint32_t size, VkBufferUsageFlags additional_flags = 0) { GPUBuffer::Init(BufferType::LowDynamic, size, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | additional_flags, {}); }
+			void SetData(CPUBuffer data);
+			inline void Bind(VkCommandBuffer cmd) const noexcept { vkCmdBindIndexBuffer(cmd, m_buffer, m_offset, VK_INDEX_TYPE_UINT32); }
+	};
+
 	class UniformBuffer
 	{
 		public:

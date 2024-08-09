@@ -141,6 +141,24 @@ namespace Scop
 		staging.Destroy();
 	}
 
+	void IndexBuffer::SetData(CPUBuffer data)
+	{
+		if(data.GetSize() > m_size)
+		{
+			Error("Vulkan : trying to store to much data in an index buffer (% bytes in % bytes)", data.GetSize(), m_size);
+			return;
+		}
+		if(data.Empty())
+		{
+			Warning("Vulkan : cannot set empty data in an index buffer");
+			return;
+		}
+		GPUBuffer staging;
+		staging.Init(BufferType::Staging, data.GetSize(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, data);
+		CopyFrom(staging);
+		staging.Destroy();
+	}
+
 	void UniformBuffer::Init(std::uint32_t size)
 	{
 		for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)

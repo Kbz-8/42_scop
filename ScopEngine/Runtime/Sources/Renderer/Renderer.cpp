@@ -6,7 +6,7 @@
 /*   By: maldavid <kbz_8.dev@akel-engine.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 20:24:11 by maldavid          #+#    #+#             */
-/*   Updated: 2024/08/07 11:53:40 by maldavid         ###   ########.fr       */
+/*   Updated: 2024/08/08 21:49:41 by maldavid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ namespace Scop
 			EventBus::SendBroadcast(Internal::ResizeEventBroadcast{});
 		}
 		m_current_frame_index = (m_current_frame_index + 1) % MAX_FRAMES_IN_FLIGHT;
-		kvfResetDeviceDescriptorPools(RenderCore::Get().GetDevice());
+		//kvfResetDeviceDescriptorPools(RenderCore::Get().GetDevice());
 	}
 
 	void Renderer::CreateSwapchain()

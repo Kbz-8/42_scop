@@ -20,20 +20,20 @@ struct VertOut
 
 struct ModelData
 {
-	matrix : mat4[f32]
+	matrix : mat4[f32],
+	normal: mat4[f32],
 }
 
 [layout(std140)]
-struct Matrices
+struct Camera
 {
 	view: mat4[f32],
-	normal: mat4[f32],
 	projection: mat4[f32]
 }
 
 external
 {
-	[set(0), binding(0)] matrices: uniform[Matrices],
+	[set(0), binding(0)] camera: uniform[Camera],
 	model : push_constant[ModelData]
 }
 
@@ -44,7 +44,7 @@ fn main(input: VertIn) -> VertOut
 	output.color = input.color;
 	output.uv = input.uv;
 	output.norm = input.normal;
-	output.norm_mat = matrices.normal;
-	output.pos = matrices.projection * matrices.view * model.matrix * vec4[f32](input.pos.xyz, 1.0);
+	output.norm_mat = model.normal;
+	output.pos = camera.projection * camera.view * model.matrix * vec4[f32](input.pos.xyz, 1.0);
 	return output;
 }
