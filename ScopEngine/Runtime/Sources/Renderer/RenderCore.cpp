@@ -10,6 +10,7 @@
 #include <Renderer/Vulkan/VulkanLoader.h>
 #include <Maths/Mat4.h>
 #include <Core/Logs.h>
+#include <iostream>
 
 #define KVF_IMPLEMENTATION
 #ifdef DEBUG
@@ -39,16 +40,19 @@ namespace Scop
 	void ErrorCallback(const char* message) noexcept
 	{
 		FatalError(message);
+		std::cout << std::endl;
 	}
 
 	void ValidationErrorCallback(const char* message) noexcept
 	{
 		Error(message);
+		std::cout << std::endl;
 	}
 
 	void ValidationWarningCallback(const char* message) noexcept
 	{
 		Warning(message);
+		std::cout << std::endl;
 	}
 
 	void RenderCore::Init() noexcept
@@ -71,6 +75,8 @@ namespace Scop
 		kvfSetErrorCallback(&ErrorCallback);
 		kvfSetValidationErrorCallback(&ValidationErrorCallback);
 		kvfSetValidationWarningCallback(&ValidationWarningCallback);
+
+		kvfAddLayer("VK_LAYER_MESA_overlay");
 
 		m_instance = kvfCreateInstance(extensions.data(), extensions.size());
 		Message("Vulkan : instance created");
@@ -100,7 +106,7 @@ namespace Scop
 						{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER }
 					})
 				}
-			}, { ShaderPushConstantLayout({ 0, sizeof(Mat4f) }) }
+			}, { ShaderPushConstantLayout({ 0, sizeof(Mat4f) * 2 }) }
 		);
 		m_internal_shaders[0] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/Vertex.spv", ShaderType::Vertex, std::move(vertex_shader_layout));
 

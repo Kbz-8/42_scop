@@ -1,20 +1,21 @@
 #ifndef __SCOP_SCENES_RENDERER__
 #define __SCOP_SCENES_RENDERER__
 
-#include <Graphics/Scene.h>
+#include <Renderer/RenderPasses/Passes.h>
 
 namespace Scop
 {
 	class SceneRenderer
 	{
 		public:
-			SceneRenderer();
+			SceneRenderer() = default;
 
-			void Render(Scene& scene); // TODO : add RTT support
+			void Render(class Scene& scene, class Renderer& renderer); // TODO : add RTT support
 
-			~SceneRenderer();
+			~SceneRenderer() = default;
 
 		private:
+			RenderPasses m_passes;
 	};
 }
 

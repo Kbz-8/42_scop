@@ -7,6 +7,7 @@
 #include <Platform/Window.h>
 #include <Platform/Inputs.h>
 #include <Renderer/Renderer.h>
+#include <Renderer/ScenesRenderer.h>
 #include <Renderer/RenderCore.h>
 #include <Core/Logs.h>
 #include <Graphics/Scene.h>
@@ -43,6 +44,7 @@ namespace Scop
 			Renderer m_renderer;
 			Window m_window;
 			Scene m_main_scene;
+			SceneRenderer m_scene_renderer;
 			std::filesystem::path m_assets_path;
 			NonOwningPtr<Scene> p_current_scene;
 			bool m_running = true;

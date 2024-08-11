@@ -84,8 +84,8 @@ namespace Scop
 
 			inline VkDeviceSize GetSize(int i) const noexcept { return m_buffers[i].GetSize(); }
 			inline VkDeviceSize GetOffset(int i) const noexcept { return m_buffers[i].GetOffset(); }
-			inline VkBuffer operator()(int i) const noexcept { return m_buffers[i].Get(); }
-			inline VkBuffer Get(int i) const noexcept { return m_buffers[i].Get(); }
+			inline VkBuffer GetVk(int i) const noexcept { return m_buffers[i].Get(); }
+			inline GPUBuffer& Get(int i) noexcept { return m_buffers[i]; }
 
 		private:
 			std::array<GPUBuffer, MAX_FRAMES_IN_FLIGHT> m_buffers;

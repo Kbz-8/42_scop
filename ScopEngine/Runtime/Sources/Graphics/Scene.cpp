@@ -4,6 +4,7 @@
 #include <Renderer/RenderCore.h>
 #include <Platform/Inputs.h>
 #include <Core/Logs.h>
+#include <cstring>
 
 namespace Scop
 {
@@ -39,10 +40,13 @@ namespace Scop
 	{
 		auto vertex_shader = RenderCore::Get().GetDefaultVertexShader();
 		m_pipeline.Init(vertex_shader, m_fragment_shader, renderer);
-		for(std::size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-			m_forward.matrices_set[i] = std::make_shared<DescriptorSet>(vertex_shader->GetPipelineLayout().set_layouts[0], m_pipeline.GetPipelineLayout(), ShaderType::Vertex);
 		m_forward.matrices_buffer = std::make_shared<UniformBuffer>();
 		m_forward.matrices_buffer->Init(sizeof(VertexMatricesData));
+		for(std::size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			m_forward.matrices_set[i] = std::make_shared<DescriptorSet>(vertex_shader->GetShaderLayout().set_layouts[0].second, vertex_shader->GetPipelineLayout().set_layouts[0], ShaderType::Vertex);
+			m_forward.matrices_set[i]->SetUniformBuffer(0, m_forward.matrices_buffer->Get(i));
+		}
 	}
 
 	void Scene::Update(Inputs& input, float timestep, float aspect)
@@ -54,8 +58,8 @@ namespace Scop
 
 	void Scene::Destroy()
 	{
-		m_forward.matrices_buffer->Destroy();
-		m_fragment_shader.reset();
 		m_pipeline.Destroy();
+		m_fragment_shader.reset();
+		m_forward.matrices_buffer->Destroy();
 	}
 }

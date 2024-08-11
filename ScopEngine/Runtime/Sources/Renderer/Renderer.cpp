@@ -6,7 +6,7 @@
 /*   By: maldavid <kbz_8.dev@akel-engine.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 20:24:11 by maldavid          #+#    #+#             */
-/*   Updated: 2024/08/08 21:49:41 by maldavid         ###   ########.fr       */
+/*   Updated: 2024/08/11 18:59:24 by maldavid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ namespace Scop
 
 		vkResetCommandBuffer(m_cmd_buffers[m_current_frame_index], 0);
 		kvfBeginCommandBuffer(m_cmd_buffers[m_current_frame_index], 0);
+		m_drawcalls = 0;
 		return true;
 	}
 

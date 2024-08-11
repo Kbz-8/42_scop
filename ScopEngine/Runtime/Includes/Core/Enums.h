@@ -16,7 +16,7 @@ namespace Scop
 		EndEnum
 	};
 
-	constexpr std::size_t LogTypeCount = static_cast<std::size_t>(LogType::EndEnum) + 1;
+	constexpr std::size_t LogTypeCount = static_cast<std::size_t>(LogType::EndEnum);
 }
 
 #endif

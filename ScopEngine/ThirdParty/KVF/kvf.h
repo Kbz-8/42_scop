@@ -87,6 +87,8 @@ void kvfSetErrorCallback(KvfErrorCallback callback);
 void kvfSetValidationErrorCallback(KvfErrorCallback callback);
 void kvfSetValidationWarningCallback(KvfErrorCallback callback);
 
+void kvfAddLayer(const char* layer);
+
 VkInstance kvfCreateInstance(const char** extensionsEnabled, uint32_t extensionsCount);
 void kvfDestroyInstance(VkInstance instance);
 
@@ -158,11 +160,15 @@ VkDescriptorSetLayout kvfCreateDescriptorSetLayout(VkDevice device, VkDescriptor
 void kvfDestroyDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout layout);
 
 VkDescriptorSet kvfAllocateDescriptorSet(VkDevice device, VkDescriptorSetLayout layout);
-void kvfUpdateBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding);
-void kvfUpdateBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding);
+void kvfUpdateStorageBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding);
+void kvfUpdateStorageBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding);
+void kvfUpdateUniformBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding);
+void kvfUpdateUniformBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding);
 void kvfUpdateImageToDescriptorSet(VkDevice device, VkDescriptorSet set, VkImageView view, VkSampler sampler, uint32_t binding);
-VkWriteDescriptorSet kvfWriteBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding);
-VkWriteDescriptorSet kvfWriteBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding);
+VkWriteDescriptorSet kvfWriteStorageBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding);
+VkWriteDescriptorSet kvfWriteStorageBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding);
+VkWriteDescriptorSet kvfWriteUniformBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding);
+VkWriteDescriptorSet kvfWriteUniformBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding);
 VkWriteDescriptorSet kvfWriteImageToDescriptorSet(VkDevice device, VkDescriptorSet set, VkImageView view, VkSampler sampler, uint32_t binding);
 
 void kvfResetDeviceDescriptorPools(VkDevice device);
@@ -297,6 +303,8 @@ size_t __kvf_internal_framebuffers_capacity = 0;
 
 #ifdef KVF_ENABLE_VALIDATION_LAYERS
 	VkDebugUtilsMessengerEXT __kvf_debug_messenger = VK_NULL_HANDLE;
+	char** __kvf_extra_layers = NULL;
+	size_t __kvf_extra_layers_count = 0;
 #endif
 
 KvfErrorCallback __kvf_error_callback = NULL;
@@ -872,13 +880,25 @@ const char* kvfVerbaliseVkResult(VkResult result)
 		vkEnumerateInstanceLayerProperties(&layer_count, NULL);
 		VkLayerProperties* available_layers = (VkLayerProperties*)KVF_MALLOC(sizeof(VkLayerProperties) * layer_count);
 		vkEnumerateInstanceLayerProperties(&layer_count, available_layers);
-
-		for(int i = 0; i < layer_count; i++)
+		for(size_t i = 0; i < __kvf_extra_layers_count; i++)
 		{
-			if(strcmp(available_layers[i].layerName, "VK_LAYER_KHRONOS_validation") == 0)
-				return true;
+			bool found = false;
+			for(size_t j = 0; j < layer_count; j++)
+			{
+				if(strcmp(available_layers[j].layerName, __kvf_extra_layers[i]) == 0)
+				{
+					found = true;
+					break;
+				}
+			}
+			if(!found)
+			{
+				KVF_FREE(available_layers);
+				return false;
+			}
 		}
-		return false;
+		KVF_FREE(available_layers);
+		return true;
 	}
 
 	VKAPI_ATTR VkBool32 VKAPI_CALL __kvfDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
@@ -963,6 +983,27 @@ const char* kvfVerbaliseVkResult(VkResult result)
 	}
 #endif // KVF_ENABLE_VALIDATION_LAYERS
 
+void kvfAddLayer(const char* layer)
+{
+	#ifdef KVF_ENABLE_VALIDATION_LAYERS
+		__kvf_extra_layers = (char**)KVF_REALLOC(__kvf_extra_layers, sizeof(char*) * (__kvf_extra_layers_count + 1));
+		KVF_ASSERT(__kvf_extra_layers != NULL);
+		__kvf_extra_layers[__kvf_extra_layers_count] = (char*)KVF_MALLOC(strlen(layer) + 1);
+		KVF_ASSERT(__kvf_extra_layers[__kvf_extra_layers_count] != NULL);
+		strcpy(__kvf_extra_layers[__kvf_extra_layers_count], layer);
+		__kvf_extra_layers_count++;
+	#else
+		if(__kvf_validation_error_callback != NULL)
+		{
+			char buffer[4096];
+			snprintf(buffer, 4096, "KVF Vulkan validation error : cannot add extra layers, validation layers are not enabled. Try adding #define KVF_ENABLE_VALIDATION_LAYERS");
+			__kvf_validation_error_callback(buffer);
+			return;
+		}
+		fprintf(stderr, "KVF Vulkan validation error : cannot add extra layers, validation layers are not enabled. Try adding #define KVF_ENABLE_VALIDATION_LAYERS");
+	#endif
+}
+
 VkInstance kvfCreateInstance(const char** extensions_enabled, uint32_t extensions_count)
 {
 	VkInstance instance = VK_NULL_HANDLE;
@@ -978,10 +1019,10 @@ VkInstance kvfCreateInstance(const char** extensions_enabled, uint32_t extension
 	create_info.pNext = NULL;
 
 #ifdef KVF_ENABLE_VALIDATION_LAYERS
+	kvfAddLayer("VK_LAYER_KHRONOS_validation");
 	const char** new_extension_set = NULL;
 	if(__kvfCheckValidationLayerSupport())
 	{
-		const char* layers[] = { "VK_LAYER_KHRONOS_validation" };
 		VkDebugUtilsMessengerCreateInfoEXT debug_create_info = {};
 		__kvfPopulateDebugMessengerCreateInfo(&debug_create_info);
 		new_extension_set = (const char**)KVF_MALLOC(sizeof(char*) * (extensions_count + 1));
@@ -990,8 +1031,8 @@ VkInstance kvfCreateInstance(const char** extensions_enabled, uint32_t extension
 
 		create_info.enabledExtensionCount = extensions_count + 1;
 		create_info.ppEnabledExtensionNames = new_extension_set;
-		create_info.enabledLayerCount = 1;
-		create_info.ppEnabledLayerNames = layers;
+		create_info.enabledLayerCount = __kvf_extra_layers_count;
+		create_info.ppEnabledLayerNames = __kvf_extra_layers;
 		create_info.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debug_create_info;
 	}
 #endif
@@ -1010,6 +1051,10 @@ void kvfDestroyInstance(VkInstance instance)
 		return;
 #ifdef KVF_ENABLE_VALIDATION_LAYERS
 	__kvfDestroyDebugUtilsMessengerEXT(instance);
+	for(size_t i = 0; i < __kvf_extra_layers_count; i++)
+		KVF_FREE(__kvf_extra_layers[i]);
+	KVF_FREE(__kvf_extra_layers);
+	__kvf_extra_layers_count = 0;
 #endif
 	vkDestroyInstance(instance, NULL);
 }
@@ -1896,29 +1941,40 @@ VkDescriptorSet kvfAllocateDescriptorSet(VkDevice device, VkDescriptorSetLayout 
 	return set;
 }
 
-void kvfUpdateBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding)
+void kvfUpdateStorageBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding)
 {
-	kvfUpdateBufferRangeToDescriptorSet(device, set, buffer, VK_WHOLE_SIZE, 0, binding);
+	kvfUpdateStorageBufferRangeToDescriptorSet(device, set, buffer, VK_WHOLE_SIZE, 0, binding);
 }
 
-void kvfUpdateBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding)
+void kvfUpdateStorageBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding)
 {
-	VkWriteDescriptorSet write = kvfWriteBufferToDescriptorSet(device, set, buffer, size, offset, binding);
-	vkUpdateDescriptorSets(device, 1, &descriptor_write, 0, NULL);
+	VkWriteDescriptorSet write = kvfWriteStorageBufferRangeToDescriptorSet(device, set, buffer, size, offset, binding);
+	vkUpdateDescriptorSets(device, 1, &write, 0, NULL);
+}
+
+void kvfUpdateUniformBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding)
+{
+	kvfUpdateUniformBufferRangeToDescriptorSet(device, set, buffer, VK_WHOLE_SIZE, 0, binding);
+}
+
+void kvfUpdateUniformBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding)
+{
+	VkWriteDescriptorSet write = kvfWriteUniformBufferRangeToDescriptorSet(device, set, buffer, size, offset, binding);
+	vkUpdateDescriptorSets(device, 1, &write, 0, NULL);
 }
 
 void kvfUpdateImageToDescriptorSet(VkDevice device, VkDescriptorSet set, VkImageView view, VkSampler sampler, uint32_t binding)
 {
 	VkWriteDescriptorSet write = kvfWriteImageToDescriptorSet(device, set, view, sampler, binding);
-	vkUpdateDescriptorSets(device, 1, &descriptor_write, 0, NULL);
+	vkUpdateDescriptorSets(device, 1, &write, 0, NULL);
 }
 
-VkWriteDescriptorSet kvfWriteBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding)
+VkWriteDescriptorSet kvfWriteStorageBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding)
 {
-	return kvfWriteBufferRangeToDescriptorSet(device, set, buffer, VK_WHOLE_SIZE, 0, binding);
+	return kvfWriteStorageBufferRangeToDescriptorSet(device, set, buffer, VK_WHOLE_SIZE, 0, binding);
 }
 
-VkWriteDescriptorSet kvfWriteBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding)
+VkWriteDescriptorSet kvfWriteStorageBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 	KVF_ASSERT(buffer != VK_NULL_HANDLE);
@@ -1933,6 +1989,31 @@ VkWriteDescriptorSet kvfWriteBufferRangeToDescriptorSet(VkDevice device, VkDescr
 	descriptor_write.dstBinding = binding;
 	descriptor_write.dstArrayElement = 0;
 	descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	descriptor_write.descriptorCount = 1;
+	descriptor_write.pBufferInfo = &buffer_info;
+	return descriptor_write;
+}
+
+VkWriteDescriptorSet kvfWriteUniformBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding)
+{
+	return kvfWriteUniformBufferRangeToDescriptorSet(device, set, buffer, VK_WHOLE_SIZE, 0, binding);
+}
+
+VkWriteDescriptorSet kvfWriteUniformBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	KVF_ASSERT(buffer != VK_NULL_HANDLE);
+	KVF_ASSERT(set != VK_NULL_HANDLE);
+	VkDescriptorBufferInfo buffer_info = {};
+	buffer_info.buffer = buffer;
+	buffer_info.offset = offset;
+	buffer_info.range = size;
+	VkWriteDescriptorSet descriptor_write = {};
+	descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptor_write.dstSet = set;
+	descriptor_write.dstBinding = binding;
+	descriptor_write.dstArrayElement = 0;
+	descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	descriptor_write.descriptorCount = 1;
 	descriptor_write.pBufferInfo = &buffer_info;
 	return descriptor_write;

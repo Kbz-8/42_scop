@@ -37,6 +37,8 @@ namespace Scop
 			[[nodiscard]] inline std::shared_ptr<class Shader> GetBasicFragmentShader() const { return m_internal_shaders[BASIC_FRAGMENT_SHADER_ID]; }
 			[[nodiscard]] inline std::shared_ptr<class Shader> GetDefaultFragmentShader() const { return m_internal_shaders[DEFAULT_FRAGMENT_SHADER_ID]; }
 
+			inline void WaitDeviceIdle() const noexcept { vkDeviceWaitIdle(m_device); }
+
 		private:
 			RenderCore() = default;
 			~RenderCore() = default;

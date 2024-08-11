@@ -26,6 +26,7 @@ namespace Scop
 			[[nodiscard]] inline const Vec3f& GetPosition() const noexcept { return m_position; }
 			[[nodiscard]] inline const Vec3f& GetScale() const noexcept { return m_scale; }
 			[[nodiscard]] inline const Vec3f& GetOrientation() const noexcept { return m_orientation; }
+			[[nodiscard]] inline const Model& GetModel() const noexcept { return m_model; }
 
 			~Actor();
 

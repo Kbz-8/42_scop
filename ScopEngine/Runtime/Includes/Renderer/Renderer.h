@@ -37,6 +37,9 @@ namespace Scop
 			[[nodiscard]] inline VkCommandBuffer GetCommandBuffer(int index) const noexcept { return m_cmd_buffers[index]; }
 			[[nodiscard]] inline VkCommandBuffer GetActiveCommandBuffer() const noexcept { return m_cmd_buffers[m_current_frame_index]; }
 			[[nodiscard]] inline const std::vector<Image>& GetSwapchainImages() const { return m_swapchain_images; }
+			[[nodiscard]] inline std::size_t& GetDrawCallsCounterRef() noexcept { return m_drawcalls; }
+			[[nodiscard]] inline std::size_t GetSwapchainImageIndex() const noexcept { return m_swapchain_image_index; }
+			[[nodiscard]] inline std::size_t GetCurrentFrameIndex() const noexcept { return m_current_frame_index; }
 
 			constexpr inline void RequireFramebufferResize() noexcept { m_framebuffers_resize = true; }
 
@@ -59,6 +62,7 @@ namespace Scop
 			VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
 			std::uint32_t m_current_frame_index = 0;
 			std::uint32_t m_swapchain_image_index = 0;
+			std::size_t m_drawcalls = 0;
 			bool m_framebuffers_resize = false;
 	};
 }

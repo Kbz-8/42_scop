@@ -50,6 +50,7 @@ namespace Scop
 		public:
 			Shader(const std::vector<std::uint32_t>& bytecode, ShaderType type, ShaderLayout layout);
 
+			[[nodiscard]] inline const ShaderLayout& GetShaderLayout() const { return m_layout; }
 			[[nodiscard]] inline const std::vector<std::uint32_t>& GetByteCode() const noexcept { return m_bytecode; }
 			[[nodiscard]] inline const ShaderPipelineLayoutPart& GetPipelineLayout() const noexcept { return m_pipeline_layout_part; }
 			[[nodiscard]] inline VkShaderModule GetShaderModule() const noexcept { return m_module; }
@@ -61,6 +62,7 @@ namespace Scop
 			void GeneratePipelineLayout(ShaderLayout layout);
 
 		private:
+			ShaderLayout m_layout;
 			ShaderPipelineLayoutPart m_pipeline_layout_part;
 			std::vector<std::uint32_t> m_bytecode;
 			std::vector<VkDescriptorSetLayout> m_set_layouts;

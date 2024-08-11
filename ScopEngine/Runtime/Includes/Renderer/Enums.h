@@ -14,7 +14,7 @@ namespace Scop
 
 		EndEnum
 	};
-	constexpr std::size_t BufferTypeCount = static_cast<std::size_t>(BufferType::EndEnum) + 1;
+	constexpr std::size_t BufferTypeCount = static_cast<std::size_t>(BufferType::EndEnum);
 }
 
 #endif

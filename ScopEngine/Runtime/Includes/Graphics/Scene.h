@@ -45,7 +45,10 @@ namespace Scop
 			void SwitchToParent();
 
 			[[nodiscard]] inline ForwardData& GetForwardData() noexcept { return m_forward; }
+			[[nodiscard]] inline const std::vector<Actor>& GetActors() const noexcept { return m_actors; }
 			[[nodiscard]] inline const std::string& GetName() const noexcept { return m_name; }
+			[[nodiscard]] inline GraphicPipeline& GetPipeline() noexcept { return m_pipeline; }
+			[[nodiscard]] inline std::shared_ptr<BaseCamera> GetCamera() const { return p_camera; }
 
 			~Scene() = default;
 

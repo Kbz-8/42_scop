@@ -47,7 +47,7 @@ namespace Scop
 		it->image_ptr = &image;
 	}
 
-	void DescriptorSet::SetBuffer(std::uint32_t binding, class GPUBuffer& buffer)
+	void DescriptorSet::SetStorageBuffer(std::uint32_t binding, class GPUBuffer& buffer)
 	{
 		auto it = std::find_if(m_descriptors.begin(), m_descriptors.end(), [=](Descriptor descriptor)
 		{
@@ -58,12 +58,31 @@ namespace Scop
 			Warning("Vulkan : cannot update descriptor set buffer; invalid binding");
 			return;
 		}
-		if(it->type != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER || it->type != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
+		if(it->type != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
 		{
 			Error("Vulkan : trying to bind a buffer to the wrong descriptor");
 			return;
 		}
-		it->buffer_ptr = &buffer;
+		it->storage_buffer_ptr = &buffer;
+	}
+
+	void DescriptorSet::SetUniformBuffer(std::uint32_t binding, class GPUBuffer& buffer)
+	{
+		auto it = std::find_if(m_descriptors.begin(), m_descriptors.end(), [=](Descriptor descriptor)
+		{
+			return binding == descriptor.binding;
+		});
+		if(it == m_descriptors.end())
+		{
+			Warning("Vulkan : cannot update descriptor set buffer; invalid binding");
+			return;
+		}
+		if(it->type != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+		{
+			Error("Vulkan : trying to bind a buffer to the wrong descriptor");
+			return;
+		}
+		it->uniform_buffer_ptr = &buffer;
 	}
 
 	void DescriptorSet::Update(VkCommandBuffer cmd) noexcept
@@ -73,8 +92,10 @@ namespace Scop
 		{
 			if(descriptor.image_ptr)
 				writes.push_back(kvfWriteImageToDescriptorSet(RenderCore::Get().GetDevice(), m_set, descriptor.image_ptr->GetImageView(), descriptor.image_ptr->GetSampler(), descriptor.binding));
-			else if(descriptor.buffer_ptr)
-				writes.push_back(kvfWriteBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set, descriptor.buffer_ptr->Get(), descriptor.binding));
+			else if(descriptor.uniform_buffer_ptr)
+				writes.push_back(kvfWriteUniformBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set, descriptor.uniform_buffer_ptr->Get(), descriptor.binding));
+			else if(descriptor.storage_buffer_ptr)
+				writes.push_back(kvfWriteStorageBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set, descriptor.storage_buffer_ptr->Get(), descriptor.binding));
 		}
 		vkUpdateDescriptorSets(RenderCore::Get().GetDevice(), writes.size(), writes.data(), 0, nullptr);
 	}

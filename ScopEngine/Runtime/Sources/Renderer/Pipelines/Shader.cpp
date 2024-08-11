@@ -5,7 +5,7 @@
 
 namespace Scop
 {
-	Shader::Shader(const std::vector<std::uint32_t>& bytecode, ShaderType type, ShaderLayout layout) : m_bytecode(bytecode)
+	Shader::Shader(const std::vector<std::uint32_t>& bytecode, ShaderType type, ShaderLayout layout) : m_bytecode(bytecode), m_layout(std::move(layout))
 	{
 		switch(type)
 		{
@@ -18,7 +18,7 @@ namespace Scop
 		m_module = kvfCreateShaderModule(RenderCore::Get().GetDevice(), m_bytecode.data(), m_bytecode.size());
 		Message("Vulkan : shader module created");
 
-		GeneratePipelineLayout(layout);
+		GeneratePipelineLayout(m_layout);
 	}
 
 	void Shader::GeneratePipelineLayout(ShaderLayout layout)

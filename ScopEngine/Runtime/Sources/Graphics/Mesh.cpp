@@ -4,15 +4,19 @@
 
 namespace Scop
 {
-	void Mesh::Draw(VkCommandBuffer cmd, std::size_t& drawcalls) noexcept
+	void Mesh::Draw(VkCommandBuffer cmd, std::size_t& drawcalls) const noexcept
 	{
-		for(auto& mesh : m_sub_meshes)
-		{
-			mesh.vbo.Bind(cmd);
-			mesh.ibo.Bind(cmd);
-			vkCmdDrawIndexed(cmd, static_cast<std::uint32_t>(mesh.ibo.GetSize() / sizeof(std::uint32_t)), 1, 0, 0, 0);
-			drawcalls++;
-		}
+		for(std::size_t i = 0; i < m_sub_meshes.size(); i++)
+			Draw(cmd, drawcalls, i);
+	}
+
+	void Mesh::Draw(VkCommandBuffer cmd, std::size_t& drawcalls, std::size_t submesh_index) const noexcept
+	{
+		Verify(submesh_index < m_sub_meshes.size(), "invalid submesh index");
+		m_sub_meshes[submesh_index].vbo.Bind(cmd);
+		m_sub_meshes[submesh_index].ibo.Bind(cmd);
+		vkCmdDrawIndexed(cmd, static_cast<std::uint32_t>(m_sub_meshes[submesh_index].ibo.GetSize() / sizeof(std::uint32_t)), 1, 0, 0, 0);
+		drawcalls++;
 	}
 
 	Mesh::~Mesh()

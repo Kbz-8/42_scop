@@ -14,7 +14,7 @@ namespace Scop
 		EndEnum
 	};
 
-	constexpr std::size_t AngleUnitCount = static_cast<std::size_t>(AngleUnit::EndEnum) + 1;
+	constexpr std::size_t AngleUnitCount = static_cast<std::size_t>(AngleUnit::EndEnum);
 }
 
 #endif
