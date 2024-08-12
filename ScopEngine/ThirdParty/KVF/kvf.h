@@ -160,16 +160,12 @@ VkDescriptorSetLayout kvfCreateDescriptorSetLayout(VkDevice device, VkDescriptor
 void kvfDestroyDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout layout);
 
 VkDescriptorSet kvfAllocateDescriptorSet(VkDevice device, VkDescriptorSetLayout layout);
-void kvfUpdateStorageBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding);
-void kvfUpdateStorageBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding);
-void kvfUpdateUniformBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding);
-void kvfUpdateUniformBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding);
-void kvfUpdateImageToDescriptorSet(VkDevice device, VkDescriptorSet set, VkImageView view, VkSampler sampler, uint32_t binding);
-VkWriteDescriptorSet kvfWriteStorageBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding);
-VkWriteDescriptorSet kvfWriteStorageBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding);
-VkWriteDescriptorSet kvfWriteUniformBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding);
-VkWriteDescriptorSet kvfWriteUniformBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding);
-VkWriteDescriptorSet kvfWriteImageToDescriptorSet(VkDevice device, VkDescriptorSet set, VkImageView view, VkSampler sampler, uint32_t binding);
+void kvfUpdateStorageBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, const VkDescriptorBufferInfo* info, uint32_t binding);
+void kvfUpdateUniformBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, const VkDescriptorBufferInfo* info, uint32_t binding);
+void kvfUpdateImageToDescriptorSet(VkDevice device, VkDescriptorSet set, const VkDescriptorImageInfo* info, uint32_t binding);
+VkWriteDescriptorSet kvfWriteStorageBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, const VkDescriptorBufferInfo* info, uint32_t binding);
+VkWriteDescriptorSet kvfWriteUniformBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, const VkDescriptorBufferInfo* info, uint32_t binding);
+VkWriteDescriptorSet kvfWriteImageToDescriptorSet(VkDevice device, VkDescriptorSet set, const VkDescriptorImageInfo* info, uint32_t binding);
 
 void kvfResetDeviceDescriptorPools(VkDevice device);
 
@@ -1938,48 +1934,28 @@ VkDescriptorSet kvfAllocateDescriptorSet(VkDevice device, VkDescriptorSetLayout 
 	return set;
 }
 
-void kvfUpdateStorageBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding)
+void kvfUpdateStorageBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, const VkDescriptorBufferInfo* info, uint32_t binding)
 {
-	kvfUpdateStorageBufferRangeToDescriptorSet(device, set, buffer, VK_WHOLE_SIZE, 0, binding);
-}
-
-void kvfUpdateStorageBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding)
-{
-	VkWriteDescriptorSet write = kvfWriteStorageBufferRangeToDescriptorSet(device, set, buffer, size, offset, binding);
+	VkWriteDescriptorSet write = kvfWriteStorageBufferToDescriptorSet(device, set, info, binding);
 	vkUpdateDescriptorSets(device, 1, &write, 0, NULL);
 }
 
-void kvfUpdateUniformBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding)
+void kvfUpdateUniformBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, const VkDescriptorBufferInfo* info, uint32_t binding)
 {
-	kvfUpdateUniformBufferRangeToDescriptorSet(device, set, buffer, VK_WHOLE_SIZE, 0, binding);
-}
-
-void kvfUpdateUniformBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding)
-{
-	VkWriteDescriptorSet write = kvfWriteUniformBufferRangeToDescriptorSet(device, set, buffer, size, offset, binding);
+	VkWriteDescriptorSet write = kvfWriteUniformBufferToDescriptorSet(device, set, info, binding);
 	vkUpdateDescriptorSets(device, 1, &write, 0, NULL);
 }
 
-void kvfUpdateImageToDescriptorSet(VkDevice device, VkDescriptorSet set, VkImageView view, VkSampler sampler, uint32_t binding)
+void kvfUpdateImageToDescriptorSet(VkDevice device, VkDescriptorSet set, const VkDescriptorImageInfo* info, uint32_t binding)
 {
-	VkWriteDescriptorSet write = kvfWriteImageToDescriptorSet(device, set, view, sampler, binding);
+	VkWriteDescriptorSet write = kvfWriteImageToDescriptorSet(device, set, info, binding);
 	vkUpdateDescriptorSets(device, 1, &write, 0, NULL);
 }
 
-VkWriteDescriptorSet kvfWriteStorageBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding)
-{
-	return kvfWriteStorageBufferRangeToDescriptorSet(device, set, buffer, VK_WHOLE_SIZE, 0, binding);
-}
-
-VkWriteDescriptorSet kvfWriteStorageBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding)
+VkWriteDescriptorSet kvfWriteStorageBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, const VkDescriptorBufferInfo* info, uint32_t binding)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
-	KVF_ASSERT(buffer != VK_NULL_HANDLE);
 	KVF_ASSERT(set != VK_NULL_HANDLE);
-	VkDescriptorBufferInfo buffer_info = {};
-	buffer_info.buffer = buffer;
-	buffer_info.offset = offset;
-	buffer_info.range = size;
 	VkWriteDescriptorSet descriptor_write = {};
 	descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	descriptor_write.dstSet = set;
@@ -1987,24 +1963,14 @@ VkWriteDescriptorSet kvfWriteStorageBufferRangeToDescriptorSet(VkDevice device, 
 	descriptor_write.dstArrayElement = 0;
 	descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 	descriptor_write.descriptorCount = 1;
-	descriptor_write.pBufferInfo = &buffer_info;
+	descriptor_write.pBufferInfo = info;
 	return descriptor_write;
 }
 
-VkWriteDescriptorSet kvfWriteUniformBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, uint32_t binding)
-{
-	return kvfWriteUniformBufferRangeToDescriptorSet(device, set, buffer, VK_WHOLE_SIZE, 0, binding);
-}
-
-VkWriteDescriptorSet kvfWriteUniformBufferRangeToDescriptorSet(VkDevice device, VkDescriptorSet set, VkBuffer buffer, VkDeviceSize size, VkDeviceSize offset, uint32_t binding)
+VkWriteDescriptorSet kvfWriteUniformBufferToDescriptorSet(VkDevice device, VkDescriptorSet set, const VkDescriptorBufferInfo* info, uint32_t binding)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
-	KVF_ASSERT(buffer != VK_NULL_HANDLE);
 	KVF_ASSERT(set != VK_NULL_HANDLE);
-	VkDescriptorBufferInfo buffer_info = {};
-	buffer_info.buffer = buffer;
-	buffer_info.offset = offset;
-	buffer_info.range = size;
 	VkWriteDescriptorSet descriptor_write = {};
 	descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	descriptor_write.dstSet = set;
@@ -2012,20 +1978,14 @@ VkWriteDescriptorSet kvfWriteUniformBufferRangeToDescriptorSet(VkDevice device, 
 	descriptor_write.dstArrayElement = 0;
 	descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	descriptor_write.descriptorCount = 1;
-	descriptor_write.pBufferInfo = &buffer_info;
+	descriptor_write.pBufferInfo = info;
 	return descriptor_write;
 }
 
-VkWriteDescriptorSet kvfWriteImageToDescriptorSet(VkDevice device, VkDescriptorSet set, VkImageView view, VkSampler sampler, uint32_t binding)
+VkWriteDescriptorSet kvfWriteImageToDescriptorSet(VkDevice device, VkDescriptorSet set, const VkDescriptorImageInfo* info, uint32_t binding)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
-	KVF_ASSERT(view != VK_NULL_HANDLE);
-	KVF_ASSERT(sampler != VK_NULL_HANDLE);
 	KVF_ASSERT(set != VK_NULL_HANDLE);
-	VkDescriptorImageInfo image_info = {};
-	image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	image_info.imageView = view;
-	image_info.sampler = sampler;
 	VkWriteDescriptorSet descriptor_write = {};
 	descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	descriptor_write.dstSet = set;
@@ -2033,7 +1993,7 @@ VkWriteDescriptorSet kvfWriteImageToDescriptorSet(VkDevice device, VkDescriptorS
 	descriptor_write.dstArrayElement = 0;
 	descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	descriptor_write.descriptorCount = 1;
-	descriptor_write.pImageInfo = &image_info;
+	descriptor_write.pImageInfo = info;
 	return descriptor_write;
 }
 

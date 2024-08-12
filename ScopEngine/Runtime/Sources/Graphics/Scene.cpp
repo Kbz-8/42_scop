@@ -46,6 +46,7 @@ namespace Scop
 		{
 			m_forward.matrices_set[i] = std::make_shared<DescriptorSet>(vertex_shader->GetShaderLayout().set_layouts[0].second, vertex_shader->GetPipelineLayout().set_layouts[0], ShaderType::Vertex);
 			m_forward.matrices_set[i]->SetUniformBuffer(0, m_forward.matrices_buffer->Get(i));
+			m_forward.matrices_set[i]->Update();
 		}
 	}
 
@@ -58,8 +59,11 @@ namespace Scop
 
 	void Scene::Destroy()
 	{
+		m_actors.clear();
 		m_pipeline.Destroy();
 		m_fragment_shader.reset();
 		m_forward.matrices_buffer->Destroy();
+		for(auto& child : m_scene_children)
+			child.Destroy();
 	}
 }

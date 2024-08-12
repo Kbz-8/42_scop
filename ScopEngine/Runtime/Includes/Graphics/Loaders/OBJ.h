@@ -2,9 +2,11 @@
 #define __SCOP_OBJ_LOADER__
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <optional>
 #include <filesystem>
 
 namespace Scop
@@ -30,15 +32,25 @@ namespace Scop
 
 		using FaceList = std::pair<std::vector<FaceVertex>, std::vector<unsigned> >;
 
-		std::vector<float> vertex; //< 3 * N entries
-		std::vector<float> tex_coord; //< 2 * N entries
-		std::vector<float> normal; //< 3 * N entries
+		std::vector<float> vertex;
+		std::vector<float> tex_coord;
+		std::vector<float> normal;
 
 		std::map<std::string, FaceList> faces;
 	};
 
-	ObjData LoadOBJFromFile(const std::filesystem::path& path);
-	void TesselateOBJData(ObjData& data) noexcept;
+	std::optional<ObjData> LoadOBJFromFile(const std::filesystem::path& path);
+	void TesselateOBJData(ObjData& data);
+
+	template <typename T>
+	inline std::istream& operator>>(std::istream& in, std::vector<T>& vec);
+
+	template <typename T>
+	inline std::istream& operator>>(std::istream& in, std::set<T>& vec );
+
+	inline std::istream& operator>>(std::istream& in, ObjData::FaceVertex& f);
 }
+
+#include <Graphics/Loaders/OBJ.inl>
 
 #endif

@@ -119,7 +119,7 @@ namespace Scop
 	void Renderer::Destroy() noexcept
 	{
 		auto& render_core = RenderCore::Get();
-		vkDeviceWaitIdle(render_core.GetDevice());
+		render_core.WaitDeviceIdle();
 
 		for(std::size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 		{

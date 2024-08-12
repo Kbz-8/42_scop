@@ -83,7 +83,7 @@ namespace Scop
 		VkFence fence = kvfCreateFence(RenderCore::Get().GetDevice());
 		kvfSubmitSingleTimeCommandBuffer(RenderCore::Get().GetDevice(), cmd, KVF_GRAPHICS_QUEUE, fence);
 		kvfWaitForFence(RenderCore::Get().GetDevice(), fence);	
-
+		kvfDestroyFence(RenderCore::Get().GetDevice(), fence);
 		return true;
 	}
 

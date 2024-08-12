@@ -29,7 +29,7 @@ namespace Scop
 			void SetImage(std::uint32_t binding, class Image& image);
 			void SetStorageBuffer(std::uint32_t binding, class GPUBuffer& buffer);
 			void SetUniformBuffer(std::uint32_t binding, class GPUBuffer& buffer);
-			void Update(VkCommandBuffer cmd) noexcept;
+			void Update() noexcept;
 
 			inline void Bind(VkCommandBuffer cmd, VkPipelineBindPoint bindpoint, VkPipelineLayout layout) const noexcept
 			{

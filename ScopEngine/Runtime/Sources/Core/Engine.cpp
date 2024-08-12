@@ -4,8 +4,6 @@
 #include <Core/Logs.h>
 #include <Core/EventBus.h>
 #include <csignal>
-#include <thread>
-#include <chrono>
 
 namespace Scop
 {
@@ -63,9 +61,6 @@ namespace Scop
 		p_current_scene->Init(&m_renderer);
 		while(m_running)
 		{
-			//using namespace std::chrono_literals;
-			//std::this_thread::sleep_for(6.5ms);
-
 			float current_timestep = (static_cast<float>(SDL_GetTicks64()) / 1000.0f) - old_timestep;
 			old_timestep = static_cast<float>(SDL_GetTicks64()) / 1000.0f;
 

@@ -24,6 +24,6 @@ external
 fn main(input: VertOut) -> FragOut
 {
 	let output: FragOut;
-	output.color = input.color * u_albedo.Sample(input.uv);
+	output.color = input.color;// * u_albedo.Sample(input.uv);
 	return output;
 }

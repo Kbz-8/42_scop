@@ -9,7 +9,7 @@ namespace Scop
 			p_script->OnInit(this);
 	}
 
-	Actor::Actor(Model model)
+	Actor::Actor(Model model) : m_model(std::move(model))
 	{
 		if(p_script)
 			p_script->OnInit(this);

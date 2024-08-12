@@ -85,17 +85,40 @@ namespace Scop
 		it->uniform_buffer_ptr = &buffer;
 	}
 
-	void DescriptorSet::Update(VkCommandBuffer cmd) noexcept
+	void DescriptorSet::Update() noexcept
 	{
 		std::vector<VkWriteDescriptorSet> writes;
+		std::vector<VkDescriptorBufferInfo> buffer_infos;
+		std::vector<VkDescriptorImageInfo> image_infos;
 		for(auto& descriptor : m_descriptors)
 		{
 			if(descriptor.image_ptr)
-				writes.push_back(kvfWriteImageToDescriptorSet(RenderCore::Get().GetDevice(), m_set, descriptor.image_ptr->GetImageView(), descriptor.image_ptr->GetSampler(), descriptor.binding));
+			{
+				VkDescriptorImageInfo info{};
+				info.sampler = descriptor.image_ptr->GetSampler();
+				info.imageLayout = descriptor.image_ptr->GetLayout();
+				info.imageView = descriptor.image_ptr->GetImageView();
+				image_infos.push_back(info);
+				writes.push_back(kvfWriteImageToDescriptorSet(RenderCore::Get().GetDevice(), m_set, &image_infos.back(), descriptor.binding));
+			}
 			else if(descriptor.uniform_buffer_ptr)
-				writes.push_back(kvfWriteUniformBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set, descriptor.uniform_buffer_ptr->Get(), descriptor.binding));
+			{
+				VkDescriptorBufferInfo info{};
+				info.buffer = descriptor.uniform_buffer_ptr->Get();
+				info.offset = descriptor.uniform_buffer_ptr->GetOffset();
+				info.range = VK_WHOLE_SIZE;
+				buffer_infos.push_back(info);
+				writes.push_back(kvfWriteUniformBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set, &buffer_infos.back(), descriptor.binding));
+			}
 			else if(descriptor.storage_buffer_ptr)
-				writes.push_back(kvfWriteStorageBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set, descriptor.storage_buffer_ptr->Get(), descriptor.binding));
+			{
+				VkDescriptorBufferInfo info{};
+				info.buffer = descriptor.storage_buffer_ptr->Get();
+				info.offset = descriptor.storage_buffer_ptr->GetOffset();
+				info.range = VK_WHOLE_SIZE;
+				buffer_infos.push_back(info);
+				writes.push_back(kvfWriteStorageBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set, &buffer_infos.back(), descriptor.binding));
+			}
 		}
 		vkUpdateDescriptorSets(RenderCore::Get().GetDevice(), writes.size(), writes.data(), 0, nullptr);
 	}
