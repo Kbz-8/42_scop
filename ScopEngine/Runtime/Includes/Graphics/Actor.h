@@ -33,10 +33,10 @@ namespace Scop
 		private:
 			Model m_model;
 			std::shared_ptr<Script> p_script;
-			Vec4f m_color;
-			Vec3f m_position;
-			Vec3f m_scale;
-			Vec3f m_orientation;
+			Vec4f m_color = Vec4f{ 1.0f, 1.0f, 1.0f, 1.0f };
+			Vec3f m_position = Vec3f{ 0.0f, 0.0f, 0.0f };
+			Vec3f m_scale = Vec3f{ 1.0f, 1.0f, 1.0f };
+			Vec3f m_orientation = Vec3f{ 0.0f, 0.0f, 0.0f };
 	};
 }
 

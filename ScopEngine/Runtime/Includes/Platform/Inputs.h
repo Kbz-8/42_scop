@@ -13,19 +13,17 @@ namespace Scop
 		friend class ScopEngine;
 
 		public:
-			Inputs() = default;
+			Inputs();
 
-			[[nodiscard]] bool IsKeyPressed(const std::uint32_t button) const noexcept;
-			[[nodiscard]] bool IsKeyReleased(const std::uint32_t button) const noexcept;
-			[[nodiscard]] bool IsMouseButtonPressed(const std::uint8_t button) const noexcept;
-			[[nodiscard]] bool IsMouseButtonReleased(const std::uint8_t button) const noexcept;
+			[[nodiscard]] inline bool IsKeyPressed(const std::uint32_t button) const noexcept { return m_keys[button]; }
+			[[nodiscard]] inline bool IsMouseButtonPressed(const std::uint8_t button) const noexcept { return m_mouse[button - 1]; }
 			[[nodiscard]] inline std::int32_t GetX() const noexcept { return m_x; }
 			[[nodiscard]] inline std::int32_t GetY() const noexcept { return m_y; }
 			[[nodiscard]] inline std::int32_t GetXRel() const noexcept { return m_x_rel; }
 			[[nodiscard]] inline std::int32_t GetYRel() const noexcept { return m_y_rel; }
 
-			inline void GrabMouse() noexcept { SDL_SetRelativeMouseMode(SDL_TRUE); m_is_mouse_grabbed = true; }
-			inline void ReleaseMouse() noexcept { SDL_SetRelativeMouseMode(SDL_FALSE); m_is_mouse_grabbed = false; }
+			inline void GrabMouse() noexcept { SDL_SetRelativeMouseMode(SDL_TRUE); SDL_ShowCursor(SDL_DISABLE); m_is_mouse_grabbed = true; }
+			inline void ReleaseMouse() noexcept { SDL_SetRelativeMouseMode(SDL_FALSE); SDL_ShowCursor(SDL_ENABLE); m_is_mouse_grabbed = false; }
 			[[nodiscard]] inline bool IsMouseGrabbed() const noexcept { return m_is_mouse_grabbed; }
 
 			[[nodiscard]] inline bool HasRecievedCloseEvent() const noexcept { return m_has_recieved_close_event; }
@@ -37,8 +35,9 @@ namespace Scop
 
 		private:
 			SDL_Event m_event;
-			std::array<std::uint8_t, SDL_NUM_SCANCODES> m_keys;
-			std::array<std::uint8_t, 5> m_mouse;
+			const std::uint8_t* m_keys;
+			std::array<bool, 5> m_mouse; // 5 bytes, shitty padding, maybe fix
+			std::int32_t m_keys_count = 0;
 			std::int32_t m_x = 0;
 			std::int32_t m_y = 0;
 			std::int32_t m_x_rel = 0;

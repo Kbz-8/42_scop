@@ -33,7 +33,7 @@ namespace Scop
 			float m_theta = 0.0;
 			float m_phi = 0.0;
 
-			const float m_speed = 0.3f;
+			const float m_speed = 0.05f;
 			const float m_sensivity = 0.7f;
 			float m_fov = 90.0f;
 	};

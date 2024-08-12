@@ -22,7 +22,9 @@ namespace Scop
 		for(auto& actor : scene.GetActors())
 		{
 			ModelData model_data;
-			model_data.model_mat = Mat4f::Translate(actor.GetPosition());
+			model_data.model_mat = Mat4f::Identity();
+			model_data.model_mat.SetTranslation(actor.GetPosition());
+			model_data.model_mat.SetScale(actor.GetScale());
 			model_data.normal_mat = Mat4f::Identity();
 			vkCmdPushConstants(cmd, pipeline.GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ModelData), &model_data);
 			data.matrices_set[renderer.GetCurrentFrameIndex()]->Bind(cmd, pipeline.GetPipelineBindPoint(), pipeline.GetPipelineLayout());

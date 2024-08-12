@@ -22,7 +22,7 @@ namespace Scop
 				auto extent = kvfGetSwapchainImagesSize(renderer->GetSwapchain());
 				m_depth.Init(extent.width, extent.height);
 				TransitionAttachments();
-				CreateFramebuffers(renderer->GetSwapchainImages());
+				CreateFramebuffers({});
 			}
 		};
 		EventBus::RegisterListener({ functor, std::to_string((std::uintptr_t)(void**)this) });

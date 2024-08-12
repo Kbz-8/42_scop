@@ -24,7 +24,7 @@ namespace Scop
 
 		if(input.IsKeyPressed(SDL_SCANCODE_ESCAPE))
 			input.ReleaseMouse();
-		else if(input.IsKeyPressed(SDL_BUTTON_LEFT))
+		else if(input.IsMouseButtonPressed(SDL_BUTTON_LEFT))
 			input.GrabMouse();
 
 		m_mov = Vec3f(0.0);
