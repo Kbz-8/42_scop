@@ -9,6 +9,7 @@ namespace Scop
 {
 	void GraphicPipeline::Init(std::shared_ptr<Shader> vertex_shader, std::shared_ptr<Shader> fragment_shader, NonOwningPtr<Renderer> renderer)
 	{
+		p_renderer = renderer;
 		std::function<void(const EventBase&)> functor = [this, renderer](const EventBase& event)
 		{
 			if(event.What() == 56)
@@ -26,8 +27,7 @@ namespace Scop
 		};
 		EventBus::RegisterListener({ functor, std::to_string((std::uintptr_t)(void**)this) });
 
-		m_is_swapchain = true;
-		Init(std::move(vertex_shader), std::move(fragment_shader), renderer->GetSwapchainImages());
+		Init(std::move(vertex_shader), std::move(fragment_shader), std::vector<Image>{});
 	}
 
 	void GraphicPipeline::Init(std::shared_ptr<Shader> vertex_shader, std::shared_ptr<Shader> fragment_shader, std::vector<Image> attachments)
@@ -46,10 +46,12 @@ namespace Scop
 		set_layouts.insert(set_layouts.end(), fragment_shader->GetPipelineLayout().set_layouts.begin(), fragment_shader->GetPipelineLayout().set_layouts.end());
 		m_pipeline_layout = kvfCreatePipelineLayout(RenderCore::Get().GetDevice(), set_layouts.data(), set_layouts.size(), push_constants.data(), push_constants.size());
 
-		m_depth.Init(attachments.back().GetWidth(), attachments.back().GetHeight());
+		if(p_renderer)
+			m_depth.Init(p_renderer->GetSwapchainImages().back().GetWidth(), p_renderer->GetSwapchainImages().back().GetHeight());
+		else
+			m_depth.Init(attachments.back().GetWidth(), attachments.back().GetHeight());
 
 		TransitionAttachments();
-		attachments.push_back(m_depth);
 		CreateFramebuffers(attachments);
 
 		p_builder = kvfCreateGPipelineBuilder();
@@ -130,27 +132,47 @@ namespace Scop
 
 	void GraphicPipeline::CreateFramebuffers(const std::vector<Image>& render_targets)
 	{
-		bool swapchain_image_found = false;
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkImageView> attachment_views;
-		for(const auto& image : render_targets)
+		if(p_renderer)
 		{
-			if(image.GetLayout() == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR && swapchain_image_found)
-				continue;
-			else if(image.GetLayout() == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-				swapchain_image_found = true;
+			const Image& image = p_renderer->GetSwapchainImages()[0];
 			attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image.GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image.GetFormat(), image.GetLayout(), image.GetLayout(), true));
 			attachment_views.push_back(image.GetImageView());
 		}
+		else
+		{
+			for(const auto& image : render_targets)
+			{
+				attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image.GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image.GetFormat(), image.GetLayout(), image.GetLayout(), true));
+				attachment_views.push_back(image.GetImageView());
+			}
+		}
+
+		attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(m_depth.GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), m_depth.GetFormat(), m_depth.GetLayout(), m_depth.GetLayout(), true));
+		attachment_views.push_back(m_depth.GetImageView());
+
 		m_renderpass = kvfCreateRenderPass(RenderCore::Get().GetDevice(), attachments.data(), attachments.size(), GetPipelineBindPoint());
 		m_clears.clear();
 		m_clears.resize(attachments.size());
 		Message("Vulkan : renderpass created");
 
-		for(const auto& image : render_targets)
+		if(p_renderer)
 		{
-			m_framebuffers.push_back(kvfCreateFramebuffer(RenderCore::Get().GetDevice(), m_renderpass, attachment_views.data(), attachment_views.size(), { .width = image.GetWidth(), .height = image.GetHeight() }));
-			Message("Vulkan : framebuffer created");
+			for(const Image& image : p_renderer->GetSwapchainImages())
+			{
+				attachment_views[0] = image.GetImageView();
+				m_framebuffers.push_back(kvfCreateFramebuffer(RenderCore::Get().GetDevice(), m_renderpass, attachment_views.data(), attachment_views.size(), { .width = image.GetWidth(), .height = image.GetHeight() }));
+				Message("Vulkan : framebuffer created");
+			}
+		}
+		else
+		{
+			for(const auto& image : render_targets)
+			{
+				m_framebuffers.push_back(kvfCreateFramebuffer(RenderCore::Get().GetDevice(), m_renderpass, attachment_views.data(), attachment_views.size(), { .width = image.GetWidth(), .height = image.GetHeight() }));
+				Message("Vulkan : framebuffer created");
+			}
 		}
 	}
 

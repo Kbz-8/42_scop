@@ -47,7 +47,7 @@ namespace Scop
 			VkRenderPass m_renderpass = VK_NULL_HANDLE;
 			VkPipeline m_pipeline = VK_NULL_HANDLE;
 			VkPipelineLayout m_pipeline_layout = VK_NULL_HANDLE;
-			bool m_is_swapchain = false;
+			NonOwningPtr<class Renderer> p_renderer;
 	};
 }
 

@@ -97,7 +97,7 @@ VkPhysicalDevice kvfPickGoodDefaultPhysicalDevice(VkInstance instance, VkSurface
 VkPhysicalDevice kvfPickGoodPhysicalDevice(VkInstance instance, VkSurfaceKHR surface, const char** deviceExtensions, uint32_t deviceExtensionsCount);
 
 VkQueue kvfGetDeviceQueue(VkDevice device, KvfQueueType queue);
-bool kvfQueuePresentKHR(VkDevice device, VkSemaphore signal, VkSwapchainKHR swapchain, uint32_t* image_index); // return false when the swapchain must be recreated
+bool kvfQueuePresentKHR(VkDevice device, VkSemaphore wait, VkSwapchainKHR swapchain, uint32_t image_index); // return false when the swapchain must be recreated
 
 VkDevice kvfCreateDefaultDevice(VkPhysicalDevice physical);
 VkDevice kvfCreateDevice(VkPhysicalDevice physical, const char** extensions, uint32_t extensions_count);
@@ -1279,17 +1279,16 @@ VkQueue kvfGetDeviceQueue(VkDevice device, KvfQueueType queue)
 	return vk_queue;
 }
 
-bool kvfQueuePresentKHR(VkDevice device, VkSemaphore signal, VkSwapchainKHR swapchain, uint32_t* image_index)
+bool kvfQueuePresentKHR(VkDevice device, VkSemaphore wait, VkSwapchainKHR swapchain, uint32_t image_index)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 	VkPresentInfoKHR present_info = {};
 	present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 	present_info.waitSemaphoreCount = 1;
-	present_info.pWaitSemaphores = &signal;
+	present_info.pWaitSemaphores = &wait;
 	present_info.swapchainCount = 1;
 	present_info.pSwapchains = &swapchain;
-	present_info.pImageIndices = image_index;
-
+	present_info.pImageIndices = &image_index;
 	VkResult result = vkQueuePresentKHR(kvfGetDeviceQueue(device, KVF_PRESENT_QUEUE), &present_info);
 	if(result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
 		return false;
@@ -1301,12 +1300,11 @@ bool kvfQueuePresentKHR(VkDevice device, VkSemaphore signal, VkSwapchainKHR swap
 VkFence kvfCreateFence(VkDevice device)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
-	VkFenceCreateInfo fenceInfo = {};
-	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-	
-	VkFence fence = VK_NULL_HANDLE;
-	__kvfCheckVk(vkCreateFence(device, &fenceInfo, NULL, &fence));
+	VkFenceCreateInfo fence_info = {};
+	fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+	VkFence fence;
+	__kvfCheckVk(vkCreateFence(device, &fence_info, NULL, &fence));
 	return fence;
 }
 
@@ -1328,11 +1326,10 @@ void kvfDestroyFence(VkDevice device, VkFence fence)
 VkSemaphore kvfCreateSemaphore(VkDevice device)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
-	VkSemaphoreCreateInfo semaphoreInfo = {};
-	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-	VkSemaphore semaphore = VK_NULL_HANDLE;
-	__kvfCheckVk(vkCreateSemaphore(device, &semaphoreInfo, NULL, &semaphore));
+	VkSemaphoreCreateInfo semaphore_info = {};
+	semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	VkSemaphore semaphore;
+	__kvfCheckVk(vkCreateSemaphore(device, &semaphore_info, NULL, &semaphore));
 	return semaphore;
 }
 
@@ -1705,20 +1702,20 @@ void kvfSubmitCommandBuffer(VkDevice device, VkCommandBuffer buffer, KvfQueueTyp
 
 	VkSemaphore signal_semaphores[1];
 	VkSemaphore wait_semaphores[1];
-	signal_semaphores[0] = (signal ? signal : VK_NULL_HANDLE);
-	wait_semaphores[0] = (wait ? wait : VK_NULL_HANDLE);
+	signal_semaphores[0] = signal;
+	wait_semaphores[0] = wait;
 
 	if(fence != VK_NULL_HANDLE)
 		vkResetFences(device, 1, &fence);
 
 	VkSubmitInfo submit_info = {};
 	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submit_info.waitSemaphoreCount = (!wait ? 0 : 1);
+	submit_info.waitSemaphoreCount = (wait == VK_NULL_HANDLE ? 0 : 1);
 	submit_info.pWaitSemaphores = wait_semaphores;
 	submit_info.pWaitDstStageMask = stages;
 	submit_info.commandBufferCount = 1;
 	submit_info.pCommandBuffers = &buffer;
-	submit_info.signalSemaphoreCount = (!signal ? 0 : 1);
+	submit_info.signalSemaphoreCount = (signal == VK_NULL_HANDLE ? 0 : 1);
 	submit_info.pSignalSemaphores = signal_semaphores;
 	__kvfCheckVk(vkQueueSubmit(kvfGetDeviceQueue(device, queue), 1, &submit_info, fence));
 }
