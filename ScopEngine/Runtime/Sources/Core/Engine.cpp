@@ -1,6 +1,7 @@
 #include <Core/Engine.h>
 #include <Renderer/RenderCore.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_hints.h>
 #include <Core/Logs.h>
 #include <Core/EventBus.h>
 #include <csignal>

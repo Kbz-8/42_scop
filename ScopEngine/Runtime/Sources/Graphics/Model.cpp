@@ -25,7 +25,7 @@ namespace Scop
 		auto data = LoadOBJFromFile(path);
 		if(!data)
 			return { nullptr };
-		TesselateOBJData(*data);
+		//TesselateOBJData(*data);
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		std::vector<Vertex> vertices;
 		std::vector<std::uint32_t> indices;
