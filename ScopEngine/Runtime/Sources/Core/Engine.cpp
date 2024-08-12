@@ -1,7 +1,6 @@
 #include <Core/Engine.h>
 #include <Renderer/RenderCore.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_hints.h>
 #include <Core/Logs.h>
 #include <Core/EventBus.h>
 #include <csignal>
@@ -43,8 +42,8 @@ namespace Scop
 
 		signal(SIGINT, SignalHandler);
 
-		SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1");
-		SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, "1");
+		SDL_SetHint("SDL_MOUSE_RELATIVE_MODE_WARP", "1");
+		SDL_SetHint("SDL_MOUSE_RELATIVE_MODE_CENTER", "1");
 		if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0)
 			FatalError("SDL error : unable to init all subsystems : %", SDL_GetError());
 		RenderCore::Get().Init();
