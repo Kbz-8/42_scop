@@ -15,12 +15,14 @@ namespace Scop
 		public:
 			ImGuiRenderer(NonOwningPtr<Renderer> renderer);
 
-			void Init();
+			void Init(class Inputs& inputs);
+			void Destroy();
 
 			bool BeginFrame();
+			void DisplayRenderStatistics();
 			void EndFrame();
 
-			~ImGuiRenderer();
+			~ImGuiRenderer() = default;
 
 		private:
 			void SetTheme();

@@ -14,7 +14,7 @@
 *vgcore.*
 *.gdb_history
 *.spv
-.imgui
+imgui.ini
 .vs/
 .xmake/
 .cache/

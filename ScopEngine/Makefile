@@ -25,7 +25,7 @@ DEBUG ?= false
 MODE = "release"
 
 ifeq ($(DEBUG), true)
-	CXXFLAGS += -g -D DEBUG -I ThirdParty/imgui
+	CXXFLAGS += -g -D DEBUG -D IMGUI_IMPL_VULKAN_NO_PROTOTYPES -I ThirdParty/imgui
 	MODE = "debug"
 	SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Debug))
 	SRCS += $(wildcard $(addsuffix /*.cpp, ./ThirdParty/imgui))

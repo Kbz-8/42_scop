@@ -35,6 +35,7 @@ namespace Scop
 			FatalError("Vulkan : failed to allocate memory for an image");
 		vkBindImageMemory(RenderCore::Get().GetDevice(), m_image, m_memory, 0);
 		Message("Vulkan : image created");
+		s_image_count++;
 	}
 
 	void Image::CreateImageView(VkImageViewType type, VkImageAspectFlags aspect_flags) noexcept
@@ -82,5 +83,6 @@ namespace Scop
 		}
 		Message("Vulkan : image destroyed");
 		m_image = VK_NULL_HANDLE;
+		s_image_count--;
 	}
 }

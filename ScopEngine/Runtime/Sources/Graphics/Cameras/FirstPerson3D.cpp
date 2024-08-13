@@ -16,6 +16,20 @@ namespace Scop
 		m_view = Mat4f::LookAt(m_position, m_target, m_up);
 		m_proj = Mat4f::Perspective(RadianAngle<float>(m_fov), aspect, 0.1f, 1000.f);
 
+		if(input.IsKeyPressed(SDL_SCANCODE_F1))
+		{
+			m_inputs_blocked = true;
+			input.ReleaseMouse();
+		}
+		if(input.IsKeyPressed(SDL_SCANCODE_F2))
+		{
+			m_inputs_blocked = false;
+			input.GrabMouse();
+		}
+
+		if(m_inputs_blocked)
+			return;
+
 		if(input.IsMouseGrabbed())
 		{
 			m_theta -= input.GetXRel() * m_sensivity;

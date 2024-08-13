@@ -37,6 +37,8 @@ namespace Scop
 			[[nodiscard]] inline VkDeviceSize GetSize() const noexcept { return m_size; }
 			[[nodiscard]] inline VkDeviceSize GetOffset() const noexcept { return m_offset; }
 
+			[[nodiscard]] inline static std::size_t GetBufferCount() noexcept { return s_buffer_count; }
+
 			[[nodiscard]] inline bool IsInit() const noexcept { return m_buffer != VK_NULL_HANDLE; }
 
 			~GPUBuffer() = default;
@@ -54,6 +56,8 @@ namespace Scop
 			void CreateBuffer(VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 
 		private:
+			inline static std::size_t s_buffer_count = 0;
+
 			VkBufferUsageFlags m_usage = 0;
 			VkMemoryPropertyFlags m_flags = 0;
 			bool m_is_mapped = false;

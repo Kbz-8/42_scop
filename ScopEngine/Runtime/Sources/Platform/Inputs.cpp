@@ -17,6 +17,8 @@ namespace Scop
 
 		while(SDL_PollEvent(&m_event))
 		{
+			for(auto& hook : m_hooks)
+				hook(&m_event);
 			switch(m_event.type)
 			{
 				case SDL_WINDOWEVENT:

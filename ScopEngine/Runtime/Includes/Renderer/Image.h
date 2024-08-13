@@ -44,9 +44,13 @@ namespace Scop
 			[[nodiscard]] inline std::uint32_t GetHeight() const noexcept { return m_height; }
 			[[nodiscard]] inline bool IsInit() const noexcept { return m_image != VK_NULL_HANDLE; }
 
+			[[nodiscard]] inline static std::size_t GetImageCount() noexcept { return s_image_count; }
+
 			virtual ~Image() = default;
 
 		private:
+			inline static std::size_t s_image_count = 0;
+
 			VkDeviceMemory m_memory = VK_NULL_HANDLE;
 			VkImage m_image = VK_NULL_HANDLE;
 			VkImageView m_image_view = VK_NULL_HANDLE;

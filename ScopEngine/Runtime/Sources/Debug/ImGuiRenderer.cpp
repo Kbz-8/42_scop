@@ -1,16 +1,23 @@
 #include <Debug/ImGuiRenderer.h>
+#include <Renderer/Buffer.h>
+#include <Renderer/Image.h>
+#include <Platform/Inputs.h>
 #include <Core/EventBus.h>
+
+#undef DebugLog
 
 #include <imgui.h>
 #include <backends/imgui_impl_sdl2.h>
 #include <backends/imgui_impl_vulkan.h>
+
+#include <algorithm>
 
 namespace Scop
 {
 	ImGuiRenderer::ImGuiRenderer(NonOwningPtr<Renderer> renderer) : p_renderer(renderer)
 	{}
 
-	void ImGuiRenderer::Init()
+	void ImGuiRenderer::Init(Inputs& inputs)
 	{
 		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
 		{
@@ -19,15 +26,17 @@ namespace Scop
 				kvfDestroyRenderPass(RenderCore::Get().GetDevice(), m_renderpass);
 				std::vector<VkAttachmentDescription> attachments;
 				const Image& image = p_renderer->GetSwapchainImages()[0];
-				attachments.push_back(kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, image.GetFormat(), image.GetLayout(), image.GetLayout(), true));
+				attachments.push_back(kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, image.GetFormat(), image.GetLayout(), image.GetLayout(), false));
 				m_renderpass = kvfCreateRenderPass(RenderCore::Get().GetDevice(), attachments.data(), attachments.size(), VK_PIPELINE_BIND_POINT_GRAPHICS);
 				CreateFramebuffers();
+				ImGui_ImplVulkan_SetMinImageCount(kvfGetSwapchainMinImagesCount(p_renderer->GetSwapchain()));
 			}
 		};
 		EventBus::RegisterListener({ functor, std::to_string((std::uintptr_t)(void**)this) });
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+		ImGui::GetIO().IniFilename = nullptr;
 
 		SetTheme();
 
@@ -60,7 +69,7 @@ namespace Scop
 
 		std::vector<VkAttachmentDescription> attachments;
 		const Image& image = p_renderer->GetSwapchainImages()[0];
-		attachments.push_back(kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, image.GetFormat(), image.GetLayout(), image.GetLayout(), true));
+		attachments.push_back(kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, image.GetFormat(), image.GetLayout(), image.GetLayout(), false));
 		m_renderpass = kvfCreateRenderPass(RenderCore::Get().GetDevice(), attachments.data(), attachments.size(), VK_PIPELINE_BIND_POINT_GRAPHICS);
 		CreateFramebuffers();
 
@@ -80,6 +89,21 @@ namespace Scop
 			init_info.CheckVkResultFn = [](VkResult){};
 			init_info.RenderPass = m_renderpass;
 		ImGui_ImplVulkan_Init(&init_info);
+
+		inputs.AddEventUpdateHook(ImGui_ImplSDL2_ProcessEvent);
+	}
+
+	void ImGuiRenderer::Destroy()
+	{
+		RenderCore::Get().WaitDeviceIdle();
+		ImGui_ImplVulkan_Shutdown();
+		ImGui_ImplSDL2_Shutdown();
+		ImGui::DestroyContext();
+		for(VkFramebuffer fb : m_framebuffers)
+			kvfDestroyFramebuffer(RenderCore::Get().GetDevice(), fb);
+		m_framebuffers.clear();
+		kvfDestroyRenderPass(RenderCore::Get().GetDevice(), m_renderpass);
+		vkDestroyDescriptorPool(RenderCore::Get().GetDevice(), m_pool, nullptr);
 	}
 
 	bool ImGuiRenderer::BeginFrame()
@@ -87,15 +111,41 @@ namespace Scop
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
-		
-		if(ImGui::Begin("test", nullptr, 0))
-		{
-			ImGui::Text("Hello, world %d", 123);
-			if(ImGui::Button("Save"))
-			{}
-			ImGui::End();
-		}
 		return true;
+	}
+
+	void ImGuiRenderer::DisplayRenderStatistics()
+	{
+		static std::array<std::string, 5> gpu_types_string = {
+			"Other",
+			"Integrated",
+			"Graphics Card",
+			"Virtual",
+			"CPU"
+		};
+		float delta = ImGui::GetIO().DeltaTime;
+		static std::array<float, 1000> frame_histogram;
+		ImGui::SetNextWindowPos(ImVec2{ 20.0f, 20.0f }, ImGuiCond_FirstUseEver);
+		if(ImGui::Begin("Render Statistics", nullptr, ImGuiWindowFlags_NoResize))
+		{
+			VkPhysicalDeviceProperties props;
+			vkGetPhysicalDeviceProperties(RenderCore::Get().GetPhysicalDevice(), &props);
+			ImGui::Text("GPU in use:\n%s", props.deviceName);
+			ImGui::Text("GPU type: %s", gpu_types_string[static_cast<int>(props.deviceType)].c_str());
+			ImGui::Separator();
+			ImGui::Text("Frame time %.3fms", delta);
+			ImGui::PlotLines("##Frames_Histogram", frame_histogram.data(), frame_histogram.size(), 0, NULL, 0.0f, 1.0f, ImVec2(ImGui::GetContentRegionAvail().x, 40.0f));
+			ImGui::Text("FPS %.0f", ImGui::GetIO().Framerate);
+			ImGui::Separator();
+			ImGui::Text("Swapchain images count %ld", p_renderer->GetSwapchainImages().size());
+			ImGui::Text("Drawcalls %ld", p_renderer->GetDrawCallsCounterRef());
+			ImGui::Text("Buffer count %ld", GPUBuffer::GetBufferCount());
+			ImGui::Text("Image count %ld", Image::GetImageCount());
+			ImGui::Text("Window dimensions: %ux%u", p_renderer->GetWindow()->GetWidth(), p_renderer->GetWindow()->GetHeight());
+		}
+		ImGui::End();
+		std::rotate(frame_histogram.begin(), frame_histogram.begin() + 1, frame_histogram.end());
+		frame_histogram.back() = delta;
 	}
 
 	void ImGuiRenderer::EndFrame()
@@ -106,12 +156,7 @@ namespace Scop
 		if(draw_data->DisplaySize.x >= 0.0f && draw_data->DisplaySize.y >= 0.0f)
 		{
 			VkExtent2D fb_extent = kvfGetFramebufferSize(fb);
-			VkClearValue clear;
-			clear.color.float32[0] = 0.0f;
-			clear.color.float32[1] = 0.0f;
-			clear.color.float32[2] = 0.0f;
-			clear.color.float32[3] = 1.0f;
-			kvfBeginRenderPass(m_renderpass, p_renderer->GetActiveCommandBuffer(), fb, fb_extent, &clear, 1);
+			kvfBeginRenderPass(m_renderpass, p_renderer->GetActiveCommandBuffer(), fb, fb_extent, NULL, 0);
 			ImGui_ImplVulkan_RenderDrawData(draw_data, p_renderer->GetActiveCommandBuffer());
 			vkCmdEndRenderPass(p_renderer->GetActiveCommandBuffer());
 		}
@@ -125,7 +170,7 @@ namespace Scop
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkImageView> attachment_views;
 		const Image& image = p_renderer->GetSwapchainImages()[0];
-		attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image.GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image.GetFormat(), image.GetLayout(), image.GetLayout(), true));
+		attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image.GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image.GetFormat(), image.GetLayout(), image.GetLayout(), false));
 		attachment_views.push_back(image.GetImageView());
 		for(const Image& image : p_renderer->GetSwapchainImages())
 		{
@@ -142,7 +187,7 @@ namespace Scop
 		ImGui::StyleColorsDark();
 		colors[ImGuiCol_Text]                  = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 		colors[ImGuiCol_TextDisabled]          = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-		colors[ImGuiCol_WindowBg]              = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+		colors[ImGuiCol_WindowBg]              = ImVec4(0.10f, 0.10f, 0.10f, 0.50f);
 		colors[ImGuiCol_ChildBg]               = ImVec4(0.20f, 0.20f, 0.20f, 0.20f);
 		colors[ImGuiCol_PopupBg]               = ImVec4(0.19f, 0.19f, 0.19f, 0.92f);
 		colors[ImGuiCol_Border]                = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
@@ -196,7 +241,7 @@ namespace Scop
 
 		style->ChildRounding = 4.0f;
 		style->FrameBorderSize = 1.0f;
-		style->FrameRounding = 2.0f;
+		style->FrameRounding = 4.0f;
 		style->GrabMinSize = 7.0f;
 		style->PopupRounding = 2.0f;
 		style->ScrollbarRounding = 12.0f;
@@ -208,14 +253,5 @@ namespace Scop
 		style->AntiAliasedLines = true;
 		style->AntiAliasedFill = true;
 		style->TabBorderSize = 2.0f;
-	}
-
-	ImGuiRenderer::~ImGuiRenderer()
-	{
-		RenderCore::Get().WaitDeviceIdle();
-		ImGui_ImplVulkan_Shutdown();
-		ImGui_ImplSDL2_Shutdown();
-		ImGui::DestroyContext();
-		vkDestroyDescriptorPool(RenderCore::Get().GetDevice(), m_pool, nullptr);
 	}
 }

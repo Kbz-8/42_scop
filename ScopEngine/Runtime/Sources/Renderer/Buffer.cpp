@@ -61,6 +61,7 @@ namespace Scop
 			FatalError("Vulkan : failed to allocate buffer memory");
 		vkBindBufferMemory(device, m_buffer, m_memory, m_offset);
 		Message("Vulkan : created buffer");
+		s_buffer_count++;
 	}
 
 	bool GPUBuffer::CopyFrom(const GPUBuffer& buffer) noexcept
@@ -110,6 +111,7 @@ namespace Scop
 		m_buffer = VK_NULL_HANDLE;
 		m_memory = VK_NULL_HANDLE;
 		Message("Vulkan : destroyed buffer");
+		s_buffer_count--;
 	}
 
 	void GPUBuffer::Swap(GPUBuffer& buffer) noexcept

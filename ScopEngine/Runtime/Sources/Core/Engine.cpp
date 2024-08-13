@@ -52,7 +52,7 @@ namespace Scop
 		RenderCore::Get().Init();
 		m_renderer.Init(&m_window);
 		#ifdef DEBUG
-			m_imgui.Init();
+			m_imgui.Init(m_inputs);
 		#endif
 	}
 
@@ -80,6 +80,7 @@ namespace Scop
 				m_scene_renderer.Render(*p_current_scene, m_renderer);
 				#ifdef DEBUG
 					m_imgui.BeginFrame();
+					m_imgui.DisplayRenderStatistics();
 					m_imgui.EndFrame();
 				#endif
 				m_renderer.EndFrame();
@@ -95,6 +96,9 @@ namespace Scop
 		RenderCore::Get().WaitDeviceIdle();
 		m_main_scene.Destroy();
 		m_window.Destroy();
+		#ifdef DEBUG
+			m_imgui.Destroy();
+		#endif
 		m_renderer.Destroy();
 		RenderCore::Get().Destroy();
 		SDL_Quit();

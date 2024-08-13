@@ -2,12 +2,16 @@
 #define __SCOP_PLATFORM_INPUTS__
 
 #include <array>
+#include <vector>
 #include <cstdint>
+#include <functional>
 
 #include <SDL2/SDL.h>
 
 namespace Scop
 {
+	using EventUpdateHook = std::function<void(SDL_Event*)>;
+
 	class Inputs
 	{
 		friend class ScopEngine;
@@ -22,6 +26,8 @@ namespace Scop
 			[[nodiscard]] inline std::int32_t GetXRel() const noexcept { return m_x_rel; }
 			[[nodiscard]] inline std::int32_t GetYRel() const noexcept { return m_y_rel; }
 
+			inline void AddEventUpdateHook(const EventUpdateHook& hook) { m_hooks.push_back(hook); }
+
 			inline void GrabMouse() noexcept { SDL_SetRelativeMouseMode(SDL_TRUE); SDL_ShowCursor(SDL_DISABLE); m_is_mouse_grabbed = true; }
 			inline void ReleaseMouse() noexcept { SDL_SetRelativeMouseMode(SDL_FALSE); SDL_ShowCursor(SDL_ENABLE); m_is_mouse_grabbed = false; }
 			[[nodiscard]] inline bool IsMouseGrabbed() const noexcept { return m_is_mouse_grabbed; }
@@ -35,6 +41,7 @@ namespace Scop
 
 		private:
 			SDL_Event m_event;
+			std::vector<EventUpdateHook> m_hooks;
 			const std::uint8_t* m_keys;
 			std::array<bool, 5> m_mouse; // 5 bytes, shitty padding, maybe fix
 			std::int32_t m_keys_count = 0;
