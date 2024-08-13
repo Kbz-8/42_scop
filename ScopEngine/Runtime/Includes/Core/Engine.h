@@ -12,6 +12,10 @@
 #include <Core/Logs.h>
 #include <Graphics/Scene.h>
 
+#ifdef DEBUG
+	#include <Debug/ImGuiRenderer.h>
+#endif
+
 namespace Scop
 {
 	class ScopEngine
@@ -42,6 +46,9 @@ namespace Scop
 			static ScopEngine* s_instance;
 			Inputs m_inputs;
 			Renderer m_renderer;
+			#ifdef DEBUG
+				ImGuiRenderer m_imgui;
+			#endif
 			Window m_window;
 			Scene m_main_scene;
 			SceneRenderer m_scene_renderer;

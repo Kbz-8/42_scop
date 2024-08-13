@@ -25,8 +25,11 @@ DEBUG ?= false
 MODE = "release"
 
 ifeq ($(DEBUG), true)
-	CXXFLAGS += -g -D DEBUG
+	CXXFLAGS += -g -D DEBUG -I ThirdParty/imgui
 	MODE = "debug"
+	SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Debug))
+	SRCS += $(wildcard $(addsuffix /*.cpp, ./ThirdParty/imgui))
+	SRCS += $(wildcard $(addsuffix /*.cpp, ./ThirdParty/imgui/backends))
 endif
 
 ifeq ($(SHARED), true)

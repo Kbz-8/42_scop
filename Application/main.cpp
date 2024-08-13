@@ -24,11 +24,12 @@ int main(int ac, char** av)
 	Scop::ScopEngine engine(ac, av, "Scop", 1280, 720, GetExecutablePath().parent_path().parent_path() / "ScopEngine/Assets");
 
 	Scop::SceneDescriptor main_scene_desc;
-	main_scene_desc.fragment_shader = Scop::RenderCore::Get().GetBasicFragmentShader();
+	main_scene_desc.fragment_shader = Scop::RenderCore::Get().GetDefaultFragmentShader();
 	main_scene_desc.camera = std::make_shared<Scop::FirstPerson3D>(Scop::Vec3f{ 0.0f, 0.0f, 0.0f });
 
 	Scop::Scene main_scene("main", main_scene_desc);
 	Scop::Actor& object = main_scene.CreateActor(Scop::LoadModelFromObjFile(av[ac - 1]));
+	object.SetScale(Scop::Vec3f{ 5.0f, 5.0f, 5.0f });
 
 	auto object_update = [](Scop::NonOwningPtr<Scop::Actor> actor, Scop::Inputs& input, float delta)
 	{

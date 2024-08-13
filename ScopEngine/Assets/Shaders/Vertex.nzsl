@@ -45,6 +45,6 @@ fn main(input: VertIn) -> VertOut
 	output.uv = input.uv;
 	output.norm = input.normal;
 	output.norm_mat = model.normal;
-	output.pos = camera.projection * camera.view * model.matrix * vec4[f32](input.pos.xyz, 1.0);
+	output.pos = camera.projection * camera.view * model.matrix * input.pos;
 	return output;
 }

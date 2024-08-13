@@ -29,6 +29,9 @@ namespace Scop
 
 	ScopEngine::ScopEngine(int ac, char** av, const std::string& title, std::uint32_t width, std::uint32_t height, std::filesystem::path assets_path)
 		: m_renderer(), m_window(title, width, height), m_assets_path(std::move(assets_path))
+		#ifdef DEBUG
+			,m_imgui(&m_renderer)
+		#endif
 	{
 		s_instance = this;
 		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
@@ -48,6 +51,9 @@ namespace Scop
 			FatalError("SDL error : unable to init all subsystems : %", SDL_GetError());
 		RenderCore::Get().Init();
 		m_renderer.Init(&m_window);
+		#ifdef DEBUG
+			m_imgui.Init();
+		#endif
 	}
 
 	ScopEngine& ScopEngine::Get() noexcept
@@ -72,6 +78,10 @@ namespace Scop
 			if(m_renderer.BeginFrame())
 			{
 				m_scene_renderer.Render(*p_current_scene, m_renderer);
+				#ifdef DEBUG
+					m_imgui.BeginFrame();
+					m_imgui.EndFrame();
+				#endif
 				m_renderer.EndFrame();
 			}
 

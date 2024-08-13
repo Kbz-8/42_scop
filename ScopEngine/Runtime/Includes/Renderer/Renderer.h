@@ -40,6 +40,7 @@ namespace Scop
 			[[nodiscard]] inline std::size_t& GetDrawCallsCounterRef() noexcept { return m_drawcalls; }
 			[[nodiscard]] inline std::size_t GetSwapchainImageIndex() const noexcept { return m_swapchain_image_index; }
 			[[nodiscard]] inline std::size_t GetCurrentFrameIndex() const noexcept { return m_current_frame_index; }
+			[[nodiscard]] inline NonOwningPtr<Window> GetWindow() const noexcept { return m_window_ptr; }
 
 			constexpr inline void RequireFramebufferResize() noexcept { m_framebuffers_resize = true; }
 

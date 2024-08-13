@@ -97,6 +97,7 @@ VkPhysicalDevice kvfPickGoodDefaultPhysicalDevice(VkInstance instance, VkSurface
 VkPhysicalDevice kvfPickGoodPhysicalDevice(VkInstance instance, VkSurfaceKHR surface, const char** deviceExtensions, uint32_t deviceExtensionsCount);
 
 VkQueue kvfGetDeviceQueue(VkDevice device, KvfQueueType queue);
+uint32_t kvfGetDeviceQueueFamily(VkDevice device, KvfQueueType queue);
 bool kvfQueuePresentKHR(VkDevice device, VkSemaphore wait, VkSwapchainKHR swapchain, uint32_t image_index); // return false when the swapchain must be recreated
 
 VkDevice kvfCreateDefaultDevice(VkPhysicalDevice physical);
@@ -113,6 +114,7 @@ void kvfDestroySemaphore(VkDevice device, VkSemaphore semaphore);
 VkSwapchainKHR kvfCreateSwapchainKHR(VkDevice device, VkPhysicalDevice physical, VkSurfaceKHR surface, VkExtent2D extent, bool tryVsync);
 VkFormat kvfGetSwapchainImagesFormat(VkSwapchainKHR swapchain);
 uint32_t kvfGetSwapchainImagesCount(VkSwapchainKHR swapchain);
+uint32_t kvfGetSwapchainMinImagesCount(VkSwapchainKHR swapchain);
 VkExtent2D kvfGetSwapchainImagesSize(VkSwapchainKHR swapchain);
 void kvfDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain);
 
@@ -1260,12 +1262,9 @@ void kvfDestroyDevice(VkDevice device)
 VkQueue kvfGetDeviceQueue(VkDevice device, KvfQueueType queue)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
-
 	__KvfDevice* kvfdevice = __kvfGetKvfDeviceFromVkDevice(device);
 	KVF_ASSERT(kvfdevice != NULL);
-
 	VkQueue vk_queue = VK_NULL_HANDLE;
-
 	if(queue == KVF_GRAPHICS_QUEUE)
 		vkGetDeviceQueue(device, kvfdevice->queues.graphics, 0, &vk_queue);
 	else if(queue == KVF_PRESENT_QUEUE)
@@ -1273,6 +1272,22 @@ VkQueue kvfGetDeviceQueue(VkDevice device, KvfQueueType queue)
 	else if(queue == KVF_COMPUTE_QUEUE)
 		vkGetDeviceQueue(device, kvfdevice->queues.compute, 0, &vk_queue);
 	return vk_queue;
+}
+
+uint32_t kvfGetDeviceQueueFamily(VkDevice device, KvfQueueType queue)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	__KvfDevice* kvfdevice = __kvfGetKvfDeviceFromVkDevice(device);
+	KVF_ASSERT(kvfdevice != NULL);
+	VkQueue vk_queue = VK_NULL_HANDLE;
+	if(queue == KVF_GRAPHICS_QUEUE)
+		return kvfdevice->queues.graphics;
+	else if(queue == KVF_PRESENT_QUEUE)
+		return kvfdevice->queues.present;
+	else if(queue == KVF_COMPUTE_QUEUE)
+		return kvfdevice->queues.compute;
+	KVF_ASSERT(false && "invalid queue");
+	return 0;
 }
 
 bool kvfQueuePresentKHR(VkDevice device, VkSemaphore wait, VkSwapchainKHR swapchain, uint32_t image_index)
@@ -1459,6 +1474,13 @@ uint32_t kvfGetSwapchainImagesCount(VkSwapchainKHR swapchain)
 	__KvfSwapchain* kvf_swapchain = __kvfGetKvfSwapchainFromVkSwapchainKHR(swapchain);
 	KVF_ASSERT(kvf_swapchain != NULL);
 	return kvf_swapchain->images_count;
+}
+
+uint32_t kvfGetSwapchainMinImagesCount(VkSwapchainKHR swapchain)
+{
+	__KvfSwapchain* kvf_swapchain = __kvfGetKvfSwapchainFromVkSwapchainKHR(swapchain);
+	KVF_ASSERT(kvf_swapchain != NULL);
+	return kvf_swapchain->support.capabilities.minImageCount;
 }
 
 VkExtent2D kvfGetSwapchainImagesSize(VkSwapchainKHR swapchain)
@@ -1800,10 +1822,19 @@ VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attac
 			color_attachment_count++;
 	}
 
-	VkAttachmentReference* color_references = (VkAttachmentReference*)KVF_MALLOC(color_attachment_count * sizeof(VkAttachmentReference));
-	KVF_ASSERT(color_references != NULL);
-	VkAttachmentReference* depth_references = (VkAttachmentReference*)KVF_MALLOC(depth_attachment_count * sizeof(VkAttachmentReference));
-	KVF_ASSERT(depth_references != NULL);
+	VkAttachmentReference* color_references = NULL;
+	VkAttachmentReference* depth_references = NULL;
+
+	if(color_attachment_count != 0)
+	{
+		color_references = (VkAttachmentReference*)KVF_MALLOC(color_attachment_count * sizeof(VkAttachmentReference));
+		KVF_ASSERT(color_references != NULL);
+	}
+	if(depth_attachment_count != 0)
+	{
+		depth_references = (VkAttachmentReference*)KVF_MALLOC(depth_attachment_count * sizeof(VkAttachmentReference));
+		KVF_ASSERT(depth_references != NULL);
+	}
 
 	for(size_t i = 0, c = 0, d = 0; i < attachments_count; i++)
 	{
@@ -1839,6 +1870,8 @@ VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attac
 
 	VkRenderPass render_pass = VK_NULL_HANDLE;
 	__kvfCheckVk(vkCreateRenderPass(device, &renderpass_create_info, NULL, &render_pass));
+	KVF_FREE(color_references);
+	KVF_FREE(depth_references);
 	return render_pass;
 }
 

@@ -30,6 +30,7 @@ namespace Scop
 			void Destroy() noexcept;
 
 			[[nodiscard]] inline VkInstance GetInstance() const noexcept { return m_instance; }
+			[[nodiscard]] inline VkInstance& GetInstanceRef() noexcept { return m_instance; }
 			[[nodiscard]] inline VkDevice GetDevice() const noexcept { return m_device; }
 			[[nodiscard]] inline VkPhysicalDevice GetPhysicalDevice() const noexcept { return m_physical_device; }
 

@@ -1,6 +1,8 @@
 #include <Graphics/Model.h>
 #include <Graphics/Loaders/OBJ.h>
 
+#include <algorithm>
+
 namespace Scop
 {
 	Model::Model(std::shared_ptr<Mesh> mesh) : p_mesh(mesh)
@@ -25,7 +27,7 @@ namespace Scop
 		auto data = LoadOBJFromFile(path);
 		if(!data)
 			return { nullptr };
-		//TesselateOBJData(*data);
+		TesselateOBJData(*data);
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		std::vector<Vertex> vertices;
 		std::vector<std::uint32_t> indices;
@@ -51,7 +53,7 @@ namespace Scop
 					data->tex_coord[2 * i + 1],
 				}
 			);
-			vertices.push_back(v);
+			vertices.push_back(std::move(v));
 		}
 		mesh->AddSubMesh({ vertices, indices });
 		Model model(mesh);

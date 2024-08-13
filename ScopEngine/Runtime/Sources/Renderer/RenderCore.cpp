@@ -76,7 +76,7 @@ namespace Scop
 		kvfSetValidationErrorCallback(&ValidationErrorCallback);
 		kvfSetValidationWarningCallback(&ValidationWarningCallback);
 
-		kvfAddLayer("VK_LAYER_MESA_overlay");
+		//kvfAddLayer("VK_LAYER_MESA_overlay");
 
 		m_instance = kvfCreateInstance(extensions.data(), extensions.size());
 		Message("Vulkan : instance created");

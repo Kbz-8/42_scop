@@ -42,11 +42,11 @@ namespace Scop
 	std::optional<ObjData> LoadOBJFromFile(const std::filesystem::path& path);
 	void TesselateOBJData(ObjData& data);
 
-	template <typename T>
+	template<typename T>
 	inline std::istream& operator>>(std::istream& in, std::vector<T>& vec);
 
-	template <typename T>
-	inline std::istream& operator>>(std::istream& in, std::set<T>& vec );
+	template<typename T>
+	inline std::istream& operator>>(std::istream& in, std::set<T>& vec);
 
 	inline std::istream& operator>>(std::istream& in, ObjData::FaceVertex& f);
 }

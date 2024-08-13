@@ -1,6 +1,7 @@
 #include <Graphics/Loaders/OBJ.h>
 #include <Core/Logs.h>
 
+#include <algorithm>
 #include <fstream>
 #include <set>
 
@@ -57,7 +58,7 @@ namespace Scop
 		}
 		for(auto g = data.faces.begin(); g != data.faces.end(); ++g)
 		{
-			ObjData::FaceList & fl = g->second;
+			ObjData::FaceList& fl = g->second;
 			fl.second.push_back(fl.first.size());
 		}
 		return data;
@@ -96,9 +97,9 @@ namespace Scop
 
 	void TesselateOBJData(ObjData& obj)
 	{
-		for(std::map<std::string, ObjData::FaceList>::iterator g = obj.faces.begin(); g != obj.faces.end(); g++)
+		for(auto g = obj.faces.begin(); g != obj.faces.end(); g++)
 		{
-			ObjData::FaceList & fl = g->second;
+			ObjData::FaceList& fl = g->second;
 			TesselateOBJData(fl.first, fl.second);
 		}
 	}
