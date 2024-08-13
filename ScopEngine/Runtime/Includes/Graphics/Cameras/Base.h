@@ -10,7 +10,7 @@ namespace Scop
 		public:
 			BaseCamera() = default;
 
-			virtual void Update(class Inputs& input, float aspect) {};
+			virtual void Update(class Inputs& input, float aspect, float timestep) {};
 
 			inline const Mat4f& GetView() const noexcept { return m_view; }
 			inline const Mat4f& GetProj() const noexcept { return m_proj; }

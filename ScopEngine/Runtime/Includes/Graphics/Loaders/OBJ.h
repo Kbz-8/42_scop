@@ -9,6 +9,9 @@
 #include <optional>
 #include <filesystem>
 
+#include <Maths/Vec2.h>
+#include <Maths/Vec3.h>
+
 namespace Scop
 {
 	struct ObjData
@@ -30,17 +33,27 @@ namespace Scop
 			}
 		};
 
-		using FaceList = std::pair<std::vector<FaceVertex>, std::vector<unsigned> >;
+		using FaceList = std::pair<std::vector<FaceVertex>, std::vector<std::uint32_t>>;
 
-		std::vector<float> vertex;
-		std::vector<float> tex_coord;
-		std::vector<float> normal;
+		std::vector<Vec3f> vertex;
+		std::vector<Vec3f> normal;
+		std::vector<Vec2f> tex_coord;
 
 		std::map<std::string, FaceList> faces;
 	};
 
+	struct ObjModel
+	{
+		std::vector<Vec3f> vertex;
+		std::vector<Vec3f> normal;
+		std::vector<Vec2f> tex_coord;
+
+		std::map<std::string, std::vector<std::uint32_t>> faces;
+	};
+
 	std::optional<ObjData> LoadOBJFromFile(const std::filesystem::path& path);
 	void TesselateOBJData(ObjData& data);
+	ObjModel ConvertObjDataToObjModel(const ObjData& data);
 
 	template<typename T>
 	inline std::istream& operator>>(std::istream& in, std::vector<T>& vec);

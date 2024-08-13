@@ -9,7 +9,7 @@ namespace Scop
 	FirstPerson3D::FirstPerson3D(Vec3f position, float fov) : BaseCamera(), m_position(std::move(position)), m_up(0, 1, 0), m_fov(fov)
 	{}
 
-	void FirstPerson3D::Update(class Inputs& input, float aspect)
+	void FirstPerson3D::Update(class Inputs& input, float aspect, float timestep)
 	{
 		UpdateView();
 		m_target = m_position + m_direction;
@@ -55,7 +55,7 @@ namespace Scop
 			m_mov -= m_up;
 		if(input.IsKeyPressed(SDL_SCANCODE_SPACE))
 			m_mov += m_up;
-		m_position += m_mov * m_speed;
+		m_position += m_mov * m_speed * timestep;
 	}
 
 	void FirstPerson3D::UpdateView()

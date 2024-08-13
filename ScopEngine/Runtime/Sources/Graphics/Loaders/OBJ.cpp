@@ -1,9 +1,9 @@
 #include <Graphics/Loaders/OBJ.h>
 #include <Core/Logs.h>
 
-#include <algorithm>
-#include <fstream>
 #include <set>
+#include <fstream>
+#include <algorithm>
 
 namespace Scop
 {
@@ -32,12 +32,30 @@ namespace Scop
 
 			if(!(line_in >> op))
 				continue;
+
 			if(op == "v")
-				line_in >> data.vertex >> data.vertex >> data.vertex;
+			{
+				Vec3f v;
+				line_in >> v.x;
+				line_in >> v.y;
+				line_in >> v.z;
+				data.vertex.push_back(std::move(v));
+			}
 			else if(op == "vt")
-				line_in >> data.tex_coord >> data.tex_coord >> data.tex_coord;
+			{
+				Vec2f v;
+				line_in >> v.x;
+				line_in >> v.y;
+				data.tex_coord.push_back(std::move(v));
+			}
 			else if(op == "vn")
-				line_in >> data.normal >> data.normal >> data.normal;
+			{
+				Vec3f v;
+				line_in >> v.x;
+				line_in >> v.y;
+				line_in >> v.z;
+				data.normal.push_back(std::move(v));
+			}
 			else if(op == "g")
 			{
 				groups.clear();
@@ -48,19 +66,20 @@ namespace Scop
 			{
 				std::vector<ObjData::FaceVertex> list;
 				while(line_in >> list);
-				for(auto g = groups.begin(); g != groups.end(); ++g)
+				for(const auto& group : groups)
 				{
-					ObjData::FaceList & fl = data.faces[*g];
+					ObjData::FaceList& fl = data.faces[group];
 					fl.second.push_back(fl.first.size());
 					fl.first.insert(fl.first.end(), list.begin(), list.end());
 				}
 			}
 		}
-		for(auto g = data.faces.begin(); g != data.faces.end(); ++g)
+		for(auto& face : data.faces)
 		{
-			ObjData::FaceList& fl = g->second;
+			ObjData::FaceList& fl = face.second;
 			fl.second.push_back(fl.first.size());
 		}
+		Message("OBJ Loader : loaded %", path);
 		return data;
 	}
 
@@ -97,10 +116,45 @@ namespace Scop
 
 	void TesselateOBJData(ObjData& obj)
 	{
-		for(auto g = obj.faces.begin(); g != obj.faces.end(); g++)
+		for(auto& face : obj.faces)
 		{
-			ObjData::FaceList& fl = g->second;
+			ObjData::FaceList& fl = face.second;
 			TesselateOBJData(fl.first, fl.second);
 		}
+		Message("OBJ Loader : object data tesselated");
+	}
+
+	ObjModel ConvertObjDataToObjModel(const ObjData& data)
+	{
+		std::vector<ObjData::FaceVertex> unique(data.faces.find("default")->second.first);
+		std::sort(unique.begin(), unique.end());
+		unique.erase( std::unique(unique.begin(), unique.end()), unique.end());
+
+		ObjModel model;
+		for(auto& face : unique)
+		{
+			model.vertex.insert(model.vertex.end(), data.vertex.begin() + 3 * face.v, data.vertex.begin() + 3 * face.v + 3);
+			if(!data.tex_coord.empty())
+			{
+				const int index = (face.t > -1) ? face.t : face.v;
+				model.tex_coord.insert(model.tex_coord.end(), data.tex_coord.begin() + 2 * index, data.tex_coord.begin() + 2 * index + 2);
+			}
+			if(!data.normal.empty())
+			{
+				const int index = (face.n > -1) ? face.n : face.v;
+				model.normal.insert(model.normal.end(), data.normal.begin() + 3 * index, data.normal.begin() + 3 * index + 3);
+			}
+		}
+		for(auto& [group, faces] : data.faces)
+		{
+			std::vector<std::uint32_t>& v = model.faces[group];
+			v.reserve(faces.first.size());
+			for(auto& face : faces.first)
+			{
+				const unsigned short index = std::distance(unique.begin(), std::lower_bound(unique.begin(), unique.end(), face));
+				v.push_back(index);
+			}
+		}
+		return model;
 	}
 }

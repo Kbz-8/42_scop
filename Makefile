@@ -46,7 +46,7 @@ $(BIN_DIR):
 	@mkdir -p $(BIN_DIR)
 
 run:
-	@$(BIN_DIR)/$(NAME) $(RES_DIR)/knuckles.obj
+	@$(BIN_DIR)/$(NAME) $(RES_DIR)/42.obj
 
 clean:
 	@$(RM) $(OBJ_DIR)

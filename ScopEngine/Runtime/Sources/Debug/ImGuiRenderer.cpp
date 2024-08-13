@@ -116,6 +116,7 @@ namespace Scop
 
 	void ImGuiRenderer::DisplayRenderStatistics()
 	{
+
 		static std::array<std::string, 5> gpu_types_string = {
 			"Other",
 			"Integrated",
@@ -123,8 +124,9 @@ namespace Scop
 			"Virtual",
 			"CPU"
 		};
-		float delta = ImGui::GetIO().DeltaTime;
 		static std::array<float, 1000> frame_histogram;
+
+		float delta = ImGui::GetIO().DeltaTime;
 		ImGui::SetNextWindowPos(ImVec2{ 20.0f, 20.0f }, ImGuiCond_FirstUseEver);
 		if(ImGui::Begin("Render Statistics", nullptr, ImGuiWindowFlags_NoResize))
 		{

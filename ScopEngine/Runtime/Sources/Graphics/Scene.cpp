@@ -54,7 +54,7 @@ namespace Scop
 	{
 		for(auto& actor : m_actors)
 			actor.Update(input, timestep);
-		p_camera->Update(input, aspect);
+		p_camera->Update(input, aspect, timestep);
 	}
 
 	void Scene::Destroy()

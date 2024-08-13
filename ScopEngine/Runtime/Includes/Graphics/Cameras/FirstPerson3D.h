@@ -12,7 +12,7 @@ namespace Scop
 			FirstPerson3D();
 			FirstPerson3D(Vec3f position, float fov = 90.0f);
 
-			void Update(class Inputs& input, float aspect) override;
+			void Update(class Inputs& input, float aspect, float timestep) override;
 
 			inline constexpr std::string GetCameraType() override { return "FirstPerson3D"; }
 
@@ -33,7 +33,7 @@ namespace Scop
 			float m_theta = 0.0;
 			float m_phi = 0.0;
 
-			const float m_speed = 0.05f;
+			const float m_speed = 50.0f;
 			const float m_sensivity = 0.7f;
 			float m_fov = 90.0f;
 
