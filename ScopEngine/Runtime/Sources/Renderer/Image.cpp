@@ -1,3 +1,4 @@
+#include "kvf.h"
 #include <Renderer/Image.h>
 #include <Renderer/RenderCore.h>
 #include <Core/Logs.h>
@@ -45,7 +46,7 @@ namespace Scop
 
 	void Image::CreateSampler() noexcept
 	{
-		// TODO
+		m_sampler = kvfCreateSampler(RenderCore::Get().GetDevice(), VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_MIPMAP_MODE_NEAREST);
 	}
 
 	void Image::TransitionLayout(VkImageLayout new_layout, VkCommandBuffer cmd)
@@ -61,7 +62,9 @@ namespace Scop
 
 	void Image::DestroySampler() noexcept
 	{
-		// TODO
+		if(m_sampler != VK_NULL_HANDLE)
+			kvfDestroySampler(RenderCore::Get().GetDevice(), m_sampler);
+		m_sampler = VK_NULL_HANDLE;
 	}
 
 	void Image::DestroyImageView() noexcept

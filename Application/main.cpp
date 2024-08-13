@@ -33,13 +33,15 @@ int main(int ac, char** av)
 
 	auto object_update = [](Scop::NonOwningPtr<Scop::Actor> actor, Scop::Inputs& input, float delta)
 	{
+		/*
 		static Scop::Vec3f v{ 1.0f, 1.0f, 1.0f };
 		static float i = 0;
-		v.x = std::cos(i);
-		v.y = std::cos(i - 0.1f);
-		v.x = std::cos(i + 0.6f);
+		v.x = std::fabs(std::cos(i)) + 1.0f;
+		v.y = std::fabs(std::cos(i - 0.1f)) + 1.0f;
+		v.x = std::fabs(std::cos(i + 0.6f)) + 1.0f;
 		i += delta;
 		actor->SetScale(v);
+		*/
 	};
 
 	using hook = std::function<void(Scop::NonOwningPtr<Scop::Actor>)>;

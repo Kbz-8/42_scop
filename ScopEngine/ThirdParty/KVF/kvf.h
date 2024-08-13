@@ -119,13 +119,17 @@ VkExtent2D kvfGetSwapchainImagesSize(VkSwapchainKHR swapchain);
 void kvfDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain);
 
 VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage);
+void kvfImageBufferToBuffer(VkCommandBuffer cmd, VkBuffer dst, VkImage src, size_t size);
 void kvfDestroyImage(VkDevice device, VkImage image);
 VkImageView kvfCreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageViewType type, VkImageAspectFlags aspect);
 void kvfDestroyImageView(VkDevice device, VkImageView image_view);
 void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cmd, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, bool is_single_time_cmd_buffer);
+VkSampler kvfCreateSampler(VkDevice device, VkFilter filters, VkSamplerAddressMode address_modes, VkSamplerMipmapMode mipmap_mode);
+void kvfDestroySampler(VkDevice device, VkSampler sampler);
 
 VkBuffer kvfCreateBuffer(VkDevice device, VkBufferUsageFlags usage, VkDeviceSize size);
 void kvfCopyBufferToBuffer(VkCommandBuffer cmd, VkBuffer dst, VkBuffer src, size_t size);
+void kvfCopyBufferToImage(VkCommandBuffer cmd, VkImage dst, VkBuffer src, size_t buffer_offset, VkImageAspectFlagBits aspect, VkExtent3D extent);
 void kvfDestroyBuffer(VkDevice device, VkBuffer buffer);
 
 VkFramebuffer kvfCreateFramebuffer(VkDevice device, VkRenderPass renderpass, VkImageView* image_views, size_t image_views_count, VkExtent2D extent);
@@ -1611,6 +1615,34 @@ void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cm
 	}
 }
 
+VkSampler kvfCreateSampler(VkDevice device, VkFilter filters, VkSamplerAddressMode address_modes, VkSamplerMipmapMode mipmap_mode)
+{
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	VkSamplerCreateInfo info = {};
+	info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	info.magFilter = filters;
+	info.minFilter = filters;
+	info.mipmapMode = mipmap_mode;
+	info.addressModeU = address_modes;
+	info.addressModeV = address_modes;
+	info.addressModeW = address_modes;
+	info.minLod = -1000;
+	info.maxLod = 1000;
+	info.anisotropyEnable = VK_FALSE;
+	info.maxAnisotropy = 1.0f;
+	VkSampler sampler;
+	__kvfCheckVk(vkCreateSampler(device, &info, NULL, &sampler));
+	return sampler;
+}
+
+void kvfDestroySampler(VkDevice device, VkSampler sampler)
+{
+	if(sampler != VK_NULL_HANDLE)
+		return;
+	KVF_ASSERT(device != VK_NULL_HANDLE);
+	vkDestroySampler(device, sampler, NULL);
+}
+
 VkBuffer kvfCreateBuffer(VkDevice device, VkBufferUsageFlags usage, VkDeviceSize size)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
@@ -1632,6 +1664,24 @@ void kvfCopyBufferToBuffer(VkCommandBuffer cmd, VkBuffer dst, VkBuffer src, size
 	VkBufferCopy copy_region = {};
 	copy_region.size = size;
 	vkCmdCopyBuffer(cmd, src, dst, 1, &copy_region);
+}
+
+void kvfCopyBufferToImage(VkCommandBuffer cmd, VkImage dst, VkBuffer src, size_t buffer_offset, VkImageAspectFlagBits aspect, VkExtent3D extent)
+{
+	KVF_ASSERT(cmd != VK_NULL_HANDLE);
+	KVF_ASSERT(dst != VK_NULL_HANDLE);
+	KVF_ASSERT(src != VK_NULL_HANDLE);
+	VkBufferImageCopy region = {};
+	region.bufferOffset = buffer_offset;
+	region.bufferRowLength = 0;
+	region.bufferImageHeight = 0;
+	region.imageSubresource.aspectMask = aspect;
+	region.imageSubresource.mipLevel = 0;
+	region.imageSubresource.baseArrayLayer = 0;
+	region.imageSubresource.layerCount = 1;
+	region.imageOffset = { 0, 0, 0 };
+	region.imageExtent = extent;;
+	vkCmdCopyBufferToImage(cmd, src, dst, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 }
 
 void kvfDestroyBuffer(VkDevice device, VkBuffer buffer)

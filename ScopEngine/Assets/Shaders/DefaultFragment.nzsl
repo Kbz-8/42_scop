@@ -33,6 +33,6 @@ fn main(input: VertOut) -> FragOut
 	let lighting : vec3[f32] = ambient + (directional_color * directional);
 
 	let output: FragOut;
-	output.color = input.color * /*u_albedo.Sample(input.uv) **/ vec4[f32](lighting, 1.0);
+	output.color = input.color * u_albedo.Sample(input.uv) * vec4[f32](lighting, 1.0);
 	return output;
 }

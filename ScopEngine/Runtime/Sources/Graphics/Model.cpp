@@ -28,6 +28,9 @@ namespace Scop
 		TesselateOBJData(*obj_data);
 		ObjModel obj_model = ConvertObjDataToObjModel(*obj_data);
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
+		float min_x = std::numeric_limits<float>::max(), max_x = std::numeric_limits<float>::lowest();
+		float min_y = std::numeric_limits<float>::max(), max_y = std::numeric_limits<float>::lowest();
+		float min_z = std::numeric_limits<float>::max(), max_z = std::numeric_limits<float>::lowest();
 		for(auto& [group, faces] : obj_model.faces)
 		{
 			std::vector<Vertex> vertices;
@@ -44,7 +47,11 @@ namespace Scop
 						(obj_model.normal.empty() ? Vec3f{ 1.0f } : obj_model.normal[faces[i]]),
 						1.0f
 					},
-					(obj_model.tex_coord.empty() ? Vec2f{ 1.0f } : obj_model.tex_coord[faces[i]])
+					(obj_model.tex_coord.empty() ?
+						Vec2f{ (obj_model.vertex[faces[i]].x - min_x) / (max_x - min_x), 1.0f - ((obj_model.vertex[faces[i]].y - min_y) / (max_y - min_y)) }
+						:
+						obj_model.tex_coord[faces[i]]
+					)
 				);
 				indices.push_back(vertices.size());
 				vertices.push_back(std::move(v));
