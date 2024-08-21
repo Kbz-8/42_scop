@@ -1,7 +1,6 @@
 #ifndef __SCOP_IMAGE__
 #define __SCOP_IMAGE__
 
-#include <filesystem>
 #include <cstdint>
 #include <vector>
 #include <kvf.h>
@@ -85,6 +84,10 @@ namespace Scop
 	{
 		public:
 			Texture() = default;
+			Texture(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format)
+			{
+				Init(std::move(pixels), width, height, format);
+			}
 			inline void Init(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format)
 			{
 				Image::Init(width, height, format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, { VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT });
@@ -92,12 +95,13 @@ namespace Scop
 				Image::CreateSampler();
 				if(pixels)
 				{
+					TransitionLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 					GPUBuffer staging_buffer;
 					std::size_t size = width * height * kvfFormatSize(format);
 					staging_buffer.Init(BufferType::Staging, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, pixels);
 					VkCommandBuffer cmd = kvfCreateCommandBuffer(RenderCore::Get().GetDevice());
 					kvfBeginCommandBuffer(cmd, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-					kvfCopyBufferToImage(cmd, Image::Get(), staging_buffer.Get(), staging_buffer.GetOffset(), VK_IMAGE_ASPECT_COLOR_BIT, { width, height });
+					kvfCopyBufferToImage(cmd, Image::Get(), staging_buffer.Get(), staging_buffer.GetOffset(), VK_IMAGE_ASPECT_COLOR_BIT, { width, height, 1 });
 					vkEndCommandBuffer(cmd);
 					VkFence fence = kvfCreateFence(RenderCore::Get().GetDevice());
 					kvfSubmitSingleTimeCommandBuffer(RenderCore::Get().GetDevice(), cmd, KVF_GRAPHICS_QUEUE, fence);

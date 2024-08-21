@@ -30,6 +30,7 @@ namespace Scop
 
 	void DescriptorSet::SetImage(std::uint32_t binding, class Image& image)
 	{
+		Verify(m_set != VK_NULL_HANDLE, "invalid descriptor");
 		auto it = std::find_if(m_descriptors.begin(), m_descriptors.end(), [=](Descriptor descriptor)
 		{
 			return binding == descriptor.binding;
@@ -49,6 +50,7 @@ namespace Scop
 
 	void DescriptorSet::SetStorageBuffer(std::uint32_t binding, class GPUBuffer& buffer)
 	{
+		Verify(m_set != VK_NULL_HANDLE, "invalid descriptor");
 		auto it = std::find_if(m_descriptors.begin(), m_descriptors.end(), [=](Descriptor descriptor)
 		{
 			return binding == descriptor.binding;
@@ -68,6 +70,7 @@ namespace Scop
 
 	void DescriptorSet::SetUniformBuffer(std::uint32_t binding, class GPUBuffer& buffer)
 	{
+		Verify(m_set != VK_NULL_HANDLE, "invalid descriptor");
 		auto it = std::find_if(m_descriptors.begin(), m_descriptors.end(), [=](Descriptor descriptor)
 		{
 			return binding == descriptor.binding;
@@ -87,6 +90,7 @@ namespace Scop
 
 	void DescriptorSet::Update() noexcept
 	{
+		Verify(m_set != VK_NULL_HANDLE, "invalid descriptor");
 		std::vector<VkWriteDescriptorSet> writes;
 		std::vector<VkDescriptorBufferInfo> buffer_infos;
 		std::vector<VkDescriptorImageInfo> image_infos;

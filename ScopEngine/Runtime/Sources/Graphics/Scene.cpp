@@ -47,6 +47,8 @@ namespace Scop
 			m_forward.matrices_set[i] = std::make_shared<DescriptorSet>(vertex_shader->GetShaderLayout().set_layouts[0].second, vertex_shader->GetPipelineLayout().set_layouts[0], ShaderType::Vertex);
 			m_forward.matrices_set[i]->SetUniformBuffer(0, m_forward.matrices_buffer->Get(i));
 			m_forward.matrices_set[i]->Update();
+
+			m_forward.albedo_set[i] = std::make_shared<DescriptorSet>(m_fragment_shader->GetShaderLayout().set_layouts[0].second, m_fragment_shader->GetPipelineLayout().set_layouts[0], ShaderType::Fragment);
 		}
 	}
 

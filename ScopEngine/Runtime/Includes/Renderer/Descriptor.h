@@ -24,6 +24,7 @@ namespace Scop
 	class DescriptorSet
 	{
 		public:
+			DescriptorSet() = default;
 			DescriptorSet(const ShaderSetLayout& layout, VkDescriptorSetLayout vklayout, ShaderType shader_type);
 
 			void SetImage(std::uint32_t binding, class Image& image);
@@ -31,12 +32,9 @@ namespace Scop
 			void SetUniformBuffer(std::uint32_t binding, class GPUBuffer& buffer);
 			void Update() noexcept;
 
-			inline void Bind(VkCommandBuffer cmd, VkPipelineBindPoint bindpoint, VkPipelineLayout layout) const noexcept
-			{
-				vkCmdBindDescriptorSets(cmd, bindpoint, layout, 0, 1, &m_set, 0, nullptr);
-			}
-
+			[[nodiscard]] inline VkDescriptorSet GetSet() const noexcept { return m_set; }
 			[[nodiscard]] inline DescriptorSet Duplicate() const { return DescriptorSet{ m_set_layout, m_descriptors }; }
+			[[nodiscard]] inline bool IsInit() const noexcept { return m_set != VK_NULL_HANDLE; }
 
 			~DescriptorSet() = default;
 
@@ -45,7 +43,7 @@ namespace Scop
 
 		private:
 			std::vector<Descriptor> m_descriptors;
-			VkDescriptorSet m_set;
+			VkDescriptorSet m_set = VK_NULL_HANDLE;
 			VkDescriptorSetLayout m_set_layout;
 	};
 }

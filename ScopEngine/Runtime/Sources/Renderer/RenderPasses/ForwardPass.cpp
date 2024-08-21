@@ -27,8 +27,7 @@ namespace Scop
 			model_data.model_mat.SetScale(actor.GetScale());
 			model_data.model_mat.GetInverseTransform(&model_data.normal_mat);
 			vkCmdPushConstants(cmd, pipeline.GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ModelData), &model_data);
-			data.matrices_set[renderer.GetCurrentFrameIndex()]->Bind(cmd, pipeline.GetPipelineBindPoint(), pipeline.GetPipelineLayout());
-			actor.GetModel().Draw(cmd, renderer.GetDrawCallsCounterRef());
+			actor.GetModel().Draw(cmd, *data.matrices_set[renderer.GetCurrentFrameIndex()], pipeline, *data.albedo_set[renderer.GetCurrentFrameIndex()], renderer.GetDrawCallsCounterRef());
 		}
 		pipeline.EndPipeline(cmd);
 	}

@@ -31,7 +31,7 @@ namespace Scop
 			[[nodiscard]] inline std::size_t GetSize() const noexcept { return m_size; }
 
 			template<typename T>
-			[[nodiscard]] inline T* GetDataAs() const { return static_cast<T*>(m_data.get()); }
+			[[nodiscard]] inline T* GetDataAs() const { return reinterpret_cast<T*>(m_data.get()); }
 			[[nodiscard]] inline std::uint8_t* GetData() const { return m_data.get(); }
 			inline operator bool() const { return (bool)m_data; }
 

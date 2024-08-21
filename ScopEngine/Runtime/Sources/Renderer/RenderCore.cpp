@@ -108,7 +108,7 @@ namespace Scop
 				}
 			}, { ShaderPushConstantLayout({ 0, sizeof(Mat4f) * 2 }) }
 		);
-		m_internal_shaders[0] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/Vertex.spv", ShaderType::Vertex, std::move(vertex_shader_layout));
+		m_internal_shaders[DEFAULT_VERTEX_SHADER_ID] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/Vertex.spv", ShaderType::Vertex, std::move(vertex_shader_layout));
 
 		ShaderLayout default_fragment_shader_layout(
 			{
