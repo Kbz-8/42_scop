@@ -86,7 +86,7 @@ namespace Scop
 	static void TesselateOBJData(std::vector<ObjData::FaceVertex>& input, std::vector<std::uint32_t>& input_start) noexcept
 	{
 		std::vector<ObjData::FaceVertex> output;
-		std::vector<unsigned> output_start;
+		std::vector<std::uint32_t> output_start;
 		output.reserve(input.size());
 		output_start.reserve(input_start.size());
 		for(auto s = input_start.begin(); s != input_start.end() - 1; ++s)
@@ -102,7 +102,7 @@ namespace Scop
 					output.push_back(input[*s + i]);
 					output.push_back(input[*s + i + 1]);
 				}
-			} 
+			}
 			else
 			{
 				output_start.push_back(output.size());
@@ -133,16 +133,16 @@ namespace Scop
 		ObjModel model;
 		for(auto& face : unique)
 		{
-			model.vertex.insert(model.vertex.end(), data.vertex.begin() + 3 * face.v, data.vertex.begin() + 3 * face.v + 3);
+			model.vertex.push_back(data.vertex[face.v]);
 			if(!data.tex_coord.empty())
 			{
 				const int index = (face.t > -1) ? face.t : face.v;
-				model.tex_coord.insert(model.tex_coord.end(), data.tex_coord.begin() + 2 * index, data.tex_coord.begin() + 2 * index + 2);
+				model.tex_coord.push_back(data.tex_coord[index]);
 			}
 			if(!data.normal.empty())
 			{
 				const int index = (face.n > -1) ? face.n : face.v;
-				model.normal.insert(model.normal.end(), data.normal.begin() + 3 * index, data.normal.begin() + 3 * index + 3);
+				model.normal.push_back(data.normal[index]);
 			}
 		}
 		for(auto& [group, faces] : data.faces)
