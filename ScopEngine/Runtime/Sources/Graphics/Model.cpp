@@ -62,12 +62,26 @@ namespace Scop
 				max_y = std::max(obj_model.vertex[faces[i]].y, max_y);
 				max_z = std::max(obj_model.vertex[faces[i]].z, max_z);
 
+				float color_base;
+				std::size_t triangle_index = i / 3;
+
+				if(triangle_index % 6 < 2)
+					color_base = 0.2f;
+				else if(triangle_index % 6 == 2)
+					color_base = 0.4f;
+				else if(triangle_index % 6 == 3)
+					color_base = 0.6f;
+				else if(triangle_index % 6 == 4)
+					color_base = 0.8f;
+				else
+					color_base = 1.0f;
+
 				Vertex v(
 					Vec4f{
 						obj_model.vertex[faces[i]],
 						1.0f
 					},
-					(obj_model.color.empty() ? Vec4f{ 1.0f } : obj_model.color[faces[i]]),
+					(obj_model.color.empty() ? Vec4f{ color_base, color_base, color_base, 1.0f } : obj_model.color[faces[i]]),
 					Vec4f{
 						(obj_model.normal.empty() ? Vec3f{ 1.0f } : obj_model.normal[faces[i]]),
 						1.0f

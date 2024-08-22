@@ -88,7 +88,8 @@ int main(int ac, char** av)
 			}
 		}
 
-		actor->GetModelRef().GetMaterial(0)->SetMaterialData(material_data);
+		for(std::size_t i = 0; i < actor->GetModel().GetSubMeshCount(); i++)
+			actor->GetModelRef().GetMaterial(i)->SetMaterialData(material_data);
 	};
 
 	using hook = std::function<void(Scop::NonOwningPtr<Scop::Actor>)>;

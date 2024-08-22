@@ -31,9 +31,9 @@ namespace Scop
 		for(std::size_t i = 0; i <= buffer.GetSize(); i += 4)
 		{
 			Vec3b data{ 0, 0, 0 };
-			data.r = (file.eof() ? 0xFF : file.get());
-			data.g = (file.eof() ? 0xFF : file.get());
-			data.b = (file.eof() ? 0xFF : file.get());
+			data.r = (file.eof() ? 0x00 : file.get());
+			data.g = (file.eof() ? 0x00 : file.get());
+			data.b = (file.eof() ? 0x00 : file.get());
 			buffer.GetData()[i + 0] = data.b;
 			buffer.GetData()[i + 1] = data.g;
 			buffer.GetData()[i + 2] = data.r;
