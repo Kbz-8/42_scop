@@ -114,7 +114,8 @@ namespace Scop
 			{
 				{ 1,
 					ShaderSetLayout({ 
-						{ 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER }
+						{ 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER },
+						{ 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER }
 					})
 				}
 			}, {}
@@ -125,7 +126,8 @@ namespace Scop
 			{
 				{ 1,
 					ShaderSetLayout({ 
-						{ 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER }
+						{ 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER },
+						{ 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER }
 					})
 				}
 			}, {}

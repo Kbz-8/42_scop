@@ -11,6 +11,7 @@
 
 #include <Maths/Vec2.h>
 #include <Maths/Vec3.h>
+#include <Maths/Vec4.h>
 
 namespace Scop
 {
@@ -18,7 +19,8 @@ namespace Scop
 	{
 		struct FaceVertex
 		{
-			FaceVertex() : v(-1), t(-1), n(-1) {}
+			FaceVertex() : c(-1), v(-1), t(-1), n(-1) {}
+			std::int32_t c;
 			std::int32_t v;
 			std::int32_t t;
 			std::int32_t n;
@@ -29,12 +31,13 @@ namespace Scop
 			}
 			inline bool operator==(const FaceVertex& rhs) const
 			{
-				return (v == rhs.v && t == rhs.t && n == rhs.n);
+				return (v == rhs.v && t == rhs.t && n == rhs.n && c == rhs.c);
 			}
 		};
 
 		using FaceList = std::pair<std::vector<FaceVertex>, std::vector<std::uint32_t>>;
 
+		std::vector<Vec4f> color;
 		std::vector<Vec3f> vertex;
 		std::vector<Vec3f> normal;
 		std::vector<Vec2f> tex_coord;
@@ -44,6 +47,7 @@ namespace Scop
 
 	struct ObjModel
 	{
+		std::vector<Vec4f> color;
 		std::vector<Vec3f> vertex;
 		std::vector<Vec3f> normal;
 		std::vector<Vec2f> tex_coord;

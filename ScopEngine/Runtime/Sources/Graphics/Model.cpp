@@ -9,13 +9,10 @@ namespace Scop
 		if(p_mesh)
 			m_materials.resize(p_mesh->GetSubMeshCount() + 1);
 
-		CPUBuffer default_albedo_pixels{ kvfFormatSize(VK_FORMAT_R8G8B8A8_UNORM) * 4 };
-		default_albedo_pixels.GetDataAs<std::uint32_t>()[0] = 0xFF000000;
-		default_albedo_pixels.GetDataAs<std::uint32_t>()[1] = 0xFFFF00FF;
-		default_albedo_pixels.GetDataAs<std::uint32_t>()[2] = 0xFF000000;
-		default_albedo_pixels.GetDataAs<std::uint32_t>()[3] = 0xFFFF00FF;
+		CPUBuffer default_albedo_pixels{ kvfFormatSize(VK_FORMAT_R8G8B8A8_UNORM) };
+		default_albedo_pixels.GetDataAs<std::uint32_t>()[0] = 0xFFFFFFFF;
 		MaterialTextures textures;
-		textures.albedo = std::make_shared<Texture>(std::move(default_albedo_pixels), 2, 2, VK_FORMAT_R8G8B8A8_UNORM);
+		textures.albedo = std::make_shared<Texture>(std::move(default_albedo_pixels), 1, 1, VK_FORMAT_R8G8B8A8_UNORM);
 		m_materials.back() = std::make_shared<Material>(textures);
 	}
 
@@ -47,21 +44,30 @@ namespace Scop
 		TesselateOBJData(*obj_data);
 		ObjModel obj_model = ConvertObjDataToObjModel(*obj_data);
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
+
 		float min_x = std::numeric_limits<float>::max(), max_x = std::numeric_limits<float>::lowest();
 		float min_y = std::numeric_limits<float>::max(), max_y = std::numeric_limits<float>::lowest();
 		float min_z = std::numeric_limits<float>::max(), max_z = std::numeric_limits<float>::lowest();
+
 		for(auto& [group, faces] : obj_model.faces)
 		{
 			std::vector<Vertex> vertices;
 			std::vector<std::uint32_t> indices;
 			for(std::size_t i = 0; i < faces.size(); i++)
 			{
+				min_x = std::min(obj_model.vertex[faces[i]].x, min_x);
+				min_y = std::min(obj_model.vertex[faces[i]].y, min_y);
+				min_z = std::min(obj_model.vertex[faces[i]].z, min_z);
+				max_x = std::max(obj_model.vertex[faces[i]].x, max_x);
+				max_y = std::max(obj_model.vertex[faces[i]].y, max_y);
+				max_z = std::max(obj_model.vertex[faces[i]].z, max_z);
+
 				Vertex v(
 					Vec4f{
 						obj_model.vertex[faces[i]],
 						1.0f
 					},
-					Vec4f{ 1.0f, 1.0f, 1.0f, 1.0f },
+					(obj_model.color.empty() ? Vec4f{ 1.0f } : obj_model.color[faces[i]]),
 					Vec4f{
 						(obj_model.normal.empty() ? Vec3f{ 1.0f } : obj_model.normal[faces[i]]),
 						1.0f
@@ -78,6 +84,7 @@ namespace Scop
 			mesh->AddSubMesh({ vertices, indices });
 		}
 		Model model(mesh);
+		model.m_center = Vec3f{ (min_x + max_x) / 2.0f, (min_y + max_y) / 2.0f, (min_z + max_z) / 2.0f };
 		return model;
 	}
 }

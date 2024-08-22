@@ -10,6 +10,11 @@ struct VertOut
 	[builtin(position)] pos: vec4[f32]
 }
 
+struct FragmentData
+{
+	dissolve_texture_factor: f32,
+}
+
 struct FragOut
 {
 	[location(0)] color: vec4[f32]
@@ -18,12 +23,31 @@ struct FragOut
 external
 {
 	[set(1), binding(0)] u_albedo: sampler2D[f32],
+	[set(1), binding(1)] u_fragment_data: uniform[FragmentData],
+}
+
+fn Mixf32(a: f32, b: f32, t: f32) -> f32
+{
+    return a + (b - a) * t;
+}
+
+fn MixVec4f32(a: vec4[f32], b: vec4[f32], t: f32) -> vec4[f32]
+{
+	return vec4[f32](
+		Mixf32(a.x, b.x, t),
+		Mixf32(a.y, b.y, t),
+		Mixf32(a.z, b.z, t),
+		Mixf32(a.w, b.w, t)
+	);
 }
 
 [entry(frag)]
 fn main(input: VertOut) -> FragOut
 {
+	let texture_color = u_albedo.Sample(input.uv);
+	texture_color.a *= u_fragment_data.dissolve_texture_factor;
+
 	let output: FragOut;
-	output.color = input.color * u_albedo.Sample(input.uv);
+	output.color = MixVec4f32(input.color, texture_color, u_fragment_data.dissolve_texture_factor);
 	return output;
 }

@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <Renderer/Image.h>
+#include <Renderer/Buffer.h>
 #include <Renderer/Descriptor.h>
 
 namespace Scop
@@ -14,14 +15,22 @@ namespace Scop
 		// TODO : add other PBR textures
 	};
 
+	struct MaterialData
+	{
+		float dissolve_texture_factor = 1.0f;
+	};
+
 	class Material
 	{
 		friend class Model;
 
 		public:
-			Material() = default;
-			Material(const MaterialTextures& textures) : m_textures(textures) {}
-			~Material() = default;
+			Material() { m_data_buffer.Init(sizeof(m_data)); }
+			Material(const MaterialTextures& textures) : m_textures(textures) { m_data_buffer.Init(sizeof(m_data)); }
+
+			inline void SetMaterialData(const MaterialData& data) noexcept { m_data = data; }
+
+			~Material() { m_data_buffer.Destroy(); }
 
 		private:
 			[[nodiscard]] inline bool IsSetInit() const noexcept { return m_set.IsInit(); }
@@ -35,11 +44,18 @@ namespace Scop
 			inline void Bind(std::size_t frame_index)
 			{
 				m_set.SetImage(frame_index, 0, *m_textures.albedo);
+				m_set.SetUniformBuffer(frame_index, 1, m_data_buffer.Get(frame_index));
 				m_set.Update(frame_index);
+
+				CPUBuffer buffer(sizeof(MaterialData));
+				std::memcpy(buffer.GetData(), &m_data, buffer.GetSize());
+				m_data_buffer.SetData(std::move(buffer), frame_index);
 			}
 
 		private:
+			UniformBuffer m_data_buffer;
 			MaterialTextures m_textures;
+			MaterialData m_data;
 			DescriptorSet m_set;
 	};
 }

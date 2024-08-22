@@ -56,6 +56,15 @@ namespace Scop
 				line_in >> v.z;
 				data.normal.push_back(std::move(v));
 			}
+			else if(op == "vc")
+			{
+				Vec4f v;
+				line_in >> v.r;
+				line_in >> v.g;
+				line_in >> v.b;
+				line_in >> v.a;
+				data.color.push_back(std::move(v));
+			}
 			else if(op == "g")
 			{
 				groups.clear();
@@ -143,6 +152,11 @@ namespace Scop
 			{
 				const int index = (face.n > -1) ? face.n : face.v;
 				model.normal.push_back(data.normal[index]);
+			}
+			if(!data.color.empty())
+			{
+				const int index = (face.n > -1) ? face.n : face.v;
+				model.color.push_back(data.color[index]);
 			}
 		}
 		for(auto& [group, faces] : data.faces)
