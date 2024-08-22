@@ -30,8 +30,8 @@ namespace Scop
 		public:
 			struct ForwardData
 			{
-				std::array<std::shared_ptr<DescriptorSet>, MAX_FRAMES_IN_FLIGHT> matrices_set;
-				std::array<std::shared_ptr<DescriptorSet>, MAX_FRAMES_IN_FLIGHT> albedo_set;
+				std::shared_ptr<DescriptorSet> matrices_set;
+				std::shared_ptr<DescriptorSet> albedo_set;
 				std::shared_ptr<UniformBuffer> matrices_buffer;
 			};
 

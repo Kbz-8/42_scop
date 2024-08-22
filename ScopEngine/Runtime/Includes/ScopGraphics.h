@@ -8,5 +8,7 @@
 #include <Graphics/Scene.h>
 #include <Graphics/Cameras/Base.h>
 #include <Graphics/Cameras/FirstPerson3D.h>
+#include <Graphics/Loaders/OBJ.h>
+#include <Graphics/Loaders/BMP.h>
 
 #endif

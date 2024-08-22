@@ -84,11 +84,11 @@ namespace Scop
 	{
 		public:
 			Texture() = default;
-			Texture(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format)
+			Texture(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM)
 			{
 				Init(std::move(pixels), width, height, format);
 			}
-			inline void Init(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format)
+			inline void Init(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM)
 			{
 				Image::Init(width, height, format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, { VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT });
 				Image::CreateImageView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT);
@@ -113,7 +113,7 @@ namespace Scop
 				else
 					TransitionLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 			}
-			~Texture() = default;
+			~Texture() override { Destroy(); }
 	};
 }
 

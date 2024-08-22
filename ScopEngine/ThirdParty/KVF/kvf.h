@@ -1637,7 +1637,7 @@ VkSampler kvfCreateSampler(VkDevice device, VkFilter filters, VkSamplerAddressMo
 
 void kvfDestroySampler(VkDevice device, VkSampler sampler)
 {
-	if(sampler != VK_NULL_HANDLE)
+	if(sampler == VK_NULL_HANDLE)
 		return;
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 	vkDestroySampler(device, sampler, NULL);

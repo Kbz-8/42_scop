@@ -19,18 +19,20 @@ namespace Scop
 			m_descriptors.back().shader_type = shader_type;
 			m_descriptors.back().binding = binding;
 		}
-		m_set = kvfAllocateDescriptorSet(RenderCore::Get().GetDevice(), vklayout);
+		for(std::size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+			m_set[i] = kvfAllocateDescriptorSet(RenderCore::Get().GetDevice(), vklayout);
 	}
 
 	DescriptorSet::DescriptorSet(VkDescriptorSetLayout layout, const std::vector<Descriptor>& descriptors)
 	: m_set_layout(layout), m_descriptors(descriptors)
 	{
-		m_set = kvfAllocateDescriptorSet(RenderCore::Get().GetDevice(), layout);
+		for(std::size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+			m_set[i] = kvfAllocateDescriptorSet(RenderCore::Get().GetDevice(), layout);
 	}
 
-	void DescriptorSet::SetImage(std::uint32_t binding, class Image& image)
+	void DescriptorSet::SetImage(std::size_t i, std::uint32_t binding, class Image& image)
 	{
-		Verify(m_set != VK_NULL_HANDLE, "invalid descriptor");
+		Verify(m_set[i] != VK_NULL_HANDLE, "invalid descriptor");
 		auto it = std::find_if(m_descriptors.begin(), m_descriptors.end(), [=](Descriptor descriptor)
 		{
 			return binding == descriptor.binding;
@@ -48,9 +50,9 @@ namespace Scop
 		it->image_ptr = &image;
 	}
 
-	void DescriptorSet::SetStorageBuffer(std::uint32_t binding, class GPUBuffer& buffer)
+	void DescriptorSet::SetStorageBuffer(std::size_t i, std::uint32_t binding, class GPUBuffer& buffer)
 	{
-		Verify(m_set != VK_NULL_HANDLE, "invalid descriptor");
+		Verify(m_set[i] != VK_NULL_HANDLE, "invalid descriptor");
 		auto it = std::find_if(m_descriptors.begin(), m_descriptors.end(), [=](Descriptor descriptor)
 		{
 			return binding == descriptor.binding;
@@ -68,9 +70,9 @@ namespace Scop
 		it->storage_buffer_ptr = &buffer;
 	}
 
-	void DescriptorSet::SetUniformBuffer(std::uint32_t binding, class GPUBuffer& buffer)
+	void DescriptorSet::SetUniformBuffer(std::size_t i, std::uint32_t binding, class GPUBuffer& buffer)
 	{
-		Verify(m_set != VK_NULL_HANDLE, "invalid descriptor");
+		Verify(m_set[i] != VK_NULL_HANDLE, "invalid descriptor");
 		auto it = std::find_if(m_descriptors.begin(), m_descriptors.end(), [=](Descriptor descriptor)
 		{
 			return binding == descriptor.binding;
@@ -88,9 +90,9 @@ namespace Scop
 		it->uniform_buffer_ptr = &buffer;
 	}
 
-	void DescriptorSet::Update() noexcept
+	void DescriptorSet::Update(std::size_t i) noexcept
 	{
-		Verify(m_set != VK_NULL_HANDLE, "invalid descriptor");
+		Verify(m_set[i] != VK_NULL_HANDLE, "invalid descriptor");
 		std::vector<VkWriteDescriptorSet> writes;
 		std::vector<VkDescriptorBufferInfo> buffer_infos;
 		std::vector<VkDescriptorImageInfo> image_infos;
@@ -103,7 +105,7 @@ namespace Scop
 				info.imageLayout = descriptor.image_ptr->GetLayout();
 				info.imageView = descriptor.image_ptr->GetImageView();
 				image_infos.push_back(info);
-				writes.push_back(kvfWriteImageToDescriptorSet(RenderCore::Get().GetDevice(), m_set, &image_infos.back(), descriptor.binding));
+				writes.push_back(kvfWriteImageToDescriptorSet(RenderCore::Get().GetDevice(), m_set[i], &image_infos.back(), descriptor.binding));
 			}
 			else if(descriptor.uniform_buffer_ptr)
 			{
@@ -112,7 +114,7 @@ namespace Scop
 				info.offset = descriptor.uniform_buffer_ptr->GetOffset();
 				info.range = VK_WHOLE_SIZE;
 				buffer_infos.push_back(info);
-				writes.push_back(kvfWriteUniformBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set, &buffer_infos.back(), descriptor.binding));
+				writes.push_back(kvfWriteUniformBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set[i], &buffer_infos.back(), descriptor.binding));
 			}
 			else if(descriptor.storage_buffer_ptr)
 			{
@@ -121,7 +123,7 @@ namespace Scop
 				info.offset = descriptor.storage_buffer_ptr->GetOffset();
 				info.range = VK_WHOLE_SIZE;
 				buffer_infos.push_back(info);
-				writes.push_back(kvfWriteStorageBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set, &buffer_infos.back(), descriptor.binding));
+				writes.push_back(kvfWriteStorageBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set[i], &buffer_infos.back(), descriptor.binding));
 			}
 		}
 		vkUpdateDescriptorSets(RenderCore::Get().GetDevice(), writes.size(), writes.data(), 0, nullptr);

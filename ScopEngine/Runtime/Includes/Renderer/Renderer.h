@@ -38,6 +38,7 @@ namespace Scop
 			[[nodiscard]] inline VkCommandBuffer GetActiveCommandBuffer() const noexcept { return m_cmd_buffers[m_current_frame_index]; }
 			[[nodiscard]] inline const std::vector<Image>& GetSwapchainImages() const { return m_swapchain_images; }
 			[[nodiscard]] inline std::size_t& GetDrawCallsCounterRef() noexcept { return m_drawcalls; }
+			[[nodiscard]] inline std::size_t& GetPolygonDrawnCounterRef() noexcept { return m_polygons_drawn; }
 			[[nodiscard]] inline std::size_t GetSwapchainImageIndex() const noexcept { return m_swapchain_image_index; }
 			[[nodiscard]] inline std::size_t GetCurrentFrameIndex() const noexcept { return m_current_frame_index; }
 			[[nodiscard]] inline NonOwningPtr<Window> GetWindow() const noexcept { return m_window_ptr; }
@@ -64,6 +65,7 @@ namespace Scop
 			std::uint32_t m_current_frame_index = 0;
 			std::uint32_t m_swapchain_image_index = 0;
 			std::size_t m_drawcalls = 0;
+			std::size_t m_polygons_drawn = 0;
 			bool m_framebuffers_resize = false;
 	};
 }

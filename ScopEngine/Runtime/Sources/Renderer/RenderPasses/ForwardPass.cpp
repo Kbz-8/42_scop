@@ -25,9 +25,10 @@ namespace Scop
 			model_data.model_mat = Mat4f::Identity();
 			model_data.model_mat.SetTranslation(actor.GetPosition());
 			model_data.model_mat.SetScale(actor.GetScale());
+			model_data.model_mat.SetRotation(actor.GetOrientation());
 			model_data.model_mat.GetInverseTransform(&model_data.normal_mat);
 			vkCmdPushConstants(cmd, pipeline.GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ModelData), &model_data);
-			actor.GetModel().Draw(cmd, *data.matrices_set[renderer.GetCurrentFrameIndex()], pipeline, *data.albedo_set[renderer.GetCurrentFrameIndex()], renderer.GetDrawCallsCounterRef());
+			actor.GetModel().Draw(cmd, *data.matrices_set, pipeline, *data.albedo_set, renderer.GetDrawCallsCounterRef(), renderer.GetPolygonDrawnCounterRef(), renderer.GetCurrentFrameIndex());
 		}
 		pipeline.EndPipeline(cmd);
 	}

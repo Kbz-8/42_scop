@@ -1,5 +1,3 @@
-#include <filesystem>
-
 #include <ScopCore.h>
 #include <ScopGraphics.h>
 
@@ -31,17 +29,17 @@ int main(int ac, char** av)
 	Scop::Actor& object = main_scene.CreateActor(Scop::LoadModelFromObjFile(av[ac - 1]));
 	object.SetScale(Scop::Vec3f{ 5.0f, 5.0f, 5.0f });
 
+	Scop::Vec2ui32 albedo_size;
+	Scop::MaterialTextures material_params;
+	material_params.albedo = std::make_shared<Scop::Texture>(Scop::LoadBMPFile(GetExecutablePath().parent_path().parent_path() / "Resources/viking_room.bmp", albedo_size), albedo_size.x, albedo_size.y);
+	std::shared_ptr<Scop::Material> material = std::make_shared<Scop::Material>(material_params);
+	const_cast<Scop::Model&>(object.GetModel()).SetMaterial(material, 0);
+
 	auto object_update = [](Scop::NonOwningPtr<Scop::Actor> actor, Scop::Inputs& input, float delta)
 	{
-		/*
-		static Scop::Vec3f v{ 1.0f, 1.0f, 1.0f };
-		static float i = 0;
-		v.x = std::fabs(std::cos(i)) + 1.0f;
-		v.y = std::fabs(std::cos(i - 0.1f)) + 1.0f;
-		v.x = std::fabs(std::cos(i + 0.6f)) + 1.0f;
-		i += delta;
-		actor->SetScale(v);
-		*/
+		static Scop::Vec3f rotations{ 0.0f, 0.0f, 0.0f };
+		//rotations.y += delta * 40.0f;
+		actor->SetOrientation(Scop::EulerAnglesf{ rotations.x, rotations.y, rotations.z });
 	};
 
 	using hook = std::function<void(Scop::NonOwningPtr<Scop::Actor>)>;

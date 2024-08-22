@@ -48,6 +48,8 @@ namespace Scop
 
 		DegreeAngle<T> pitch, yaw, roll;
 	};
+
+	using EulerAnglesf = EulerAngles<float>;
 }
 
 #include <Maths/EulerAngles.inl>

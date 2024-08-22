@@ -59,7 +59,7 @@ namespace Scop
 		kvfGPipelineBuilderAddShaderStage(p_builder, fragment_shader->GetShaderStage(), fragment_shader->GetShaderModule(), "main");
 		kvfGPipelineBuilderSetInputTopology(p_builder, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 		kvfGPipelineBuilderSetPolygonMode(p_builder, VK_POLYGON_MODE_FILL, 1.0f);
-		kvfGPipelineBuilderSetCullMode(p_builder, VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
+		kvfGPipelineBuilderSetCullMode(p_builder, VK_CULL_MODE_FRONT_BIT, VK_FRONT_FACE_CLOCKWISE);
 		kvfGPipelineBuilderDisableBlending(p_builder);
 		kvfGPipelineBuilderEnableDepthTest(p_builder, VK_COMPARE_OP_LESS, true);
 

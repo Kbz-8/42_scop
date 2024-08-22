@@ -25,17 +25,17 @@ namespace Scop
 
 		private:
 			[[nodiscard]] inline bool IsSetInit() const noexcept { return m_set.IsInit(); }
-			[[nodiscard]] inline VkDescriptorSet GetSet() const noexcept { return m_set.GetSet(); }
+			[[nodiscard]] inline VkDescriptorSet GetSet(std::size_t frame_index) const noexcept { return m_set.GetSet(frame_index); }
 
 			inline void UpdateDescriptorSet(const DescriptorSet& set)
 			{
 				m_set = set.Duplicate();
 			}
 
-			inline void Bind()
+			inline void Bind(std::size_t frame_index)
 			{
-				m_set.SetImage(0, *m_textures.albedo);
-				m_set.Update();
+				m_set.SetImage(frame_index, 0, *m_textures.albedo);
+				m_set.Update(frame_index);
 			}
 
 		private:

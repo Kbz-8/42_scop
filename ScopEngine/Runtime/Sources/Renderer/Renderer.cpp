@@ -68,6 +68,7 @@ namespace Scop
 		vkResetCommandBuffer(m_cmd_buffers[m_current_frame_index], 0);
 		kvfBeginCommandBuffer(m_cmd_buffers[m_current_frame_index], 0);
 		m_drawcalls = 0;
+		m_polygons_drawn = 0;
 		return true;
 	}
 

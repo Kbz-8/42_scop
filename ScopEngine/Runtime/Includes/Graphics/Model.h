@@ -21,7 +21,7 @@ namespace Scop
 			inline void SetMaterial(std::shared_ptr<Material> material, std::size_t mesh_index) { m_materials[mesh_index] = material; }
 			inline std::size_t GetSubMeshCount() const { return p_mesh->GetSubMeshCount(); }
 
-			void Draw(VkCommandBuffer cmd, const DescriptorSet& matrices_set, const class GraphicPipeline& pipeline, DescriptorSet& set, std::size_t& drawcalls) const;
+			void Draw(VkCommandBuffer cmd, const DescriptorSet& matrices_set, const class GraphicPipeline& pipeline, DescriptorSet& set, std::size_t& drawcalls, std::size_t& polygondrawn, std::size_t frame_index) const;
 
 			~Model() = default;
 

@@ -5,6 +5,7 @@
 #include <cstdint>
 
 #include <kvf.h>
+#include <Renderer/RenderCore.h>
 #include <Utils/NonOwningPtr.h>
 #include <Renderer/Pipelines/Shader.h>
 #include <Renderer/Vulkan/VulkanPrototypes.h>
@@ -24,17 +25,17 @@ namespace Scop
 	class DescriptorSet
 	{
 		public:
-			DescriptorSet() = default;
+			DescriptorSet() { m_set.fill(VK_NULL_HANDLE); }
 			DescriptorSet(const ShaderSetLayout& layout, VkDescriptorSetLayout vklayout, ShaderType shader_type);
 
-			void SetImage(std::uint32_t binding, class Image& image);
-			void SetStorageBuffer(std::uint32_t binding, class GPUBuffer& buffer);
-			void SetUniformBuffer(std::uint32_t binding, class GPUBuffer& buffer);
-			void Update() noexcept;
+			void SetImage(std::size_t i, std::uint32_t binding, class Image& image);
+			void SetStorageBuffer(std::size_t i, std::uint32_t binding, class GPUBuffer& buffer);
+			void SetUniformBuffer(std::size_t i, std::uint32_t binding, class GPUBuffer& buffer);
+			void Update(std::size_t i) noexcept;
 
-			[[nodiscard]] inline VkDescriptorSet GetSet() const noexcept { return m_set; }
+			[[nodiscard]] inline VkDescriptorSet GetSet(std::size_t i) const noexcept { return m_set[i]; }
 			[[nodiscard]] inline DescriptorSet Duplicate() const { return DescriptorSet{ m_set_layout, m_descriptors }; }
-			[[nodiscard]] inline bool IsInit() const noexcept { return m_set != VK_NULL_HANDLE; }
+			[[nodiscard]] inline bool IsInit() const noexcept { return m_set[0] != VK_NULL_HANDLE; }
 
 			~DescriptorSet() = default;
 
@@ -43,7 +44,7 @@ namespace Scop
 
 		private:
 			std::vector<Descriptor> m_descriptors;
-			VkDescriptorSet m_set = VK_NULL_HANDLE;
+			std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> m_set;
 			VkDescriptorSetLayout m_set_layout;
 	};
 }
