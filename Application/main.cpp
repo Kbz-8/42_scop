@@ -31,11 +31,14 @@ int main(int ac, char** av)
 
 	if(ac > 2)
 	{
-		Scop::Vec2ui32 albedo_size;
-		Scop::MaterialTextures material_params;
-		material_params.albedo = std::make_shared<Scop::Texture>(Scop::LoadBMPFile(av[2], albedo_size), albedo_size.x, albedo_size.y);
-		std::shared_ptr<Scop::Material> material = std::make_shared<Scop::Material>(material_params);
-		object.GetModelRef().SetMaterial(material, 0);
+		for(std::size_t i = 2, j = 0; i < ac; i++, j++)
+		{
+			Scop::Vec2ui32 albedo_size;
+			Scop::MaterialTextures material_params;
+			material_params.albedo = std::make_shared<Scop::Texture>(Scop::LoadBMPFile(av[i], albedo_size), albedo_size.x, albedo_size.y);
+			std::shared_ptr<Scop::Material> material = std::make_shared<Scop::Material>(material_params);
+			object.GetModelRef().SetMaterial(material, j);
+		}
 	}
 
 	auto object_update = [](Scop::NonOwningPtr<Scop::Actor> actor, Scop::Inputs& input, float delta)
@@ -88,8 +91,11 @@ int main(int ac, char** av)
 			}
 		}
 
-		for(std::size_t i = 0; i < actor->GetModel().GetSubMeshCount(); i++)
-			actor->GetModelRef().GetMaterial(i)->SetMaterialData(material_data);
+		for(std::shared_ptr<Scop::Material> material : actor->GetModelRef().GetAllMaterials())
+		{
+			if(material)
+				material->SetMaterialData(material_data);
+		}
 	};
 
 	using hook = std::function<void(Scop::NonOwningPtr<Scop::Actor>)>;
