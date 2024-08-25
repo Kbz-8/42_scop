@@ -31,7 +31,7 @@ namespace Scop
 		constexpr explicit Vec3(const Vec4<T>& vec);
 
 		T AbsDotProduct(const Vec3& vec) const;
-		constexpr bool ApproxEqual(const Vec3& vec, T maxDifference = std::numeric_limits<T>::epsilon()) const;
+		constexpr bool ApproxEqual(const Vec3& vec, T max_difference = std::numeric_limits<T>::epsilon()) const;
 
 		constexpr Vec3 CrossProduct(const Vec3& vec) const;
 
@@ -87,7 +87,7 @@ namespace Scop
 		constexpr bool operator>=(const Vec3& vec) const;
 
 		static constexpr Vec3 Apply(T(*func)(T), const Vec3& vec);
-		static constexpr bool ApproxEqual(const Vec3& lhs, const Vec3& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+		static constexpr bool ApproxEqual(const Vec3& lhs, const Vec3& rhs, T max_difference = std::numeric_limits<T>::epsilon());
 		static constexpr Vec3 Backward();
 		static constexpr Vec3 Clamp(const Vec3& vec, const Vec3& min, const Vec3& max);
 		static constexpr Vec3 CrossProduct(const Vec3& vec1, const Vec3& vec2);

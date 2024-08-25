@@ -1,6 +1,7 @@
 #include <Graphics/Model.h>
 #include <Graphics/Loaders/OBJ.h>
 #include <Renderer/Pipelines/Graphics.h>
+#include <iostream>
 
 namespace Scop
 {
@@ -38,16 +39,20 @@ namespace Scop
 
 	Model LoadModelFromObjFile(std::filesystem::path path) noexcept
 	{
-		auto obj_data = LoadOBJFromFile(path);
+		auto obj_data = LoadObjFromFile(path);
 		if(!obj_data)
 			return { nullptr };
-		TesselateOBJData(*obj_data);
+		TesselateObjData(*obj_data);
 		ObjModel obj_model = ConvertObjDataToObjModel(*obj_data);
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 
 		float min_x = std::numeric_limits<float>::max(), max_x = std::numeric_limits<float>::lowest();
 		float min_y = std::numeric_limits<float>::max(), max_y = std::numeric_limits<float>::lowest();
 		float min_z = std::numeric_limits<float>::max(), max_z = std::numeric_limits<float>::lowest();
+
+		bool needs_to_generate_normals = obj_model.normal.empty();
+		if(needs_to_generate_normals)
+			obj_model.normal.resize(obj_model.vertex.size(), Vec3f{});
 
 		for(auto& [group, faces] : obj_model.faces)
 		{
@@ -62,28 +67,39 @@ namespace Scop
 				max_y = std::max(obj_model.vertex[faces[i]].y, max_y);
 				max_z = std::max(obj_model.vertex[faces[i]].z, max_z);
 
-				float color_base;
-				std::size_t triangle_index = i / 3;
+				Vec4f color{};
+				switch(i % 10)
+				{
+					case 0:  color = Vec4f{ 1.0f, 0.0f, 1.0f, 1.0f }; break;
+					case 1:  color = Vec4f{ 1.0f, 1.0f, 0.0f, 1.0f }; break;
+					case 2:  color = Vec4f{ 1.0f, 0.5f, 0.0f, 1.0f }; break;
+					case 3:  color = Vec4f{ 1.0f, 0.0f, 0.0f, 1.0f }; break;
+					case 4:  color = Vec4f{ 0.2f, 0.0f, 0.8f, 1.0f }; break;
+					case 5:  color = Vec4f{ 0.0f, 1.0f, 1.0f, 1.0f }; break;
+					case 6:  color = Vec4f{ 0.0f, 1.0f, 0.0f, 1.0f }; break;
+					case 7:  color = Vec4f{ 0.0f, 0.0f, 1.0f, 1.0f }; break;
+					case 8:  color = Vec4f{ 0.3f, 0.0f, 0.4f, 1.0f }; break;
+					default: color = Vec4f{ 1.0f, 1.0f, 1.0f, 1.0f }; break;
+				}
 
-				if(triangle_index % 6 < 2)
-					color_base = 0.2f;
-				else if(triangle_index % 6 == 2)
-					color_base = 0.4f;
-				else if(triangle_index % 6 == 3)
-					color_base = 0.6f;
-				else if(triangle_index % 6 == 4)
-					color_base = 0.8f;
-				else
-					color_base = 1.0f;
+				if(needs_to_generate_normals && i % 3 == 0)
+				{
+					Vec3f vec_a{ obj_model.vertex[faces[i + 1]] - obj_model.vertex[faces[i]] };
+					Vec3f vec_b{ obj_model.vertex[faces[i + 2]] - obj_model.vertex[faces[i]] };
+					Vec3f normal = vec_a.CrossProduct(vec_b).Normalize();
+					obj_model.normal[faces[i + 0]] = normal;
+					obj_model.normal[faces[i + 1]] = normal;
+					obj_model.normal[faces[i + 2]] = normal;
+				}
 
 				Vertex v(
 					Vec4f{
 						obj_model.vertex[faces[i]],
 						1.0f
 					},
-					(obj_model.color.empty() ? Vec4f{ color_base, color_base, color_base, 1.0f } : obj_model.color[faces[i]]),
+					color,
 					Vec4f{
-						(obj_model.normal.empty() ? Vec3f{ 1.0f } : obj_model.normal[faces[i]]),
+						obj_model.normal[faces[i]],
 						1.0f
 					},
 					(obj_model.tex_coord.empty() ?

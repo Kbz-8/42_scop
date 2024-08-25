@@ -13,6 +13,8 @@ struct VertOut
 struct FragmentData
 {
 	dissolve_texture_factor: f32,
+	dissolve_black_white_colors_factor: f32,
+	dissolve_normals_colors_factor: f32,
 }
 
 struct FragOut
@@ -45,7 +47,12 @@ fn MixVec4f32(a: vec4[f32], b: vec4[f32], t: f32) -> vec4[f32]
 fn main(input: VertOut) -> FragOut
 {
 	let texture_color = u_albedo.Sample(input.uv);
-	texture_color.a *= u_fragment_data.dissolve_texture_factor;
+
+	let grey_scale_value: f32 = 0.3 * input.color.r + 0.59 * input.color.g + 0.11 * input.color.b;
+	let grey_scale = vec4[f32](grey_scale_value, grey_scale_value, grey_scale_value, 1.0);
+	input.color = MixVec4f32(input.color, grey_scale, u_fragment_data.dissolve_black_white_colors_factor);
+
+	input.color = MixVec4f32(input.color, abs(input.norm), u_fragment_data.dissolve_normals_colors_factor);
 
 	let output: FragOut;
 	output.color = MixVec4f32(input.color, texture_color, u_fragment_data.dissolve_texture_factor);

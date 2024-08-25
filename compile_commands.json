@@ -11,383 +11,14 @@
       "ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Platform/Inputs.o",
-      "Runtime/Sources/Platform/Inputs.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Platform/Inputs.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Platform/Inputs.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Graphics/Mesh.o",
-      "Runtime/Sources/Graphics/Mesh.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Mesh.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Mesh.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Graphics/Cameras/FirstPerson3D.o",
-      "Runtime/Sources/Graphics/Cameras/FirstPerson3D.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Cameras/FirstPerson3D.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Cameras/FirstPerson3D.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Graphics/Scene.o",
-      "Runtime/Sources/Graphics/Scene.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Scene.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Scene.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Renderer/Image.o",
-      "Runtime/Sources/Renderer/Image.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Image.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Image.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Core/Logs.o",
-      "Runtime/Sources/Core/Logs.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Core/Logs.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Core/Logs.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Platform/Window.o",
-      "Runtime/Sources/Platform/Window.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Platform/Window.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Platform/Window.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Core/EventListener.o",
-      "Runtime/Sources/Core/EventListener.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Core/EventListener.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Core/EventListener.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Core/Engine.o",
-      "Runtime/Sources/Core/Engine.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Core/Engine.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Core/Engine.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Renderer/Renderer.o",
-      "Runtime/Sources/Renderer/Renderer.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Renderer.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Renderer.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./ThirdParty/imgui/imgui.o",
-      "ThirdParty/imgui/imgui.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/ThirdParty/imgui/imgui.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/ThirdParty/imgui/imgui.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Debug/ImGuiRenderer.o",
-      "Runtime/Sources/Debug/ImGuiRenderer.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Debug/ImGuiRenderer.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Debug/ImGuiRenderer.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Renderer/RenderPasses/ForwardPass.o",
-      "Runtime/Sources/Renderer/RenderPasses/ForwardPass.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/RenderPasses/ForwardPass.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/RenderPasses/ForwardPass.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Renderer/Vulkan/VulkanLoader.o",
-      "Runtime/Sources/Renderer/Vulkan/VulkanLoader.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Vulkan/VulkanLoader.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Vulkan/VulkanLoader.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
       "-c",
       "-o",
       "Objects/./Runtime/Sources/Core/EventBus.o",
       "Runtime/Sources/Core/EventBus.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Core/EventBus.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Core/EventBus.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Core/EventBus.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Core/EventBus.o"
   },
   {
     "arguments": [
@@ -401,19 +32,14 @@
       "ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
       "-c",
       "-o",
-      "Objects/./Runtime/Sources/Renderer/Pipelines/Graphics.o",
-      "Runtime/Sources/Renderer/Pipelines/Graphics.cpp"
+      "Objects/./Runtime/Sources/Platform/Inputs.o",
+      "Runtime/Sources/Platform/Inputs.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Pipelines/Graphics.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Pipelines/Graphics.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Platform/Inputs.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Platform/Inputs.o"
   },
   {
     "arguments": [
@@ -427,19 +53,14 @@
       "ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
       "-c",
       "-o",
-      "Objects/./Runtime/Sources/Graphics/Loaders/OBJ.o",
-      "Runtime/Sources/Graphics/Loaders/OBJ.cpp"
+      "Objects/./Runtime/Sources/Core/EventListener.o",
+      "Runtime/Sources/Core/EventListener.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Loaders/OBJ.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Loaders/OBJ.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Core/EventListener.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Core/EventListener.o"
   },
   {
     "arguments": [
@@ -453,19 +74,14 @@
       "ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
       "-c",
       "-o",
       "Objects/./Runtime/Sources/Graphics/Actor.o",
       "Runtime/Sources/Graphics/Actor.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Actor.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Actor.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Actor.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Actor.o"
   },
   {
     "arguments": [
@@ -479,45 +95,14 @@
       "ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Renderer/Descriptor.o",
-      "Runtime/Sources/Renderer/Descriptor.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Descriptor.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Descriptor.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
       "-c",
       "-o",
       "Objects/./Runtime/Sources/Renderer/RenderCore.o",
       "Runtime/Sources/Renderer/RenderCore.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/RenderCore.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/RenderCore.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/RenderCore.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/RenderCore.o"
   },
   {
     "arguments": [
@@ -531,19 +116,14 @@
       "ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
       "-c",
       "-o",
-      "Objects/./Runtime/Sources/Renderer/Buffer.o",
-      "Runtime/Sources/Renderer/Buffer.cpp"
+      "Objects/./Runtime/Sources/Core/Engine.o",
+      "Runtime/Sources/Core/Engine.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Buffer.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Buffer.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Core/Engine.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Core/Engine.o"
   },
   {
     "arguments": [
@@ -557,19 +137,14 @@
       "ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
       "-c",
       "-o",
-      "Objects/./ThirdParty/imgui/imgui_draw.o",
-      "ThirdParty/imgui/imgui_draw.cpp"
+      "Objects/./Runtime/Sources/Platform/Window.o",
+      "Runtime/Sources/Platform/Window.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/ThirdParty/imgui/imgui_draw.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/ThirdParty/imgui/imgui_draw.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Platform/Window.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Platform/Window.o"
   },
   {
     "arguments": [
@@ -583,19 +158,14 @@
       "ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
       "-c",
       "-o",
-      "Objects/./ThirdParty/imgui/backends/imgui_impl_vulkan.o",
-      "ThirdParty/imgui/backends/imgui_impl_vulkan.cpp"
+      "Objects/./Runtime/Sources/Renderer/RenderPasses/ForwardPass.o",
+      "Runtime/Sources/Renderer/RenderPasses/ForwardPass.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/ThirdParty/imgui/backends/imgui_impl_vulkan.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/ThirdParty/imgui/backends/imgui_impl_vulkan.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/RenderPasses/ForwardPass.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/RenderPasses/ForwardPass.o"
   },
   {
     "arguments": [
@@ -609,19 +179,119 @@
       "ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Graphics/Mesh.o",
+      "Runtime/Sources/Graphics/Mesh.cpp"
+    ],
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Mesh.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Mesh.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
       "-I",
-      "ThirdParty/imgui",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Graphics/Scene.o",
+      "Runtime/Sources/Graphics/Scene.cpp"
+    ],
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Scene.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Scene.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Graphics/Loaders/OBJ.o",
+      "Runtime/Sources/Graphics/Loaders/OBJ.cpp"
+    ],
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Loaders/OBJ.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Loaders/OBJ.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Graphics/Cameras/FirstPerson3D.o",
+      "Runtime/Sources/Graphics/Cameras/FirstPerson3D.cpp"
+    ],
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Cameras/FirstPerson3D.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Cameras/FirstPerson3D.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Renderer/Renderer.o",
+      "Runtime/Sources/Renderer/Renderer.cpp"
+    ],
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Renderer.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Renderer.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
       "-c",
       "-o",
       "Objects/./Runtime/Sources/Graphics/Model.o",
       "Runtime/Sources/Graphics/Model.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Model.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Model.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Model.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Model.o"
   },
   {
     "arguments": [
@@ -635,19 +305,14 @@
       "ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
       "-c",
       "-o",
-      "Objects/./ThirdParty/imgui/imgui_widgets.o",
-      "ThirdParty/imgui/imgui_widgets.cpp"
+      "Objects/./Runtime/Sources/Renderer/Pipelines/Graphics.o",
+      "Runtime/Sources/Renderer/Pipelines/Graphics.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/ThirdParty/imgui/imgui_widgets.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/ThirdParty/imgui/imgui_widgets.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Pipelines/Graphics.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Pipelines/Graphics.o"
   },
   {
     "arguments": [
@@ -661,19 +326,14 @@
       "ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
       "-c",
       "-o",
-      "Objects/./ThirdParty/imgui/imgui_tables.o",
-      "ThirdParty/imgui/imgui_tables.cpp"
+      "Objects/./Runtime/Sources/Renderer/Image.o",
+      "Runtime/Sources/Renderer/Image.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/ThirdParty/imgui/imgui_tables.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/ThirdParty/imgui/imgui_tables.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Image.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Image.o"
   },
   {
     "arguments": [
@@ -687,19 +347,14 @@
       "ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
       "-c",
       "-o",
-      "Objects/./Runtime/Sources/Renderer/SceneRenderer.o",
-      "Runtime/Sources/Renderer/SceneRenderer.cpp"
+      "Objects/./Runtime/Sources/Graphics/Loaders/BMP.o",
+      "Runtime/Sources/Graphics/Loaders/BMP.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/SceneRenderer.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/SceneRenderer.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Loaders/BMP.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Loaders/BMP.o"
   },
   {
     "arguments": [
@@ -713,71 +368,161 @@
       "ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./Runtime/Sources/Renderer/Pipelines/Shader.o",
-      "Runtime/Sources/Renderer/Pipelines/Shader.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Pipelines/Shader.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Pipelines/Shader.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
-      "-c",
-      "-o",
-      "Objects/./ThirdParty/imgui/backends/imgui_impl_sdl2.o",
-      "ThirdParty/imgui/backends/imgui_impl_sdl2.cpp"
-    ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/ThirdParty/imgui/backends/imgui_impl_sdl2.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/ThirdParty/imgui/backends/imgui_impl_sdl2.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/clang++",
-      "-std=c++20",
-      "-I",
-      "Runtime/Includes",
-      "-I",
-      "Runtime/Sources",
-      "-I",
-      "ThirdParty/KVF",
-      "-D",
-      "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
-      "-I",
-      "ThirdParty/imgui",
       "-c",
       "-o",
       "Objects/./Runtime/Sources/Renderer/RenderPasses/Passes.o",
       "Runtime/Sources/Renderer/RenderPasses/Passes.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/RenderPasses/Passes.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/RenderPasses/Passes.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/RenderPasses/Passes.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/RenderPasses/Passes.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Graphics/Loaders/TGA.o",
+      "Runtime/Sources/Graphics/Loaders/TGA.cpp"
+    ],
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Graphics/Loaders/TGA.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Graphics/Loaders/TGA.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Core/Logs.o",
+      "Runtime/Sources/Core/Logs.cpp"
+    ],
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Core/Logs.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Core/Logs.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Renderer/SceneRenderer.o",
+      "Runtime/Sources/Renderer/SceneRenderer.cpp"
+    ],
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/SceneRenderer.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/SceneRenderer.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Renderer/Vulkan/VulkanLoader.o",
+      "Runtime/Sources/Renderer/Vulkan/VulkanLoader.cpp"
+    ],
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Vulkan/VulkanLoader.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Vulkan/VulkanLoader.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Renderer/Descriptor.o",
+      "Runtime/Sources/Renderer/Descriptor.cpp"
+    ],
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Descriptor.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Descriptor.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Renderer/Buffer.o",
+      "Runtime/Sources/Renderer/Buffer.cpp"
+    ],
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Buffer.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Buffer.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-I",
+      "Runtime/Includes",
+      "-I",
+      "Runtime/Sources",
+      "-I",
+      "ThirdParty/KVF",
+      "-D",
+      "KVF_IMPL_VK_NO_PROTOTYPES",
+      "-c",
+      "-o",
+      "Objects/./Runtime/Sources/Renderer/Pipelines/Shader.o",
+      "Runtime/Sources/Renderer/Pipelines/Shader.cpp"
+    ],
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Runtime/Sources/Renderer/Pipelines/Shader.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/ScopEngine/Objects/Runtime/Sources/Renderer/Pipelines/Shader.o"
   },
   {
     "arguments": [
@@ -791,16 +536,13 @@
       "ScopEngine/ThirdParty/KVF",
       "-D",
       "KVF_IMPL_VK_NO_PROTOTYPES",
-      "-g",
-      "-D",
-      "DEBUG",
       "-c",
       "-o",
       "Objects/./Application/main.o",
       "Application/main.cpp"
     ],
-    "directory": "/home/kbz_8/Documents/Code/42/Graphics/Scop",
-    "file": "/home/kbz_8/Documents/Code/42/Graphics/Scop/Application/main.cpp",
-    "output": "/home/kbz_8/Documents/Code/42/Graphics/Scop/Objects/Application/main.o"
+    "directory": "/home/kbz8/Documents/Code/42/Graphics/Scop",
+    "file": "/home/kbz8/Documents/Code/42/Graphics/Scop/Application/main.cpp",
+    "output": "/home/kbz8/Documents/Code/42/Graphics/Scop/Objects/Application/main.o"
   }
 ]

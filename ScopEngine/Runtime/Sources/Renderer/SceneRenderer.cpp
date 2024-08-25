@@ -17,9 +17,10 @@ namespace Scop
 		VertexMatricesData mat;
 		mat.view = scene.GetCamera()->GetView();
 		mat.projection = scene.GetCamera()->GetProj();
-		CPUBuffer buffer(sizeof(VertexMatricesData));
+
+		static CPUBuffer buffer(sizeof(VertexMatricesData));
 		std::memcpy(buffer.GetData(), &mat, buffer.GetSize());
-		scene.GetForwardData().matrices_buffer->SetData(std::move(buffer), renderer.GetCurrentFrameIndex());
+		scene.GetForwardData().matrices_buffer->SetData(buffer, renderer.GetCurrentFrameIndex());
 
 		m_passes.Pass(scene, renderer);
 	}

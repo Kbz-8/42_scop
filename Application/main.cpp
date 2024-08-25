@@ -1,9 +1,13 @@
 #include <ScopCore.h>
 #include <ScopGraphics.h>
 
+#include <ScriptSubRoutines.h>
+
 #include <climits>
 #include <memory>
 #include <unistd.h>
+#include <filesystem>
+#include <string>
 
 std::filesystem::path GetExecutablePath()
 {
@@ -43,53 +47,12 @@ int main(int ac, char** av)
 
 	auto object_update = [](Scop::NonOwningPtr<Scop::Actor> actor, Scop::Inputs& input, float delta)
 	{
-		static Scop::Vec3f rotations{ 0.0f, 0.0f, 0.0f };
-		rotations.y += delta * 40.0f;
-		actor->SetOrientation(Scop::EulerAnglesf{ rotations.x, rotations.y, rotations.z });
-
-		constexpr const float SPEED = 40.0f;
-		static Scop::Vec3f position{ 0.0f, 0.0f, 0.0f };
-		if(input.IsKeyPressed(SDL_SCANCODE_I))
-			position.x += SPEED * delta;
-		if(input.IsKeyPressed(SDL_SCANCODE_K))
-			position.x -= SPEED * delta;
-		if(input.IsKeyPressed(SDL_SCANCODE_L))
-			position.z += SPEED * delta;
-		if(input.IsKeyPressed(SDL_SCANCODE_J))
-			position.z -= SPEED * delta;
-		if(input.IsKeyPressed(SDL_SCANCODE_U))
-			position.y += SPEED * delta;
-		if(input.IsKeyPressed(SDL_SCANCODE_O))
-			position.y -= SPEED * delta;
-		actor->SetPosition(position);
-
 		static Scop::MaterialData material_data{};
 
-		static bool texture_trigger = false;
-		static bool texture_transition = false;
-		static std::uint8_t transition_way = 0;
-
-		if(input.IsKeyPressed(SDL_SCANCODE_T) && !texture_transition)
-			texture_trigger = true;
-		else if(texture_trigger)
-		{
-			texture_transition = true;
-			texture_trigger = false;
-			transition_way = (material_data.dissolve_texture_factor >= 0.5f);
-		}
-		if(texture_transition)
-		{
-			if(transition_way == 1)
-			{
-				material_data.dissolve_texture_factor -= 1.0f * delta;
-				texture_transition = (material_data.dissolve_texture_factor > 0.0f);
-			}
-			else
-			{
-				material_data.dissolve_texture_factor += 1.0f * delta;
-				texture_transition = (material_data.dissolve_texture_factor < 1.0f);
-			}
-		}
+		RotationHandler(actor, input, delta);
+		MovementHandler(actor, input, delta);
+		ColorsTransitionHandler(actor, input, delta, material_data);
+		TextureTransitionHandler(actor, input, delta, material_data);
 
 		for(std::shared_ptr<Scop::Material> material : actor->GetModelRef().GetAllMaterials())
 		{

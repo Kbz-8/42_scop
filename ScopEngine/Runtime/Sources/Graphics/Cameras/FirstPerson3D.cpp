@@ -55,7 +55,9 @@ namespace Scop
 			m_mov -= m_up;
 		if(input.IsKeyPressed(SDL_SCANCODE_SPACE))
 			m_mov += m_up;
-		m_position += m_mov * m_speed * timestep;
+
+		bool slow = input.IsKeyPressed(SDL_SCANCODE_Q);
+		m_position += m_mov * m_speed * (slow ? 0.5f : 1.0f) * timestep;
 	}
 
 	void FirstPerson3D::UpdateView()

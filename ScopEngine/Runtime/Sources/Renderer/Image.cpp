@@ -1,4 +1,3 @@
-#include "kvf.h"
 #include <Renderer/Image.h>
 #include <Renderer/RenderCore.h>
 #include <Core/Logs.h>

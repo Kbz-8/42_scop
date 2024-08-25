@@ -294,14 +294,6 @@ namespace Scop
 	{
 		Assert(dest, "destination matrix must be valid");
 
-		#ifdef NAZARA_DEBUG
-		if(!IsTransformMatrix())
-		{
-			NazaraDebug("matrix is not a transform matrix");
-			return GetInverse(dest);
-		}
-		#endif
-
 		T det = GetDeterminantTransform();
 		if(det == T(0.0))
 			return false;

@@ -18,6 +18,8 @@ namespace Scop
 	struct MaterialData
 	{
 		float dissolve_texture_factor = 1.0f;
+		float dissolve_black_white_colors_factor = 1.0f;
+		float dissolve_normals_colors_factor = 0.0f;
 	};
 
 	class Material
@@ -47,9 +49,9 @@ namespace Scop
 				m_set.SetUniformBuffer(frame_index, 1, m_data_buffer.Get(frame_index));
 				m_set.Update(frame_index);
 
-				CPUBuffer buffer(sizeof(MaterialData));
+				static CPUBuffer buffer(sizeof(MaterialData));
 				std::memcpy(buffer.GetData(), &m_data, buffer.GetSize());
-				m_data_buffer.SetData(std::move(buffer), frame_index);
+				m_data_buffer.SetData(buffer, frame_index);
 			}
 
 		private:

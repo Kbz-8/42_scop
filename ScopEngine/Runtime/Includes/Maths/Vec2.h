@@ -29,7 +29,7 @@ namespace Scop
 		constexpr explicit Vec2(const Vec4<T>& vec);
 
 		T AbsDotProduct(const Vec2& vec) const;
-		constexpr bool ApproxEqual(const Vec2& vec, T maxDifference = std::numeric_limits<T>::epsilon()) const;
+		constexpr bool ApproxEqual(const Vec2& vec, T max_difference = std::numeric_limits<T>::epsilon()) const;
 
 		template<typename U = T> U Distance(const Vec2& vec) const;
 		constexpr T DotProduct(const Vec2& vec) const;
@@ -82,7 +82,7 @@ namespace Scop
 		constexpr bool operator>=(const Vec2& vec) const;
 
 		static constexpr Vec2 Apply(T(*func)(T), const Vec2& vec);
-		static constexpr bool ApproxEqual(const Vec2& lhs, const Vec2& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+		static constexpr bool ApproxEqual(const Vec2& lhs, const Vec2& rhs, T max_difference = std::numeric_limits<T>::epsilon());
 		template<typename U = T> static U Distance(const Vec2& vec1, const Vec2& vec2);
 		static constexpr T DotProduct(const Vec2& vec1, const Vec2& vec2);
 		static constexpr Vec2 Lerp(const Vec2& from, const Vec2& to, T interpolation);

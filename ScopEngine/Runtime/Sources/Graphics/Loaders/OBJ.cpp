@@ -7,7 +7,7 @@
 
 namespace Scop
 {
-	std::optional<ObjData> LoadOBJFromFile(const std::filesystem::path& path)
+	std::optional<ObjData> LoadObjFromFile(const std::filesystem::path& path)
 	{
 		if(!std::filesystem::exists(path))
 		{
@@ -92,7 +92,7 @@ namespace Scop
 		return data;
 	}
 
-	static void TesselateOBJData(std::vector<ObjData::FaceVertex>& input, std::vector<std::uint32_t>& input_start) noexcept
+	static void TesselateObjData(std::vector<ObjData::FaceVertex>& input, std::vector<std::uint32_t>& input_start) noexcept
 	{
 		std::vector<ObjData::FaceVertex> output;
 		std::vector<std::uint32_t> output_start;
@@ -123,12 +123,12 @@ namespace Scop
 		input_start.swap(output_start);
 	}
 
-	void TesselateOBJData(ObjData& obj)
+	void TesselateObjData(ObjData& obj)
 	{
 		for(auto& face : obj.faces)
 		{
 			ObjData::FaceList& fl = face.second;
-			TesselateOBJData(fl.first, fl.second);
+			TesselateObjData(fl.first, fl.second);
 		}
 		Message("OBJ Loader : object data tesselated");
 	}

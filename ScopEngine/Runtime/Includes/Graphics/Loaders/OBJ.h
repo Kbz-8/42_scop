@@ -55,8 +55,8 @@ namespace Scop
 		std::map<std::string, std::vector<std::uint32_t>> faces;
 	};
 
-	std::optional<ObjData> LoadOBJFromFile(const std::filesystem::path& path);
-	void TesselateOBJData(ObjData& data);
+	std::optional<ObjData> LoadObjFromFile(const std::filesystem::path& path);
+	void TesselateObjData(ObjData& data);
 	ObjModel ConvertObjDataToObjModel(const ObjData& data);
 
 	template<typename T>

@@ -34,7 +34,7 @@ namespace Scop
 		constexpr Vec4(Vec4&&) = default;
 
 		T AbsDotProduct(const Vec4& vec) const;
-		constexpr bool ApproxEqual(const Vec4& vec, T maxDifference = std::numeric_limits<T>::epsilon()) const;
+		constexpr bool ApproxEqual(const Vec4& vec, T max_difference = std::numeric_limits<T>::epsilon()) const;
 
 		constexpr T DotProduct(const Vec4& vec) const;
 
@@ -82,7 +82,7 @@ namespace Scop
 		constexpr bool operator>=(const Vec4& vec) const;
 
 		static constexpr Vec4 Apply(T(*func)(T), const Vec4& vec);
-		static constexpr bool ApproxEqual(const Vec4& lhs, const Vec4& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+		static constexpr bool ApproxEqual(const Vec4& lhs, const Vec4& rhs, T max_difference = std::numeric_limits<T>::epsilon());
 		static constexpr T DotProduct(const Vec4& vec1, const Vec4& vec2);
 		static Vec4 Normalize(const Vec4& vec);
 		static constexpr Vec4 UnitX();
