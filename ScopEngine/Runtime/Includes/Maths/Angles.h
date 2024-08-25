@@ -69,7 +69,7 @@ namespace Scop
 		constexpr bool operator>=(Angle other) const;
 
 		static constexpr bool ApproxEqual(const Angle& lhs, const Angle& rhs);
-		static constexpr bool ApproxEqual(const Angle& lhs, const Angle& rhs, T maxDifference);
+		static constexpr bool ApproxEqual(const Angle& lhs, const Angle& rhs, T max_difference);
 		static constexpr Angle Clamp(Angle angle, Angle min, Angle max);
 		template<AngleUnit FromUnit> static constexpr Angle From(T value);
 		static constexpr Angle FromDegrees(T degrees);

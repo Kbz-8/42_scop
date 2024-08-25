@@ -137,7 +137,7 @@ namespace Scop
 	{
 		std::vector<ObjData::FaceVertex> unique(data.faces.find("default")->second.first);
 		std::sort(unique.begin(), unique.end());
-		unique.erase( std::unique(unique.begin(), unique.end()), unique.end());
+		unique.erase(std::unique(unique.begin(), unique.end()), unique.end());
 
 		ObjModel model;
 		for(auto& face : unique)

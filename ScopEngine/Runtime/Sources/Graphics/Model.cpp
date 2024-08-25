@@ -1,7 +1,9 @@
 #include <Graphics/Model.h>
 #include <Graphics/Loaders/OBJ.h>
 #include <Renderer/Pipelines/Graphics.h>
-#include <iostream>
+#include <Maths/Angles.h>
+
+#include <unordered_map>
 
 namespace Scop
 {
@@ -37,6 +39,13 @@ namespace Scop
 		}
 	}
 
+	RadianAnglef GetAngleBetweenVectors(const Vec3f& a, const Vec3f& b) noexcept
+	{
+		float cosine_theta = (a.DotProduct(b)) / (a.GetLength() * b.GetLength());
+		RadianAnglef angle(std::acos(cosine_theta));
+		return angle;
+	}
+
 	Model LoadModelFromObjFile(std::filesystem::path path) noexcept
 	{
 		auto obj_data = LoadObjFromFile(path);
@@ -51,8 +60,23 @@ namespace Scop
 		float min_z = std::numeric_limits<float>::max(), max_z = std::numeric_limits<float>::lowest();
 
 		bool needs_to_generate_normals = obj_model.normal.empty();
+		std::unordered_map<std::string, std::vector<Vec3f>> generated_normals;
 		if(needs_to_generate_normals)
-			obj_model.normal.resize(obj_model.vertex.size(), Vec3f{});
+		{
+			for(auto& [group, faces] : obj_model.faces)
+			{
+				generated_normals[group] = std::vector<Vec3f>(faces.size(), Vec3f{});
+				for(std::size_t i = 0; i < faces.size(); i += 3)
+				{
+					Vec3f vec_a{ obj_model.vertex[faces[i + 1]] - obj_model.vertex[faces[i]] };
+					Vec3f vec_b{ obj_model.vertex[faces[i + 2]] - obj_model.vertex[faces[i]] };
+					Vec3f normal = vec_a.CrossProduct(vec_b).Normalize();
+					generated_normals[group][i + 0] = normal;
+					generated_normals[group][i + 1] = normal;
+					generated_normals[group][i + 2] = normal;
+				}
+			}
+		}
 
 		for(auto& [group, faces] : obj_model.faces)
 		{
@@ -82,15 +106,22 @@ namespace Scop
 					default: color = Vec4f{ 1.0f, 1.0f, 1.0f, 1.0f }; break;
 				}
 
-				if(needs_to_generate_normals && i % 3 == 0)
+				Vec3f normal{};
+				if(needs_to_generate_normals)
 				{
-					Vec3f vec_a{ obj_model.vertex[faces[i + 1]] - obj_model.vertex[faces[i]] };
-					Vec3f vec_b{ obj_model.vertex[faces[i + 2]] - obj_model.vertex[faces[i]] };
-					Vec3f normal = vec_a.CrossProduct(vec_b).Normalize();
-					obj_model.normal[faces[i + 0]] = normal;
-					obj_model.normal[faces[i + 1]] = normal;
-					obj_model.normal[faces[i + 2]] = normal;
+					normal = generated_normals[group][i];
+					for(std::size_t j = 0; j < faces.size(); j++)
+					{
+						if(faces[j] == faces[i] && i != j)
+						{
+							RadianAnglef angle = GetAngleBetweenVectors(generated_normals[group][i], generated_normals[group][j]);
+							if(angle.ToDegrees() < 75.0f)
+								normal += generated_normals[group][j];
+						}
+					}
 				}
+				else
+					normal = obj_model.normal[faces[i]];
 
 				Vertex v(
 					Vec4f{
@@ -99,7 +130,7 @@ namespace Scop
 					},
 					color,
 					Vec4f{
-						obj_model.normal[faces[i]],
+						normal.Normalize(),
 						1.0f
 					},
 					(obj_model.tex_coord.empty() ?

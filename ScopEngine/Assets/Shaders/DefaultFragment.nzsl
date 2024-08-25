@@ -70,6 +70,6 @@ fn main(input: VertOut) -> FragOut
 	let final_color = MixVec4f32(input.color, texture_color, u_fragment_data.dissolve_texture_factor);
 
 	let output: FragOut;
-	output.color = final_color * vec4[f32](lighting, 1.0);
+	output.color = MixVec4f32(final_color, final_color * vec4[f32](lighting, 1.0), u_fragment_data.dissolve_texture_factor);
 	return output;
 }
