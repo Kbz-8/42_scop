@@ -7,6 +7,7 @@
 #include <Core/Logs.h>
 #include <Renderer/RenderCore.h>
 #include <Utils/Buffer.h>
+#include <Renderer/Memory/Block.h>
 
 namespace Scop
 {
@@ -18,24 +19,16 @@ namespace Scop
 			void Init(BufferType type, VkDeviceSize size, VkBufferUsageFlags usage, CPUBuffer data);
 			void Destroy() noexcept;
 
-			inline void MapMem(void** data = nullptr, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) noexcept
-			{
-				if(vkMapMemory(RenderCore::Get().GetDevice(), m_memory, m_offset + offset, size, 0, data) != VK_SUCCESS)
-					FatalError("Vulkan : failed to map a buffer");
-				m_is_mapped = true;
-			}
-			[[nodiscard]] inline bool IsMapped() const noexcept { return m_is_mapped; }
-			inline void UnMapMem() noexcept { vkUnmapMemory(RenderCore::Get().GetDevice(), m_memory); m_is_mapped = false; }
-
 			bool CopyFrom(const GPUBuffer& buffer) noexcept;
 
 			void Swap(GPUBuffer& buffer) noexcept;
 
+			[[nodiscard]] inline void* GetMap() const noexcept { return m_memory.map; }
 			[[nodiscard]] inline VkBuffer operator()() const noexcept { return m_buffer; }
 			[[nodiscard]] inline VkBuffer Get() const noexcept { return m_buffer; }
-			[[nodiscard]] inline VkDeviceMemory GetMemory() const noexcept { return m_memory; }
-			[[nodiscard]] inline VkDeviceSize GetSize() const noexcept { return m_size; }
-			[[nodiscard]] inline VkDeviceSize GetOffset() const noexcept { return m_offset; }
+			[[nodiscard]] inline VkDeviceMemory GetMemory() const noexcept { return m_memory.memory; }
+			[[nodiscard]] inline VkDeviceSize GetSize() const noexcept { return m_memory.size; }
+			[[nodiscard]] inline VkDeviceSize GetOffset() const noexcept { return m_memory.offset; }
 
 			[[nodiscard]] inline static std::size_t GetBufferCount() noexcept { return s_buffer_count; }
 
@@ -48,19 +41,16 @@ namespace Scop
 
 		protected:
 			VkBuffer m_buffer = VK_NULL_HANDLE;
-			VkDeviceMemory m_memory = VK_NULL_HANDLE;
-			VkDeviceSize m_size = 0;
-			VkDeviceSize m_offset = 0;
+			MemoryBlock m_memory;
 
 		private:
-			void CreateBuffer(VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+			void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 
 		private:
 			inline static std::size_t s_buffer_count = 0;
 
 			VkBufferUsageFlags m_usage = 0;
 			VkMemoryPropertyFlags m_flags = 0;
-			bool m_is_mapped = false;
 	};
 
 	class VertexBuffer : public GPUBuffer
@@ -68,7 +58,7 @@ namespace Scop
 		public:
 			inline void Init(std::uint32_t size, VkBufferUsageFlags additional_flags = 0) { GPUBuffer::Init(BufferType::LowDynamic, size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | additional_flags, {}); }
 			void SetData(CPUBuffer data);
-			inline void Bind(VkCommandBuffer cmd) const noexcept { vkCmdBindVertexBuffers(cmd, 0, 1, &m_buffer, &m_offset); }
+			inline void Bind(VkCommandBuffer cmd) const noexcept { vkCmdBindVertexBuffers(cmd, 0, 1, &m_buffer, &m_memory.offset); }
 	};
 
 	class IndexBuffer : public GPUBuffer
@@ -76,7 +66,7 @@ namespace Scop
 		public:
 			inline void Init(std::uint32_t size, VkBufferUsageFlags additional_flags = 0) { GPUBuffer::Init(BufferType::LowDynamic, size, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | additional_flags, {}); }
 			void SetData(CPUBuffer data);
-			inline void Bind(VkCommandBuffer cmd) const noexcept { vkCmdBindIndexBuffer(cmd, m_buffer, m_offset, VK_INDEX_TYPE_UINT32); }
+			inline void Bind(VkCommandBuffer cmd) const noexcept { vkCmdBindIndexBuffer(cmd, m_buffer, m_memory.offset, VK_INDEX_TYPE_UINT32); }
 	};
 
 	class UniformBuffer

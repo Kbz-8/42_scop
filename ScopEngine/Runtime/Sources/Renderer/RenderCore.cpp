@@ -10,7 +10,6 @@
 #include <Renderer/Vulkan/VulkanLoader.h>
 #include <Maths/Mat4.h>
 #include <Core/Logs.h>
-#include <iostream>
 
 #define KVF_IMPLEMENTATION
 #ifdef DEBUG
@@ -99,6 +98,8 @@ namespace Scop
 		vkDestroySurfaceKHR(m_instance, surface, nullptr);
 		SDL_DestroyWindow(win);
 
+		m_allocator.AttachToDevice(m_device, m_physical_device);
+
 		ShaderLayout vertex_shader_layout(
 			{
 				{ 0,
@@ -140,6 +141,7 @@ namespace Scop
 		vkDeviceWaitIdle(m_device);
 		for(auto& shader : m_internal_shaders)
 			shader.reset();
+		m_allocator.DetachFromDevice();
 		kvfDestroyDevice(m_device);
 		Message("Vulkan : logical device destroyed");
 		kvfDestroyInstance(m_instance);

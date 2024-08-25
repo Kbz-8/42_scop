@@ -115,7 +115,7 @@ namespace Scop
 						if(faces[j] == faces[i] && i != j)
 						{
 							RadianAnglef angle = GetAngleBetweenVectors(generated_normals[group][i], generated_normals[group][j]);
-							if(angle.ToDegrees() < 75.0f)
+							if(angle.ToDegrees() < 89.0f)
 								normal += generated_normals[group][j];
 						}
 					}

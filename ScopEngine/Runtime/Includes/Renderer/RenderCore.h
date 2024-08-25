@@ -9,6 +9,7 @@
 
 #include <Utils/Singleton.h>
 
+#include <Renderer/Memory/DeviceAllocator.h>
 #include <Renderer/Vulkan/VulkanPrototypes.h>
 
 namespace Scop
@@ -33,6 +34,7 @@ namespace Scop
 			[[nodiscard]] inline VkInstance& GetInstanceRef() noexcept { return m_instance; }
 			[[nodiscard]] inline VkDevice GetDevice() const noexcept { return m_device; }
 			[[nodiscard]] inline VkPhysicalDevice GetPhysicalDevice() const noexcept { return m_physical_device; }
+			[[nodiscard]] inline DeviceAllocator& GetAllocator()  noexcept { return m_allocator; }
 
 			[[nodiscard]] inline std::shared_ptr<class Shader> GetDefaultVertexShader() const { return m_internal_shaders[DEFAULT_VERTEX_SHADER_ID]; }
 			[[nodiscard]] inline std::shared_ptr<class Shader> GetBasicFragmentShader() const { return m_internal_shaders[BASIC_FRAGMENT_SHADER_ID]; }
@@ -46,6 +48,7 @@ namespace Scop
 
 		private:
 			std::array<std::shared_ptr<class Shader>, 3> m_internal_shaders;
+			DeviceAllocator m_allocator;
 			VkInstance m_instance = VK_NULL_HANDLE;
 			VkDevice m_device = VK_NULL_HANDLE;
 			VkPhysicalDevice m_physical_device = VK_NULL_HANDLE;
