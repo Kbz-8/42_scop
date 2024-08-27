@@ -28,7 +28,7 @@ namespace Scop
 			[[nodiscard]] inline VkBuffer Get() const noexcept { return m_buffer; }
 			[[nodiscard]] inline VkDeviceMemory GetMemory() const noexcept { return m_memory.memory; }
 			[[nodiscard]] inline VkDeviceSize GetSize() const noexcept { return m_memory.size; }
-			[[nodiscard]] inline VkDeviceSize GetOffset() const noexcept { return m_memory.offset; }
+			[[nodiscard]] inline VkDeviceSize GetOffset() const noexcept { return 0; }
 
 			[[nodiscard]] inline static std::size_t GetBufferCount() noexcept { return s_buffer_count; }
 
@@ -58,7 +58,7 @@ namespace Scop
 		public:
 			inline void Init(std::uint32_t size, VkBufferUsageFlags additional_flags = 0) { GPUBuffer::Init(BufferType::LowDynamic, size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | additional_flags, {}); }
 			void SetData(CPUBuffer data);
-			inline void Bind(VkCommandBuffer cmd) const noexcept { vkCmdBindVertexBuffers(cmd, 0, 1, &m_buffer, &m_memory.offset); }
+			inline void Bind(VkCommandBuffer cmd) const noexcept { VkDeviceSize offset = 0; vkCmdBindVertexBuffers(cmd, 0, 1, &m_buffer, &offset); }
 	};
 
 	class IndexBuffer : public GPUBuffer
@@ -66,7 +66,7 @@ namespace Scop
 		public:
 			inline void Init(std::uint32_t size, VkBufferUsageFlags additional_flags = 0) { GPUBuffer::Init(BufferType::LowDynamic, size, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | additional_flags, {}); }
 			void SetData(CPUBuffer data);
-			inline void Bind(VkCommandBuffer cmd) const noexcept { vkCmdBindIndexBuffer(cmd, m_buffer, m_memory.offset, VK_INDEX_TYPE_UINT32); }
+			inline void Bind(VkCommandBuffer cmd) const noexcept { vkCmdBindIndexBuffer(cmd, m_buffer, 0, VK_INDEX_TYPE_UINT32); }
 	};
 
 	class UniformBuffer

@@ -42,6 +42,8 @@ namespace Scop
 		private:
 			bool free = false;
 	};
+
+	constexpr MemoryBlock NULL_MEMORY_BLOCK{}; 
 }
 
 #endif

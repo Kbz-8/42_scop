@@ -1,3 +1,4 @@
+#include "Renderer/Memory/Block.h"
 #include <Renderer/RenderCore.h>
 #include <Core/Logs.h>
 #include <Renderer/Buffer.h>
@@ -100,6 +101,7 @@ namespace Scop
 		vkDestroyBuffer(RenderCore::Get().GetDevice(), m_buffer, nullptr);
 		RenderCore::Get().GetAllocator().Deallocate(m_memory);
 		m_buffer = VK_NULL_HANDLE;
+		m_memory = NULL_MEMORY_BLOCK;
 		Message("Vulkan : destroyed buffer");
 		s_buffer_count--;
 	}
@@ -163,7 +165,7 @@ namespace Scop
 	{
 		if(data.GetSize() != m_buffers[frame_index].GetSize())
 		{
-			Error("Vulkan : invalid data size to update to a uniform buffer");
+			Error("Vulkan : invalid data size to update to a uniform buffer, % != %", data.GetSize(), m_buffers[frame_index].GetSize());
 			return;
 		}
 		if(m_maps[frame_index] != nullptr)

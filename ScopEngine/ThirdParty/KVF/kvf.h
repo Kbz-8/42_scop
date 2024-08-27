@@ -92,7 +92,8 @@ void kvfAddLayer(const char* layer);
 VkInstance kvfCreateInstance(const char** extensionsEnabled, uint32_t extensionsCount);
 void kvfDestroyInstance(VkInstance instance);
 
-VkPhysicalDevice kvfPickFirstPhysicalDevice(VkInstance instance);
+// If surfaces given to theses functions are VK_NULL_HANDLE no present queues will be searched and thus kvfQueuePresentKHR will not work
+VkPhysicalDevice kvfPickFirstPhysicalDevice(VkInstance instance, VkSurfaceKHR surface);
 VkPhysicalDevice kvfPickGoodDefaultPhysicalDevice(VkInstance instance, VkSurfaceKHR surface);
 VkPhysicalDevice kvfPickGoodPhysicalDevice(VkInstance instance, VkSurfaceKHR surface, const char** deviceExtensions, uint32_t deviceExtensionsCount);
 
@@ -144,7 +145,7 @@ void kvfSubmitCommandBuffer(VkDevice device, VkCommandBuffer buffer, KvfQueueTyp
 void kvfSubmitSingleTimeCommandBuffer(VkDevice device, VkCommandBuffer buffer, KvfQueueType queue, VkFence fence);
 
 VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkFormat format, VkImageLayout initial, VkImageLayout final, bool clear);
-VkAttachmentDescription* kvfBuildSwapChainAttachmentDescriptions(VkSwapchainKHR swapchain, bool clear, size_t* count);
+VkAttachmentDescription kvfBuildSwapchainAttachmentDescription(VkSwapchainKHR swapchain, bool clear);
 
 VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attachments, size_t attachments_count, VkPipelineBindPoint bind_point);
 void kvfDestroyRenderPass(VkDevice device, VkRenderPass renderpass);
@@ -518,7 +519,7 @@ void __kvfDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer)
     }
 }
 
-__KvfFramebuffer* __kvfGetKvfSwapchainFromVkFramebuffer(VkFramebuffer framebuffer)
+__KvfFramebuffer* __kvfGetKvfFramebufferFromVkFramebuffer(VkFramebuffer framebuffer)
 {
 	KVF_ASSERT(framebuffer != VK_NULL_HANDLE);
 	for(size_t i = 0; i < __kvf_internal_framebuffers_size; i++)
@@ -1034,7 +1035,7 @@ VkInstance kvfCreateInstance(const char** extensions_enabled, uint32_t extension
 		create_info.enabledExtensionCount = extensions_count + 1;
 		create_info.ppEnabledExtensionNames = new_extension_set;
 		create_info.enabledLayerCount = __kvf_extra_layers_count;
-		create_info.ppEnabledLayerNames = __kvf_extra_layers;
+		create_info.ppEnabledLayerNames = (const char* const*)__kvf_extra_layers;
 		create_info.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debug_create_info;
 	}
 #endif
@@ -1061,22 +1062,6 @@ void kvfDestroyInstance(VkInstance instance)
 	vkDestroyInstance(instance, NULL);
 }
 
-VkPhysicalDevice kvfPickFirstPhysicalDevice(VkInstance instance)
-{
-	uint32_t device_count;
-	VkPhysicalDevice* devices = NULL;
-	VkPhysicalDevice chosen_one = VK_NULL_HANDLE;
-
-	KVF_ASSERT(instance != VK_NULL_HANDLE);
-	
-	vkEnumeratePhysicalDevices(instance, &device_count, NULL);
-	devices = (VkPhysicalDevice*)KVF_MALLOC(sizeof(VkPhysicalDevice) * device_count + 1);
-	vkEnumeratePhysicalDevices(instance, &device_count, devices);
-	chosen_one = devices[0];
-	KVF_FREE(devices);
-	return chosen_one;
-}
-
 __KvfQueueFamilies __kvfFindQueueFamilies(VkPhysicalDevice physical, VkSurfaceKHR surface)
 {
 	__KvfQueueFamilies queues = { -1, -1, -1 };
@@ -1095,15 +1080,37 @@ __KvfQueueFamilies __kvfFindQueueFamilies(VkPhysicalDevice physical, VkSurfaceKH
 		if(queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			queues.graphics = i;
 		VkBool32 present_support = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(physical, i, surface, &present_support);
-		if(present_support)
-			queues.present = i;
-
-		if(queues.graphics != -1 && queues.present != -1 && queues.compute != -1)
+		if(surface != VK_NULL_HANDLE)
+		{
+			vkGetPhysicalDeviceSurfaceSupportKHR(physical, i, surface, &present_support);
+			if(present_support)
+				queues.present = i;
+			if(queues.graphics != -1 && queues.present != -1 && queues.compute != -1)
+				break;
+		}
+		else if(queues.graphics != -1 && queues.compute != -1)
 			break;
 	}
 	KVF_FREE(queue_families);
 	return queues;
+}
+
+VkPhysicalDevice kvfPickFirstPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
+{
+	uint32_t device_count;
+	VkPhysicalDevice* devices = NULL;
+	VkPhysicalDevice chosen_one = VK_NULL_HANDLE;
+
+	KVF_ASSERT(instance != VK_NULL_HANDLE);
+	
+	vkEnumeratePhysicalDevices(instance, &device_count, NULL);
+	devices = (VkPhysicalDevice*)KVF_MALLOC(sizeof(VkPhysicalDevice) * device_count + 1);
+	vkEnumeratePhysicalDevices(instance, &device_count, devices);
+	chosen_one = devices[0];
+	KVF_FREE(devices);
+	__KvfQueueFamilies queues = __kvfFindQueueFamilies(chosen_one, surface);
+	__kvfAddDeviceToArray(chosen_one, queues.graphics, queues.present);
+	return chosen_one;
 }
 
 VkPhysicalDevice kvfPickGoodDefaultPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
@@ -1671,6 +1678,7 @@ void kvfCopyBufferToImage(VkCommandBuffer cmd, VkImage dst, VkBuffer src, size_t
 	KVF_ASSERT(cmd != VK_NULL_HANDLE);
 	KVF_ASSERT(dst != VK_NULL_HANDLE);
 	KVF_ASSERT(src != VK_NULL_HANDLE);
+	VkOffset3D offset = { 0, 0, 0 };
 	VkBufferImageCopy region = {};
 	region.bufferOffset = buffer_offset;
 	region.bufferRowLength = 0;
@@ -1679,7 +1687,7 @@ void kvfCopyBufferToImage(VkCommandBuffer cmd, VkImage dst, VkBuffer src, size_t
 	region.imageSubresource.mipLevel = 0;
 	region.imageSubresource.baseArrayLayer = 0;
 	region.imageSubresource.layerCount = 1;
-	region.imageOffset = { 0, 0, 0 };
+	region.imageOffset = offset;
 	region.imageExtent = extent;
 	vkCmdCopyBufferToImage(cmd, src, dst, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 }
@@ -1713,7 +1721,7 @@ VkFramebuffer kvfCreateFramebuffer(VkDevice device, VkRenderPass render_pass, Vk
 
 VkExtent2D kvfGetFramebufferSize(VkFramebuffer buffer)
 {
-	__KvfFramebuffer* kvf_framebuffer = __kvfGetKvfSwapchainFromVkFramebuffer(buffer);
+	__KvfFramebuffer* kvf_framebuffer = __kvfGetKvfFramebufferFromVkFramebuffer(buffer);
 	KVF_ASSERT(kvf_framebuffer != NULL);
 	return kvf_framebuffer->extent;
 }
@@ -1844,17 +1852,12 @@ VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkForma
 	return attachment;
 }
 
-VkAttachmentDescription* kvfBuildSwapChainAttachmentDescriptions(VkSwapchainKHR swapchain, bool clear, size_t* count)
+VkAttachmentDescription kvfBuildSwapchainAttachmentDescription(VkSwapchainKHR swapchain, bool clear)
 {
 	__KvfSwapchain* kvf_swapchain = __kvfGetKvfSwapchainFromVkSwapchainKHR(swapchain);
 	KVF_ASSERT(kvf_swapchain != NULL);
 	KVF_ASSERT(kvf_swapchain->images_count != 0);
-
-	*count = kvf_swapchain->images_count;
-	VkAttachmentDescription* attachments = (VkAttachmentDescription*)KVF_MALLOC(kvf_swapchain->images_count * sizeof(VkAttachmentDescription));
-	for(uint32_t i = 0; i < kvf_swapchain->images_count; i++)
-		attachments[i] = kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, kvf_swapchain->images_format, VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, clear);
-	return attachments;
+	return kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, kvf_swapchain->images_format, VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, clear);
 }
 
 VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attachments, size_t attachments_count, VkPipelineBindPoint bind_point)
@@ -2212,8 +2215,6 @@ void kvfGPipelineBuilderEnableDepthTest(KvfGraphicsPipelineBuilder* builder, VkC
 	builder->depth_stencil_state.depthCompareOp = op;
 	builder->depth_stencil_state.depthBoundsTestEnable = VK_FALSE;
 	builder->depth_stencil_state.stencilTestEnable = VK_FALSE;
-	builder->depth_stencil_state.front = {};
-	builder->depth_stencil_state.back = {};
 	builder->depth_stencil_state.minDepthBounds = 0.f;
 	builder->depth_stencil_state.maxDepthBounds = 1.f;
 }
@@ -2226,8 +2227,6 @@ void kvfGPipelineBuilderDisableDepthTest(KvfGraphicsPipelineBuilder* builder)
 	builder->depth_stencil_state.depthCompareOp = VK_COMPARE_OP_NEVER;
 	builder->depth_stencil_state.depthBoundsTestEnable = VK_FALSE;
 	builder->depth_stencil_state.stencilTestEnable = VK_FALSE;
-	builder->depth_stencil_state.front = {};
-	builder->depth_stencil_state.back = {};
 	builder->depth_stencil_state.minDepthBounds = 0.f;
 	builder->depth_stencil_state.maxDepthBounds = 1.f;
 }
@@ -2306,7 +2305,7 @@ VkPipeline kvfCreateGraphicsPipeline(VkDevice device, VkPipelineLayout layout, K
 	viewport_state.scissorCount = 1;
 	viewport_state.pScissors = NULL;
 
-	VkPipelineMultisampleStateCreateInfo multisampling{};
+	VkPipelineMultisampleStateCreateInfo multisampling = {};
 	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 	multisampling.sampleShadingEnable = VK_FALSE;
 	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;

@@ -20,6 +20,7 @@ namespace Scop
 		float dissolve_texture_factor = 1.0f;
 		float dissolve_black_white_colors_factor = 1.0f;
 		float dissolve_normals_colors_factor = 0.0f;
+		std::uint8_t __padding[4];
 	};
 
 	class Material

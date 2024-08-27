@@ -1,4 +1,3 @@
-#include "Renderer/Memory/Block.h"
 #include <Renderer/Memory/Chunk.h>
 #include <Renderer/Vulkan/VulkanPrototypes.h>
 #include <Core/Logs.h>
@@ -25,32 +24,43 @@ namespace Scop
 			if(vkMapMemory(m_device, m_memory, 0, VK_WHOLE_SIZE, 0, &p_map) != VK_SUCCESS)
 				FatalError("Vulkan : failed to map a host visible chunk");
 		}
+		MemoryBlock& block = m_blocks.emplace_back();
+		block.memory = m_memory;
+		block.offset = 0;
+		block.size = size;
+		block.free = true;
 	}
 
 	[[nodiscard]] std::optional<MemoryBlock> MemoryChunk::Allocate(VkDeviceSize size, VkDeviceSize alignment)
 	{
-		for(auto& block : m_blocks)
+		for(std::size_t i = 0; i < m_blocks.size(); i++)
 		{
-			if(!block.free || size > block.size)
+			if(!m_blocks[i].free || m_blocks[i].size < size)
 				continue;
-			VkDeviceSize offset = (block.offset % alignment > 0 ? alignment - block.offset % alignment : 0);
-			if(offset + size <= block.size)
+			VkDeviceSize offset_displacement = (m_blocks[i].offset % alignment > 0) ? alignment - m_blocks[i].offset % alignment : 0;
+			VkDeviceSize old_size_available = m_blocks[i].size - offset_displacement;
+
+			if(size + offset_displacement <= m_blocks[i].size)
 			{
-				block.free = false;
-				return block;
+				m_blocks[i].offset += offset_displacement;
+				m_blocks[i].size = size;
+				m_blocks[i].free = false;
+
+				if(p_map != nullptr)
+					m_blocks[i].map = reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(p_map) + m_blocks[i].offset);
+
+				MemoryBlock new_block;
+				new_block.memory = m_memory;
+				new_block.offset = m_blocks[i].offset + size;
+				new_block.size = old_size_available - size;
+				new_block.free = true;
+
+				if(new_block.size > 0)
+					m_blocks.emplace(m_blocks.begin() + i + 1, new_block);
+				return m_blocks[i];
 			}
 		}
-		VkDeviceSize offset = (m_used_size % alignment > 0 ? alignment - m_used_size % alignment : 0);
-		if(size > m_size - (m_used_size + offset))
-			return std::nullopt;
-		MemoryBlock& block = m_blocks.emplace_back();
-		block.memory = m_memory;
-		block.offset = m_used_size + offset;
-		block.size = size;
-		if(p_map != nullptr)
-			block.map = reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(p_map) + block.offset);
-		block.free = false;
-		return block;
+		return std::nullopt;
 	}
 
 	void MemoryChunk::Deallocate(const MemoryBlock& block)
@@ -59,6 +69,22 @@ namespace Scop
 		if(it == m_blocks.end())
 			FatalError("Memory Chunk : cannot deallocate a block that is owned by another chunk");
 		it->free = true;
+
+		bool end = false;
+		while(!end)
+		{
+			end = true;
+			for(auto it = m_blocks.begin(); it != m_blocks.end(); ++it)
+			{
+				if(it->free && (it + 1)->free)
+				{
+					it->size = (it + 1)->offset + (it + 1)->size - it->offset;
+					m_blocks.erase(it + 1);
+					end = false;
+					break;
+				}
+			}
+		}
 	}
 
 	MemoryChunk::~MemoryChunk()

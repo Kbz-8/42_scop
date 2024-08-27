@@ -142,6 +142,7 @@ namespace Scop
 			ImGui::Text("Swapchain images count %ld", p_renderer->GetSwapchainImages().size());
 			ImGui::Text("Drawcalls %ld", p_renderer->GetDrawCallsCounterRef());
 			ImGui::Text("Polygon drawn %ld", p_renderer->GetPolygonDrawnCounterRef());
+			ImGui::Text("Allocations count %ld", RenderCore::Get().GetAllocator().GetAllocationsCount());
 			ImGui::Text("Buffer count %ld", GPUBuffer::GetBufferCount());
 			ImGui::Text("Image count %ld", Image::GetImageCount());
 			ImGui::Text("Window dimensions: %ux%u", p_renderer->GetWindow()->GetWidth(), p_renderer->GetWindow()->GetHeight());

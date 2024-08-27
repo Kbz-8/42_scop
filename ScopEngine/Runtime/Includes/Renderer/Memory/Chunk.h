@@ -28,7 +28,6 @@ namespace Scop
 			VkDeviceMemory m_memory = VK_NULL_HANDLE;
 			void* p_map = nullptr;
 			VkDeviceSize m_size = 0;
-			VkDeviceSize m_used_size = 0;
 			std::int32_t m_memory_type_index;
 	};
 }

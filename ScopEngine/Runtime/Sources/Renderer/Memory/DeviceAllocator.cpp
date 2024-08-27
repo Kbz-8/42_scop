@@ -5,23 +5,27 @@
 
 namespace Scop
 {
-	constexpr VkDeviceSize CHUNK_SIZE = 4096;
+	constexpr VkDeviceSize CHUNK_SIZE = 65535;
 
-	[[nodiscard]] MemoryBlock DeviceAllocator::Allocate(VkDeviceSize size, VkDeviceSize alignment, std::int32_t memory_type_index)
+	[[nodiscard]] MemoryBlock DeviceAllocator::Allocate(VkDeviceSize size, VkDeviceSize alignment, std::int32_t memory_type_index, bool dedicated_chunk)
 	{
 		Verify(m_device != VK_NULL_HANDLE, "invalid device");
 		Verify(m_physical != VK_NULL_HANDLE, "invalid physical device");
-		for(auto& chunk : m_chunks)
+		if(!dedicated_chunk)
 		{
-			if(chunk.GetMemoryTypeIndex() == memory_type_index)
+			for(auto& chunk : m_chunks)
 			{
-				std::optional<MemoryBlock> block = chunk.Allocate(size, alignment);
-				if(block.has_value())
-					return *block;
+				if(chunk->GetMemoryTypeIndex() == memory_type_index)
+				{
+					std::optional<MemoryBlock> block = chunk->Allocate(size, alignment);
+					if(block.has_value())
+						return *block;
+				}
 			}
 		}
-		MemoryChunk& chunk = m_chunks.emplace_back(m_device, m_physical, (CHUNK_SIZE < size + alignment ? size + alignment : CHUNK_SIZE), memory_type_index);
-		std::optional<MemoryBlock> block = chunk.Allocate(size, alignment);
+		m_chunks.emplace_back(std::make_unique<MemoryChunk>(m_device, m_physical, (CHUNK_SIZE < size + alignment ? size + alignment : CHUNK_SIZE), memory_type_index));
+		std::optional<MemoryBlock> block = m_chunks.back()->Allocate(size, alignment);
+		m_allocations_count++;
 		if(block.has_value())
 			return *block;
 		FatalError("Device Allocator : could not allocate a memory block");
@@ -34,9 +38,9 @@ namespace Scop
 		Verify(m_physical != VK_NULL_HANDLE, "invalid physical device");
 		for(auto& chunk : m_chunks)
 		{
-			if(chunk.Has(block))
+			if(chunk->Has(block))
 			{
-				chunk.Deallocate(block);
+				chunk->Deallocate(block);
 				return;
 			}
 		}
