@@ -83,9 +83,9 @@ namespace Scop
 				}
 			}
 		}
-		for(auto& face : data.faces)
+		for(auto& [_, face] : data.faces)
 		{
-			ObjData::FaceList& fl = face.second;
+			ObjData::FaceList& fl = face;
 			fl.second.push_back(fl.first.size());
 		}
 		Message("OBJ Loader : loaded %", path);
@@ -137,7 +137,7 @@ namespace Scop
 	{
 		std::vector<ObjData::FaceVertex> unique(data.faces.find("default")->second.first);
 		std::sort(unique.begin(), unique.end());
-		unique.erase(std::unique(unique.begin(), unique.end()), unique.end());
+		//unique.erase(std::unique(unique.begin(), unique.end()), unique.end());
 
 		ObjModel model;
 		for(auto& face : unique)
@@ -155,7 +155,7 @@ namespace Scop
 			}
 			if(!data.color.empty())
 			{
-				const int index = (face.n > -1) ? face.n : face.v;
+				const int index = face.v;
 				model.color.push_back(data.color[index]);
 			}
 		}
@@ -164,10 +164,7 @@ namespace Scop
 			std::vector<std::uint32_t>& v = model.faces[group];
 			v.reserve(faces.first.size());
 			for(auto& face : faces.first)
-			{
-				const unsigned short index = std::distance(unique.begin(), std::lower_bound(unique.begin(), unique.end(), face));
-				v.push_back(index);
-			}
+				v.push_back(std::distance(unique.begin(), std::lower_bound(unique.begin(), unique.end(), face)));
 		}
 		return model;
 	}

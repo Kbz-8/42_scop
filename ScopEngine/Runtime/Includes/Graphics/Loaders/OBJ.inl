@@ -39,9 +39,9 @@ namespace Scop
 				}
 			}
 			in.clear();
-			--f.v;
-			--f.t;
-			--f.n;
+			f.v--;
+			f.t--;
+			f.n--;
 		}
 		return in;
 	}

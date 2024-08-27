@@ -14,7 +14,7 @@ namespace Scop
 		UpdateView();
 		m_target = m_position + m_direction;
 		m_view = Mat4f::LookAt(m_position, m_target, m_up);
-		m_proj = Mat4f::Perspective(RadianAngle<float>(m_fov), aspect, 0.1f, 1000.f);
+		m_proj = Mat4f::Perspective(RadianAngle<float>(m_fov), aspect, 0.1f, 100'000.f);
 
 		if(input.IsKeyPressed(SDL_SCANCODE_F1))
 		{
@@ -56,8 +56,11 @@ namespace Scop
 		if(input.IsKeyPressed(SDL_SCANCODE_SPACE))
 			m_mov += m_up;
 
-		bool slow = input.IsKeyPressed(SDL_SCANCODE_Q);
-		m_position += m_mov * m_speed * (slow ? 0.5f : 1.0f) * timestep;
+		if(input.IsMouseWheelUp())
+			m_speed_factor *= 1.5f;
+		if(input.IsMouseWheelDown())
+			m_speed_factor /= 1.5f;
+		m_position += m_mov * m_speed * m_speed_factor * timestep;
 	}
 
 	void FirstPerson3D::UpdateView()

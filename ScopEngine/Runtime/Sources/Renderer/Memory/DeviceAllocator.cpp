@@ -1,11 +1,12 @@
 #include <Renderer/Memory/DeviceAllocator.h>
+#include <Maths/Constants.h>
 #include <Core/Logs.h>
 
 #include <optional>
 
 namespace Scop
 {
-	constexpr VkDeviceSize CHUNK_SIZE = 65535;
+	constexpr VkDeviceSize CHUNK_SIZE = MaxValue<std::uint16_t>();
 
 	[[nodiscard]] MemoryBlock DeviceAllocator::Allocate(VkDeviceSize size, VkDeviceSize alignment, std::int32_t memory_type_index, bool dedicated_chunk)
 	{

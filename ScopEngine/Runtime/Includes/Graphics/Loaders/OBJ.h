@@ -19,8 +19,7 @@ namespace Scop
 	{
 		struct FaceVertex
 		{
-			FaceVertex() : c(-1), v(-1), t(-1), n(-1) {}
-			std::int32_t c;
+			FaceVertex() : v(-1), t(-1), n(-1) {}
 			std::int32_t v;
 			std::int32_t t;
 			std::int32_t n;
@@ -31,7 +30,7 @@ namespace Scop
 			}
 			inline bool operator==(const FaceVertex& rhs) const
 			{
-				return (v == rhs.v && t == rhs.t && n == rhs.n && c == rhs.c);
+				return (v == rhs.v && t == rhs.t && n == rhs.n);
 			}
 		};
 

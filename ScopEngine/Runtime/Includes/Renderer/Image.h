@@ -9,6 +9,7 @@
 #include <Renderer/Buffer.h>
 #include <Utils/Buffer.h>
 #include <Renderer/Enums.h>
+#include <Renderer/Memory/Block.h>
 
 namespace Scop
 {
@@ -26,7 +27,7 @@ namespace Scop
 				m_layout = layout;
 			}
 
-			void Init(std::uint32_t width, std::uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, std::vector<VkMemoryPropertyFlags> properties);
+			void Init(std::uint32_t width, std::uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
 			void CreateImageView(VkImageViewType type, VkImageAspectFlags aspectFlags) noexcept;
 			void CreateSampler() noexcept;
 			void TransitionLayout(VkImageLayout new_layout, VkCommandBuffer cmd = VK_NULL_HANDLE);
@@ -37,7 +38,7 @@ namespace Scop
 
 			[[nodiscard]] inline VkImage Get() const noexcept { return m_image; }
 			[[nodiscard]] inline VkImage operator()() const noexcept { return m_image; }
-			[[nodiscard]] inline VkDeviceMemory GetDeviceMemory() const noexcept { return m_memory; }
+			[[nodiscard]] inline VkDeviceMemory GetDeviceMemory() const noexcept { return m_memory.memory; }
 			[[nodiscard]] inline VkImageView GetImageView() const noexcept { return m_image_view; }
 			[[nodiscard]] inline VkFormat GetFormat() const noexcept { return m_format; }
 			[[nodiscard]] inline VkImageTiling GetTiling() const noexcept { return m_tiling; }
@@ -54,7 +55,7 @@ namespace Scop
 		private:
 			inline static std::size_t s_image_count = 0;
 
-			VkDeviceMemory m_memory = VK_NULL_HANDLE;
+			MemoryBlock m_memory = NULL_MEMORY_BLOCK;
 			VkImage m_image = VK_NULL_HANDLE;
 			VkImageView m_image_view = VK_NULL_HANDLE;
 			VkSampler m_sampler = VK_NULL_HANDLE;
@@ -73,7 +74,7 @@ namespace Scop
 			{
 				std::vector<VkFormat> candidates = { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
 				VkFormat format = kvfFindSupportFormatInCandidates(RenderCore::Get().GetDevice(), candidates.data(), candidates.size(), VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
-				Image::Init(width, height, format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, { VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT });
+				Image::Init(width, height, format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 				Image::CreateImageView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_DEPTH_BIT);
 				Image::TransitionLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 			}
@@ -90,7 +91,7 @@ namespace Scop
 			}
 			inline void Init(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM)
 			{
-				Image::Init(width, height, format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, { VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT });
+				Image::Init(width, height, format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 				Image::CreateImageView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT);
 				Image::CreateSampler();
 				if(pixels)

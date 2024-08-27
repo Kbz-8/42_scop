@@ -41,7 +41,7 @@ namespace Scop
 
 		protected:
 			VkBuffer m_buffer = VK_NULL_HANDLE;
-			MemoryBlock m_memory;
+			MemoryBlock m_memory = NULL_MEMORY_BLOCK;
 
 		private:
 			void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);

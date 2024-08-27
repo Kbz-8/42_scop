@@ -15,12 +15,24 @@ namespace Scop
 		m_mouse[3] = SDL_BUTTON(mouse_state) & SDL_BUTTON_X1MASK;
 		m_mouse[4] = SDL_BUTTON(mouse_state) & SDL_BUTTON_X2MASK;
 
+		m_is_mouse_wheel_up = false;
+		m_is_mouse_wheel_down = false;
+
 		while(SDL_PollEvent(&m_event))
 		{
 			for(auto& hook : m_hooks)
 				hook(&m_event);
 			switch(m_event.type)
 			{
+				case SDL_MOUSEWHEEL:
+				{
+					if(m_event.wheel.y > 0) // scroll up
+						m_is_mouse_wheel_up = true;
+					else if(m_event.wheel.y < 0) // scroll down
+						m_is_mouse_wheel_down = true;
+					break;
+				}
+
 				case SDL_WINDOWEVENT:
 				{
 					switch(m_event.window.event)

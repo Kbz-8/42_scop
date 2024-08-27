@@ -21,6 +21,8 @@ namespace Scop
 
 			[[nodiscard]] inline bool IsKeyPressed(const std::uint32_t button) const noexcept { return m_keys[button]; }
 			[[nodiscard]] inline bool IsMouseButtonPressed(const std::uint8_t button) const noexcept { return m_mouse[button - 1]; }
+			[[nodiscard]] inline bool IsMouseWheelUp() const noexcept { return m_is_mouse_wheel_up; }
+			[[nodiscard]] inline bool IsMouseWheelDown() const noexcept { return m_is_mouse_wheel_down; }
 			[[nodiscard]] inline std::int32_t GetX() const noexcept { return m_x; }
 			[[nodiscard]] inline std::int32_t GetY() const noexcept { return m_y; }
 			[[nodiscard]] inline std::int32_t GetXRel() const noexcept { return m_x_rel; }
@@ -51,6 +53,8 @@ namespace Scop
 			std::int32_t m_y_rel = 0;
 			bool m_has_recieved_close_event = false;
 			bool m_is_mouse_grabbed = false;
+			bool m_is_mouse_wheel_up = false;
+			bool m_is_mouse_wheel_down = false;
 	};
 }
 
