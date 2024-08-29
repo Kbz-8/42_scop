@@ -341,8 +341,8 @@ namespace Scop
 			{
 				float sector_angle = j * sector_step;
 
-				float x = xy * std::cosf(sector_angle);
-				float y = xy * std::sinf(sector_angle);
+				float x = xy * cosf(sector_angle);
+				float y = xy * sinf(sector_angle);
 
 				float s = static_cast<float>(j / sector_count);
 				float t = static_cast<float>(i / stack_count);
