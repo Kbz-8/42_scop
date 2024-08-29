@@ -4,6 +4,7 @@
 #include <Maths/Constants.h>
 #include <Maths/Quaternions.h>
 
+#include <cmath>
 #include <vector>
 
 namespace Scop
@@ -33,7 +34,7 @@ namespace Scop
 			0,
 		};
 
-		std::shared_ptr<Mesh> mesh;
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->AddSubMesh({ std::move(data), std::move(indices) });
 		return mesh;
 	}
@@ -49,18 +50,18 @@ namespace Scop
 
 		data[0].position = Vec4f(-1.0f, -1.0f, 0.0f, 0.0f);
 		data[0].uv = Vec2f(0.0f, 0.0f);
-		data[0].color = Vec4f(0.0f);
+		data[0].color = Vec4f(1.0f);
 
 		data[1].position = Vec4f(1.0f, -1.0f, 0.0f, 0.0f);
-		data[1].color = Vec4f(0.0f);
+		data[1].color = Vec4f(1.0f);
 		data[1].uv = Vec2f(1.0f, 0.0f);
 
 		data[2].position = Vec4f(1.0f, 1.0f, 0.0f, 0.0f);
-		data[2].color = Vec4f(0.0f);
+		data[2].color = Vec4f(1.0f);
 		data[2].uv = Vec2f(1.0f, 1.0f);
 
 		data[3].position = Vec4f(-1.0f, 1.0f, 0.0f, 0.0f);
-		data[3].color = Vec4f(0.0f);
+		data[3].color = Vec4f(1.0f);
 		data[3].uv = Vec2f(0.0f, 1.0f);
 
 		std::vector<std::uint32_t> indices = {
@@ -72,7 +73,7 @@ namespace Scop
 			0,
 		};
 
-		std::shared_ptr<Mesh> mesh;
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->AddSubMesh({ std::move(data), std::move(indices) });
 		return mesh;
 	}
@@ -88,101 +89,101 @@ namespace Scop
 		//  v2------v3
 		std::vector<Vertex> data(24);
 
-		data[0].position = Vec4f(0.5f, 0.5f, 0.5f);
-		data[0].color = Vec4f(0.0f);
-		data[0].normal = Vec4f(0.0f, 0.0f, 1.0f);
+		data[0].position = Vec4f(0.5f, 0.5f, 0.5f, 1.0f);
+		data[0].color = Vec4f(1.0f);
+		data[0].normal = Vec4f(0.0f, 0.0f, 1.0f, 1.0f);
 
-		data[1].position = Vec4f(-0.5f, 0.5f, 0.5f);
-		data[1].color = Vec4f(0.0f);
-		data[1].normal = Vec4f(0.0f, 0.0f, 1.0f);
+		data[1].position = Vec4f(-0.5f, 0.5f, 0.5f, 1.0f);
+		data[1].color = Vec4f(1.0f);
+		data[1].normal = Vec4f(0.0f, 0.0f, 1.0f, 1.0f);
 
-		data[2].position = Vec4f(-0.5f, -0.5f, 0.5f);
-		data[2].color = Vec4f(0.0f);
-		data[2].normal = Vec4f(0.0f, 0.0f, 1.0f);
+		data[2].position = Vec4f(-0.5f, -0.5f, 0.5f, 1.0f);
+		data[2].color = Vec4f(1.0f);
+		data[2].normal = Vec4f(0.0f, 0.0f, 1.0f, 1.0f);
 
-		data[3].position = Vec4f(0.5f, -0.5f, 0.5f);
-		data[3].color = Vec4f(0.0f);
-		data[3].normal = Vec4f(0.0f, 0.0f, 1.0f);
+		data[3].position = Vec4f(0.5f, -0.5f, 0.5f, 1.0f);
+		data[3].color = Vec4f(1.0f);
+		data[3].normal = Vec4f(0.0f, 0.0f, 1.0f, 1.0f);
 
-		data[4].position = Vec4f(0.5f, 0.5f, 0.5f);
-		data[4].color = Vec4f(0.0f);
-		data[4].normal = Vec4f(1.0f, 0.0f, 0.0f);
+		data[4].position = Vec4f(0.5f, 0.5f, 0.5f, 1.0f);
+		data[4].color = Vec4f(1.0f);
+		data[4].normal = Vec4f(1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[5].position = Vec4f(0.5f, -0.5f, 0.5f);
-		data[5].color = Vec4f(0.0f);
-		data[5].normal = Vec4f(1.0f, 0.0f, 0.0f);
+		data[5].position = Vec4f(0.5f, -0.5f, 0.5f, 1.0f);
+		data[5].color = Vec4f(1.0f);
+		data[5].normal = Vec4f(1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[6].position = Vec4f(0.5f, -0.5f, -0.5f);
-		data[6].color = Vec4f(0.0f);
-		data[6].normal = Vec4f(1.0f, 0.0f, 0.0f);
+		data[6].position = Vec4f(0.5f, -0.5f, -0.5f, 1.0f);
+		data[6].color = Vec4f(1.0f);
+		data[6].normal = Vec4f(1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[7].position = Vec4f(0.5f, 0.5f, -0.5f);
-		data[7].color = Vec4f(0.0f);
-		data[7].normal = Vec4f(1.0f, 0.0f, 0.0f);
+		data[7].position = Vec4f(0.5f, 0.5f, -0.5f, 1.0f);
+		data[7].color = Vec4f(1.0f);
+		data[7].normal = Vec4f(1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[8].position = Vec4f(0.5f, 0.5f, 0.5f);
-		data[8].color = Vec4f(0.0f);
-		data[8].normal = Vec4f(0.0f, 1.0f, 0.0f);
+		data[8].position = Vec4f(0.5f, 0.5f, 0.5f, 1.0f);
+		data[8].color = Vec4f(1.0f);
+		data[8].normal = Vec4f(0.0f, 1.0f, 0.0f, 1.0f);
 
-		data[9].position = Vec4f(0.5f, 0.5f, -0.5f);
-		data[9].color = Vec4f(0.0f);
-		data[9].normal = Vec4f(0.0f, 1.0f, 0.0f);
+		data[9].position = Vec4f(0.5f, 0.5f, -0.5f, 1.0f);
+		data[9].color = Vec4f(1.0f);
+		data[9].normal = Vec4f(0.0f, 1.0f, 0.0f, 1.0f);
 
-		data[10].position = Vec4f(-0.5f, 0.5f, -0.5f);
-		data[10].color = Vec4f(0.0f);
-		data[10].normal = Vec4f(0.0f, 1.0f, 0.0f);
+		data[10].position = Vec4f(-0.5f, 0.5f, -0.5f, 1.0f);
+		data[10].color = Vec4f(1.0f);
+		data[10].normal = Vec4f(0.0f, 1.0f, 0.0f, 1.0f);
 
-		data[11].position = Vec4f(-0.5f, 0.5f, 0.5f);
-		data[11].color = Vec4f(0.0f);
-		data[11].normal = Vec4f(0.0f, 1.0f, 0.0f);
+		data[11].position = Vec4f(-0.5f, 0.5f, 0.5f, 1.0f);
+		data[11].color = Vec4f(1.0f);
+		data[11].normal = Vec4f(0.0f, 1.0f, 0.0f, 1.0f);
 
-		data[12].position = Vec4f(-0.5f, 0.5f, 0.5f);
-		data[12].color = Vec4f(0.0f);
-		data[12].normal = Vec4f(-1.0f, 0.0f, 0.0f);
+		data[12].position = Vec4f(-0.5f, 0.5f, 0.5f, 1.0f);
+		data[12].color = Vec4f(1.0f);
+		data[12].normal = Vec4f(-1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[13].position = Vec4f(-0.5f, 0.5f, -0.5f);
-		data[13].color = Vec4f(0.0f);
-		data[13].normal = Vec4f(-1.0f, 0.0f, 0.0f);
+		data[13].position = Vec4f(-0.5f, 0.5f, -0.5f, 1.0f);
+		data[13].color = Vec4f(1.0f);
+		data[13].normal = Vec4f(-1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[14].position = Vec4f(-0.5f, -0.5f, -0.5f);
-		data[14].color = Vec4f(0.0f);
-		data[14].normal = Vec4f(-1.0f, 0.0f, 0.0f);
+		data[14].position = Vec4f(-0.5f, -0.5f, -0.5f, 1.0f);
+		data[14].color = Vec4f(1.0f);
+		data[14].normal = Vec4f(-1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[15].position = Vec4f(-0.5f, -0.5f, 0.5f);
-		data[15].color = Vec4f(0.0f);
-		data[15].normal = Vec4f(-1.0f, 0.0f, 0.0f);
+		data[15].position = Vec4f(-0.5f, -0.5f, 0.5f, 1.0f);
+		data[15].color = Vec4f(1.0f);
+		data[15].normal = Vec4f(-1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[16].position = Vec4f(-0.5f, -0.5f, -0.5f);
-		data[16].color = Vec4f(0.0f);
-		data[16].normal = Vec4f(0.0f, -1.0f, 0.0f);
+		data[16].position = Vec4f(-0.5f, -0.5f, -0.5f, 1.0f);
+		data[16].color = Vec4f(1.0f);
+		data[16].normal = Vec4f(0.0f, -1.0f, 0.0f, 1.0f);
 
-		data[17].position = Vec4f(0.5f, -0.5f, -0.5f);
-		data[17].color = Vec4f(0.0f);
-		data[17].normal = Vec4f(0.0f, -1.0f, 0.0f);
+		data[17].position = Vec4f(0.5f, -0.5f, -0.5f, 1.0f);
+		data[17].color = Vec4f(1.0f);
+		data[17].normal = Vec4f(0.0f, -1.0f, 0.0f, 1.0f);
 
-		data[18].position = Vec4f(0.5f, -0.5f, 0.5f);
-		data[18].color = Vec4f(0.0f);
-		data[18].normal = Vec4f(0.0f, -1.0f, 0.0f);
+		data[18].position = Vec4f(0.5f, -0.5f, 0.5f, 1.0f);
+		data[18].color = Vec4f(1.0f);
+		data[18].normal = Vec4f(0.0f, -1.0f, 0.0f, 1.0f);
 
-		data[19].position = Vec4f(-0.5f, -0.5f, 0.5f);
-		data[19].color = Vec4f(0.0f);
-		data[19].normal = Vec4f(0.0f, -1.0f, 0.0f);
+		data[19].position = Vec4f(-0.5f, -0.5f, 0.5f, 1.0f);
+		data[19].color = Vec4f(1.0f);
+		data[19].normal = Vec4f(0.0f, -1.0f, 0.0f, 1.0f);
 
-		data[20].position = Vec4f(0.5f, -0.5f, -0.5f);
-		data[20].color = Vec4f(0.0f);
-		data[20].normal = Vec4f(0.0f, 0.0f, -1.0f);
+		data[20].position = Vec4f(0.5f, -0.5f, -0.5f, 1.0f);
+		data[20].color = Vec4f(1.0f);
+		data[20].normal = Vec4f(0.0f, 0.0f, -1.0f, 1.0f);
 
-		data[21].position = Vec4f(-0.5f, -0.5f, -0.5f);
-		data[21].color = Vec4f(0.0f);
-		data[21].normal = Vec4f(0.0f, 0.0f, -1.0f);
+		data[21].position = Vec4f(-0.5f, -0.5f, -0.5f, 1.0f);
+		data[21].color = Vec4f(1.0f);
+		data[21].normal = Vec4f(0.0f, 0.0f, -1.0f, 1.0f);
 
-		data[22].position = Vec4f(-0.5f, 0.5f, -0.5f);
-		data[22].color = Vec4f(0.0f);
-		data[22].normal = Vec4f(0.0f, 0.0f, -1.0f);
+		data[22].position = Vec4f(-0.5f, 0.5f, -0.5f, 1.0f);
+		data[22].color = Vec4f(1.0f);
+		data[22].normal = Vec4f(0.0f, 0.0f, -1.0f, 1.0f);
 
-		data[23].position = Vec4f(0.5f, 0.5f, -0.5f);
-		data[23].color = Vec4f(0.0f);
-		data[23].normal = Vec4f(0.0f, 0.0f, -1.0f);
+		data[23].position = Vec4f(0.5f, 0.5f, -0.5f, 1.0f);
+		data[23].color = Vec4f(1.0f);
+		data[23].normal = Vec4f(0.0f, 0.0f, -1.0f, 1.0f);
 
 		for(int i = 0; i < 6; i++)
 		{
@@ -207,7 +208,7 @@ namespace Scop
 			20, 22, 23
 		};
 
-		std::shared_ptr<Mesh> mesh;
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->AddSubMesh({ std::move(data), std::move(indices) });
 		return mesh;
 	}
@@ -216,95 +217,95 @@ namespace Scop
 	{
 		std::vector<Vertex> data(18);
 
-		data[0].position = Vec3f(1.0f, 1.0f, -1.0f);
-		data[0].color = Vec4f(0.0f);
+		data[0].position = Vec4f(1.0f, 1.0f, -1.0f, 1.0f);
+		data[0].color = Vec4f(1.0f);
 		data[0].uv = Vec2f(0.24f, 0.20f);
-		data[0].normal = Vec3f(0.0f, 0.8948f, 0.4464f);
+		data[0].normal = Vec4f(0.0f, 0.8948f, 0.4464f, 1.0f);
 
-		data[1].position = Vec3f(-1.0f, 1.0f, -1.0f);
-		data[1].color = Vec4f(0.0f);
+		data[1].position = Vec4f(-1.0f, 1.0f, -1.0f, 1.0f);
+		data[1].color = Vec4f(1.0f);
 		data[1].uv = Vec2f(0.24f, 0.81f);
-		data[1].normal = Vec3f(0.0f, 0.8948f, 0.4464f);
+		data[1].normal = Vec4f(0.0f, 0.8948f, 0.4464f, 1.0f);
 
-		data[2].position = Vec3f(0.0f, 0.0f, 1.0f);
-		data[2].color = Vec4f(0.0f);
+		data[2].position = Vec4f(0.0f, 0.0f, 1.0f, 1.0f);
+		data[2].color = Vec4f(1.0f);
 		data[2].uv = Vec2f(0.95f, 0.50f);
-		data[2].normal = Vec3f(0.0f, 0.8948f, 0.4464f);
+		data[2].normal = Vec4f(0.0f, 0.8948f, 0.4464f, 1.0f);
 
-		data[3].position = Vec3f(-1.0f, 1.0f, -1.0f);
-		data[3].color = Vec4f(0.0f);
+		data[3].position = Vec4f(-1.0f, 1.0f, -1.0f, 1.0f);
+		data[3].color = Vec4f(1.0f);
 		data[3].uv = Vec2f(0.24f, 0.21f);
-		data[3].normal = Vec3f(-0.8948f, 0.0f, 0.4464f);
+		data[3].normal = Vec4f(-0.8948f, 0.0f, 0.4464f, 1.0f);
 
-		data[4].position = Vec3f(-1.0f, -1.0f, -1.0f);
-		data[4].color = Vec4f(0.0f);
+		data[4].position = Vec4f(-1.0f, -1.0f, -1.0f, 1.0f);
+		data[4].color = Vec4f(1.0f);
 		data[4].uv = Vec2f(0.24f, 0.81f);
-		data[4].normal = Vec3f(-0.8948f, 0.0f, 0.4464f);
+		data[4].normal = Vec4f(-0.8948f, 0.0f, 0.4464f, 1.0f);
 
-		data[5].position = Vec3f(0.0f, 0.0f, 1.0f);
-		data[5].color = Vec4f(0.0f);
+		data[5].position = Vec4f(0.0f, 0.0f, 1.0f, 1.0f);
+		data[5].color = Vec4f(1.0f);
 		data[5].uv = Vec2f(0.95f, 0.50f);
-		data[5].normal = Vec3f(-0.8948f, 0.0f, 0.4464f);
+		data[5].normal = Vec4f(-0.8948f, 0.0f, 0.4464f, 1.0f);
 
-		data[6].position = Vec3f(1.0f, 1.0f, -1.0f);
-		data[6].color = Vec4f(0.0f);
+		data[6].position = Vec4f(1.0f, 1.0f, -1.0f, 1.0f);
+		data[6].color = Vec4f(1.0f);
 		data[6].uv = Vec2f(0.24f, 0.81f);
-		data[6].normal = Vec3f(0.8948f, 0.0f, 0.4475f);
+		data[6].normal = Vec4f(0.8948f, 0.0f, 0.4475f, 1.0f);
 
-		data[7].position = Vec3f(0.0f, 0.0f, 1.0f);
-		data[7].color = Vec4f(0.0f);
+		data[7].position = Vec4f(0.0f, 0.0f, 1.0f, 1.0f);
+		data[7].color = Vec4f(1.0f);
 		data[7].uv = Vec2f(0.95f, 0.50f);
-		data[7].normal = Vec3f(0.8948f, 0.0f, 0.4475f);
+		data[7].normal = Vec4f(0.8948f, 0.0f, 0.4475f, 1.0f);
 
-		data[8].position = Vec3f(1.0f, -1.0f, -1.0f);
-		data[8].color = Vec4f(0.0f);
+		data[8].position = Vec4f(1.0f, -1.0f, -1.0f, 1.0f);
+		data[8].color = Vec4f(1.0f);
 		data[8].uv = Vec2f(0.24f, 0.21f);
-		data[8].normal = Vec3f(0.8948f, 0.0f, 0.4475f);
+		data[8].normal = Vec4f(0.8948f, 0.0f, 0.4475f, 1.0f);
 
-		data[9].position = Vec3f(-1.0f, -1.0f, -1.0f);
-		data[9].color = Vec4f(0.0f);
+		data[9].position = Vec4f(-1.0f, -1.0f, -1.0f, 1.0f);
+		data[9].color = Vec4f(1.0f);
 		data[9].uv = Vec2f(0.24f, 0.21f);
-		data[9].normal = Vec3f(0.0f, -0.8948f, 0.448f);
+		data[9].normal = Vec4f(0.0f, -0.8948f, 0.448f, 1.0f);
 
-		data[10].position = Vec3f(1.0f, -1.0f, -1.0f);
-		data[10].color = Vec4f(0.0f);
+		data[10].position = Vec4f(1.0f, -1.0f, -1.0f, 1.0f);
+		data[10].color = Vec4f(1.0f);
 		data[10].uv = Vec2f(0.24f, 0.81f);
-		data[10].normal = Vec3f(0.0f, -0.8948f, 0.448f);
+		data[10].normal = Vec4f(0.0f, -0.8948f, 0.448f, 1.0f);
 
-		data[11].position = Vec3f(0.0f, 0.0f, 1.0f);
-		data[11].color = Vec4f(0.0f);
+		data[11].position = Vec4f(0.0f, 0.0f, 1.0f, 1.0f);
+		data[11].color = Vec4f(1.0f);
 		data[11].uv = Vec2f(0.95f, 0.50f);
-		data[11].normal = Vec3f(0.0f, -0.8948f, 0.448f);
+		data[11].normal = Vec4f(0.0f, -0.8948f, 0.448f, 1.0f);
 
-		data[12].position = Vec3f(-1.0f, 1.0f, -1.0f);
-		data[12].color = Vec4f(0.0f);
+		data[12].position = Vec4f(-1.0f, 1.0f, -1.0f, 1.0f);
+		data[12].color = Vec4f(1.0f);
 		data[12].uv = Vec2f(0.0f, 0.0f);
-		data[12].normal = Vec3f(0.0f, 0.0f, -1.0f);
+		data[12].normal = Vec4f(0.0f, 0.0f, -1.0f, 1.0f);
 
-		data[13].position = Vec3f(1.0f, 1.0f, -1.0f);
-		data[13].color = Vec4f(0.0f);
+		data[13].position = Vec4f(1.0f, 1.0f, -1.0f, 1.0f);
+		data[13].color = Vec4f(1.0f);
 		data[13].uv = Vec2f(0.0f, 1.0f);
-		data[13].normal = Vec3f(0.0f, 0.0f, -1.0f);
+		data[13].normal = Vec4f(0.0f, 0.0f, -1.0f, 1.0f);
 
-		data[14].position = Vec3f(1.0f, -1.0f, -1.0f);
-		data[14].color = Vec4f(0.0f);
+		data[14].position = Vec4f(1.0f, -1.0f, -1.0f, 1.0f);
+		data[14].color = Vec4f(1.0f);
 		data[14].uv = Vec2f(1.0f, 1.0f);
-		data[14].normal = Vec3f(0.0f, 0.0f, -1.0f);
+		data[14].normal = Vec4f(0.0f, 0.0f, -1.0f, 1.0f);
 
-		data[15].position = Vec3f(-1.0f, -1.0f, -1.0f);
-		data[15].color = Vec4f(0.0f);
+		data[15].position = Vec4f(-1.0f, -1.0f, -1.0f, 1.0f);
+		data[15].color = Vec4f(1.0f);
 		data[15].uv = Vec2f(0.96f, 0.0f);
-		data[15].normal = Vec3f(0.0f, 0.0f, -1.0f);
+		data[15].normal = Vec4f(0.0f, 0.0f, -1.0f, 1.0f);
 
-		data[16].position = Vec3f(0.0f, 0.0f, 0.0f);
-		data[16].color = Vec4f(0.0f);
+		data[16].position = Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+		data[16].color = Vec4f(1.0f);
 		data[16].uv = Vec2f(0.0f, 0.0f);
-		data[16].normal = Vec3f(0.0f, 0.0f, 0.0f);
+		data[16].normal = Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
 
-		data[17].position = Vec3f(0.0f, 0.0f, 0.0f);
-		data[17].color = Vec4f(0.0f);
+		data[17].position = Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+		data[17].color = Vec4f(1.0f);
 		data[17].uv = Vec2f(0.0f, 0.0f);
-		data[17].normal = Vec3f(0.0f, 0.0f, 0.0f);
+		data[17].normal = Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
 
 		std::vector<std::uint32_t> indices = {
 			0, 1, 2,
@@ -315,7 +316,7 @@ namespace Scop
 			15, 12, 14
 		};
 
-		std::shared_ptr<Mesh> mesh;
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->AddSubMesh({ std::move(data), std::move(indices) });
 		return mesh;
 	}
@@ -347,7 +348,7 @@ namespace Scop
 				float t = static_cast<float>(i / stack_count);
 
 				Vertex vertex;
-				vertex.position = Vec4f(x, y, z);
+				vertex.position = Vec4f(x, y, z, 1.0f);
 				vertex.uv = Vec2f(s, t);
 				vertex.normal = vertex.position.Normalize();
 
@@ -380,7 +381,7 @@ namespace Scop
 			}
 		}
 
-		std::shared_ptr<Mesh> mesh;
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->AddSubMesh({ std::move(data), std::move(indices) });
 		return mesh;
 	}
@@ -391,24 +392,24 @@ namespace Scop
 
 		std::vector<Vertex> data(4);
 
-		data[0].position = Vec3f(-width * 0.5f, -1.0f, -height * 0.5f);
+		data[0].position = Vec4f(-width * 0.5f, -1.0f, -height * 0.5f);
 		data[0].normal = normal;
 		data[0].uv = Vec2f(0.0f, 0.0f);
 
-		data[1].position = Vec3f(-width * 0.5f, -1.0f, height * 0.5f);
+		data[1].position = Vec4f(-width * 0.5f, -1.0f, height * 0.5f);
 		data[1].normal = normal;
 		data[1].uv = Vec2f(0.0f, 1.0f);
 
-		data[2].position = Vec3f(width * 0.5f, 1.0f, height * 0.5f);
+		data[2].position = Vec4f(width * 0.5f, 1.0f, height * 0.5f);
 		data[2].normal = normal;
 		data[2].uv = Vec2f(1.0f, 1.0f);
 
-		data[3].position = Vec3f(width * 0.5f, 1.0f, -height * 0.5f);
+		data[3].position = Vec4f(width * 0.5f, 1.0f, -height * 0.5f);
 		data[3].normal = normal;
 		data[3].uv = Vec2f(1.0f, 0.0f);
 
 		std::vector<std::uint32_t> indices = { 0, 1, 2, 2, 3, 0 };
-		std::shared_ptr<Mesh> mesh;
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->AddSubMesh({ std::move(data), std::move(indices) });
 		return mesh;
 	}
@@ -447,7 +448,7 @@ namespace Scop
 				Vec3 p = Vec3f(x * radius * w, y, z * radius * w);
 
 				Vertex vertex;
-				vertex.position = p + Vec3f(0.0f, 0.5f * mid_height, 0.0f);
+				vertex.position = Vec4f(p + Vec3f(0.0f, 0.5f * mid_height, 0.0f), 1.0f);
 				vertex.normal = p.Normalize();
 				vertex.uv = Vec2f(u, onethird * v);
 				data.emplace_back(vertex);
@@ -563,7 +564,7 @@ namespace Scop
 			thisrow = point;
 		}
 
-		std::shared_ptr<Mesh> mesh;
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->AddSubMesh({ std::move(data), std::move(indices) });
 		return mesh;
 	}

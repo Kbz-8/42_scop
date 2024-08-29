@@ -10,10 +10,10 @@ namespace Scop
 {
 	struct Vertex
 	{
-		alignas(16) Vec4f position;
-		alignas(16) Vec4f color;
-		alignas(16) Vec4f normal;
-		alignas(16) Vec2f uv;
+		alignas(16) Vec4f position = Vec4f{ 0.0f, 0.0f, 0.0f, 1.0f };
+		alignas(16) Vec4f color = Vec4f{ 1.0f, 1.0f, 1.0f, 1.0f };
+		alignas(16) Vec4f normal = Vec4f{ 0.0f, 0.0f, 0.0f, 1.0f };
+		alignas(16) Vec2f uv = Vec2f{ 0.0f, 0.0f };
 
 		Vertex() = default;
 		Vertex(Vec4f p, Vec4f c, Vec4f n, Vec2f u) : position(std::move(p)), color(std::move(c)), normal(std::move(n)), uv(std::move(u)) {}
