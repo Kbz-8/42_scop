@@ -1597,7 +1597,7 @@ void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cm
 
 	VkPipelineStageFlags source_stage = 0;
 	if(barrier.oldLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-		source_stage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		source_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	else if(barrier.srcAccessMask != 0)
 		source_stage = kvfAccessFlagsToPipelineStage(barrier.srcAccessMask, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
 	else
@@ -1605,7 +1605,7 @@ void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cm
 
 	VkPipelineStageFlags destination_stage = 0;
 	if(barrier.newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-		destination_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destination_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	else if(barrier.dstAccessMask != 0)
 		destination_stage = kvfAccessFlagsToPipelineStage(barrier.dstAccessMask, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
 	else

@@ -14,7 +14,8 @@ namespace Scop
 
 			void Update(class Inputs& input, float aspect, float timestep) override;
 
-			inline constexpr std::string GetCameraType() override { return "FirstPerson3D"; }
+			[[nodiscard]] inline constexpr std::string GetCameraType() override { return "FirstPerson3D"; }
+			[[nodiscard]] const Vec3f& GetPosition() const noexcept override { return m_position; }
 
 			~FirstPerson3D() = default;
 

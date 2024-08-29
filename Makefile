@@ -48,6 +48,9 @@ $(BIN_DIR):
 run:
 	@$(BIN_DIR)/$(NAME) $(RES_DIR)/42.obj
 
+re-shaders:
+	@make -C ScopEngine re-shaders
+
 clean:
 	@$(RM) $(OBJ_DIR)
 	@make -C ScopEngine clean
@@ -58,4 +61,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all run clean fclean re 
+.PHONY: all run clean fclean re re-shaders

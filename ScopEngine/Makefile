@@ -9,15 +9,22 @@ SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer/Vulkan))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer/Pipelines))
 SRCS += $(wildcard $(addsuffix /*.cpp, ./Runtime/Sources/Renderer/RenderPasses))
 
+SHADER_SRCS = $(wildcard $(addsuffix /*.nzsl, ./Assets/Shaders))
+
 BIN_DIR = Bin
 OBJ_DIR = Objects
+SHADER_DIR = Assets/Shaders/Build
+SHADER_MODULE_DIR = Assets/Shaders/Modules
 
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
+SPVS = $(addprefix $(SHADER_DIR)/, $(SHADER_SRCS:.nzsl=.spv))
 
 CXX = clang++
 CXXFLAGS = -std=c++20 -I Runtime/Includes -I Runtime/Sources -I ThirdParty/KVF -D KVF_IMPL_VK_NO_PROTOTYPES
 
 AR = ar rc
+
+NZSLC = ./Assets/Vendors/nzslc.x86_64
 
 LDFLAGS = -lSDL2
 
@@ -56,8 +63,9 @@ else
 endif
 	@printf "\e[1;32m[build finished]\e[1;00m\n"
 
-shaders:
-	@sh ./Assets/Scripts/CompileShaders.sh $(CURDIR)
+$(SHADER_DIR)/%.spv: %.nzsl
+	@printf "\e[1;32m[compiling...]\e[1;00m "$<"\n"
+	@$(NZSLC) --compile=spv $< -o $(SHADER_DIR) --optimize --module=$(SHADER_MODULE_DIR)
 
 $(OBJ_DIR):
 	@mkdir -p $(sort $(addprefix $(OBJ_DIR)/, $(dir $(SRCS))))
@@ -65,14 +73,23 @@ $(OBJ_DIR):
 $(BIN_DIR):
 	@mkdir -p $(BIN_DIR)
 
-clean:
+$(SHADER_DIR):
+	@mkdir -p $(SHADER_DIR)
+
+shaders : $(SHADER_DIR) $(SPVS)
+
+clean-shaders:
+	@$(RM) $(SHADER_DIR)
+
+re-shaders: clean-shaders shaders
+
+clean: clean-shaders
 	@$(RM) $(OBJ_DIR)
-	@$(RM) Assets/Shaders/Build
 
 fclean: clean
 	@$(RM) $(BIN_DIR)
 
 re: fclean all
 
-.PHONY: all run clean fclean re 
+.PHONY: all clean fclean re shaders clean-shaders re-shaders
 

@@ -35,7 +35,7 @@ namespace Scop
 		constexpr Mat4& ApplyScale(const Vec3<T>& scale);
 		constexpr Mat4& ApplyTranslation(const Vec3<T>& translation);
 
-		constexpr bool ApproxEqual(const Mat4& vec, T maxDifference = std::numeric_limits<T>::epsilon()) const;
+		constexpr bool ApproxEqual(const Mat4& vec, T max_difference = std::numeric_limits<T>::epsilon()) const;
 
 		constexpr Mat4& Concatenate(const Mat4& matrix);
 		constexpr Mat4& ConcatenateTransform(const Mat4& matrix);
@@ -94,7 +94,7 @@ namespace Scop
 		constexpr bool operator==(const Mat4& mat) const;
 		constexpr bool operator!=(const Mat4& mat) const;
 
-		static constexpr bool ApproxEqual(const Mat4& lhs, const Mat4& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+		static constexpr bool ApproxEqual(const Mat4& lhs, const Mat4& rhs, T max_difference = std::numeric_limits<T>::epsilon());
 		static constexpr Mat4 Concatenate(const Mat4& left, const Mat4& right);
 		static constexpr Mat4 ConcatenateTransform(const Mat4& left, const Mat4& right);
 		static constexpr Mat4 Identity();

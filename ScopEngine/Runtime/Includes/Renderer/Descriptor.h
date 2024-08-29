@@ -31,7 +31,7 @@ namespace Scop
 			void SetImage(std::size_t i, std::uint32_t binding, class Image& image);
 			void SetStorageBuffer(std::size_t i, std::uint32_t binding, class GPUBuffer& buffer);
 			void SetUniformBuffer(std::size_t i, std::uint32_t binding, class GPUBuffer& buffer);
-			void Update(std::size_t i) noexcept;
+			void Update(std::size_t i, VkCommandBuffer cmd = VK_NULL_HANDLE) noexcept;
 
 			[[nodiscard]] inline VkDescriptorSet GetSet(std::size_t i) const noexcept { return m_set[i]; }
 			[[nodiscard]] inline DescriptorSet Duplicate() const { return DescriptorSet{ m_set_layout, m_descriptors }; }

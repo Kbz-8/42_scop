@@ -51,6 +51,7 @@ namespace Scop
 			FatalError("SDL error : unable to init all subsystems : %", SDL_GetError());
 		RenderCore::Get().Init();
 		m_renderer.Init(&m_window);
+		m_scene_renderer.Init();
 		#ifdef DEBUG
 			m_imgui.Init(m_inputs);
 		#endif
@@ -99,6 +100,7 @@ namespace Scop
 		#ifdef DEBUG
 			m_imgui.Destroy();
 		#endif
+		m_scene_renderer.Destroy();
 		m_renderer.Destroy();
 		RenderCore::Get().Destroy();
 		SDL_Quit();

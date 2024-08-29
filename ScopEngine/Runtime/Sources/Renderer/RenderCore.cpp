@@ -109,7 +109,7 @@ namespace Scop
 				}
 			}, { ShaderPushConstantLayout({ 0, sizeof(Mat4f) * 2 }) }
 		);
-		m_internal_shaders[DEFAULT_VERTEX_SHADER_ID] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/Vertex.spv", ShaderType::Vertex, std::move(vertex_shader_layout));
+		m_internal_shaders[DEFAULT_VERTEX_SHADER_ID] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/ForwardVertex.spv", ShaderType::Vertex, std::move(vertex_shader_layout));
 
 		ShaderLayout default_fragment_shader_layout(
 			{
@@ -121,7 +121,7 @@ namespace Scop
 				}
 			}, {}
 		);
-		m_internal_shaders[DEFAULT_FRAGMENT_SHADER_ID] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/DefaultFragment.spv", ShaderType::Fragment, std::move(default_fragment_shader_layout));
+		m_internal_shaders[DEFAULT_FRAGMENT_SHADER_ID] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/ForwardDefaultFragment.spv", ShaderType::Fragment, std::move(default_fragment_shader_layout));
 
 		ShaderLayout basic_fragment_shader_layout(
 			{
@@ -133,7 +133,7 @@ namespace Scop
 				}
 			}, {}
 		);
-		m_internal_shaders[BASIC_FRAGMENT_SHADER_ID] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/BasicFragment.spv", ShaderType::Fragment, std::move(basic_fragment_shader_layout));
+		m_internal_shaders[BASIC_FRAGMENT_SHADER_ID] = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/ForwardBasicFragment.spv", ShaderType::Fragment, std::move(basic_fragment_shader_layout));
 	}
 
 	void RenderCore::Destroy() noexcept

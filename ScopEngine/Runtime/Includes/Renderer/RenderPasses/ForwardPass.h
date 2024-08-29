@@ -1,17 +1,13 @@
 #ifndef __SCOP_FORWARD_PASS__
 #define __SCOP_FORWARD_PASS__
 
-#include <Renderer/RenderPasses/BasePass.h>
-
 namespace Scop
 {
-	class ForwardPass : public BasePass
+	class ForwardPass
 	{
 		public:
 			ForwardPass() = default;
-
-			void Pass(class Scene& scene, class Renderer& renderer) override;
-
+			void Pass(class Scene& scene, class Renderer& renderer, class Texture& render_target);
 			~ForwardPass() = default;
 	};
 }

@@ -1,27 +1,37 @@
 #include <Renderer/ScenesRenderer.h>
 #include <Renderer/Renderer.h>
 #include <Graphics/Scene.h>
+#include <Renderer/ViewerData.h>
 
 #include <cstring>
 
 namespace Scop
 {
-	struct VertexMatricesData
+	void SceneRenderer::Init()
 	{
-		Mat4f view;
-		Mat4f projection;
-	};
+		m_passes.Init();
+	}
 
 	void SceneRenderer::Render(Scene& scene, Renderer& renderer)
 	{
-		VertexMatricesData mat;
-		mat.view = scene.GetCamera()->GetView();
-		mat.projection = scene.GetCamera()->GetProj();
+		ViewerData data;
+		data.projection_matrix = scene.GetCamera()->GetProj();
+		data.projection_matrix.GetInverse(&data.inv_projection_matrix);
+		data.view_matrix = scene.GetCamera()->GetView();
+		data.view_matrix.GetInverse(&data.inv_view_matrix);
+		data.view_proj_matrix = data.view_matrix * data.projection_matrix;
+		data.view_proj_matrix.GetInverse(&data.inv_view_proj_matrix);
+		data.camera_position = scene.GetCamera()->GetPosition();
 
-		static CPUBuffer buffer(sizeof(VertexMatricesData));
-		std::memcpy(buffer.GetData(), &mat, buffer.GetSize());
+		static CPUBuffer buffer(sizeof(ViewerData));
+		std::memcpy(buffer.GetData(), &data, buffer.GetSize());
 		scene.GetForwardData().matrices_buffer->SetData(buffer, renderer.GetCurrentFrameIndex());
 
 		m_passes.Pass(scene, renderer);
+	}
+
+	void SceneRenderer::Destroy()
+	{
+		m_passes.Destroy();
 	}
 }

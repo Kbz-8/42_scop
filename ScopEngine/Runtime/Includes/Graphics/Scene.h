@@ -50,6 +50,8 @@ namespace Scop
 			[[nodiscard]] inline const std::string& GetName() const noexcept { return m_name; }
 			[[nodiscard]] inline GraphicPipeline& GetPipeline() noexcept { return m_pipeline; }
 			[[nodiscard]] inline std::shared_ptr<BaseCamera> GetCamera() const { return p_camera; }
+			[[nodiscard]] inline DepthImage& GetDepth() noexcept { return m_depth; }
+			[[nodiscard]] inline std::shared_ptr<Shader> GetFragmentShader() const { return m_fragment_shader; }
 
 			~Scene() = default;
 
@@ -63,6 +65,7 @@ namespace Scop
 		private:
 			GraphicPipeline m_pipeline;
 			ForwardData m_forward;
+			DepthImage m_depth;
 			std::vector<Actor> m_actors;
 			std::vector<Scene> m_scene_children;
 			std::string m_name;

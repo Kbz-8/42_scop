@@ -1,19 +1,15 @@
-#include <Maths/Mat4.h>
 #include <Graphics/Scene.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/RenderCore.h>
 #include <Platform/Inputs.h>
 #include <Core/Logs.h>
+#include <Renderer/ViewerData.h>
+#include <Core/EventBus.h>
+
 #include <cstring>
 
 namespace Scop
 {
-	struct VertexMatricesData
-	{
-		Mat4f view;
-		Mat4f projection;
-	};
-
 	Scene::Scene(std::string_view name, SceneDescriptor desc)
 	: m_name(name), m_fragment_shader(desc.fragment_shader), p_parent(nullptr), p_camera(desc.camera)
 	{
@@ -38,10 +34,17 @@ namespace Scop
 
 	void Scene::Init(NonOwningPtr<Renderer> renderer)
 	{
+		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
+		{
+			if(event.What() == 56)
+				m_pipeline.Destroy(); // Ugly but f*ck off
+		};
+		EventBus::RegisterListener({ functor, m_name + std::to_string(reinterpret_cast<std::uintptr_t>(this)) });
+
 		auto vertex_shader = RenderCore::Get().GetDefaultVertexShader();
-		m_pipeline.Init(vertex_shader, m_fragment_shader, renderer);
+		m_depth.Init(renderer->GetSwapchainImages().back().GetWidth(), renderer->GetSwapchainImages().back().GetHeight());
 		m_forward.matrices_buffer = std::make_shared<UniformBuffer>();
-		m_forward.matrices_buffer->Init(sizeof(VertexMatricesData));
+		m_forward.matrices_buffer->Init(sizeof(ViewerData));
 
 		m_forward.matrices_set = std::make_shared<DescriptorSet>(vertex_shader->GetShaderLayout().set_layouts[0].second, vertex_shader->GetPipelineLayout().set_layouts[0], ShaderType::Vertex);
 		for(std::size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
@@ -61,6 +64,7 @@ namespace Scop
 
 	void Scene::Destroy()
 	{
+		m_depth.Destroy();
 		m_actors.clear();
 		m_pipeline.Destroy();
 		m_fragment_shader.reset();

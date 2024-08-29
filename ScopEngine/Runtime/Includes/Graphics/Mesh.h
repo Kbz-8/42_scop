@@ -11,6 +11,28 @@
 
 namespace Scop
 {
+	namespace Internal
+	{
+		[[nodiscard]] inline bool IsPowerOfTwo(int n) noexcept
+		{
+			if(n == 0)
+				return false;
+			return (std::ceil(std::log2(n)) == std::floor(std::log2(n)));
+		}
+		
+		[[nodiscard]] inline std::size_t UpperPowerOfTwo(std::size_t v)
+		{
+			v--;
+			v |= v >> 1;
+			v |= v >> 2;
+			v |= v >> 4;
+			v |= v >> 8;
+			v |= v >> 16;
+			v++;
+			return v;
+		}
+	}
+
 	class Mesh
 	{
 		public:
@@ -24,11 +46,18 @@ namespace Scop
 				{
 					CPUBuffer vb(vertices.size() * sizeof(Vertex));
 					std::memcpy(vb.GetData(), vertices.data(), vb.GetSize());
-					vbo.Init(vb.GetSize());
+					std::size_t vb_size = vb.GetSize();
+					//if(!Internal::IsPowerOfTwo(vb_size))
+					//	vb_size = Internal::UpperPowerOfTwo(vb_size);
+					vbo.Init(vb_size);
 					vbo.SetData(std::move(vb));
+
 					CPUBuffer ib(indices.size() * sizeof(std::uint32_t));
 					std::memcpy(ib.GetData(), indices.data(), ib.GetSize());
-					ibo.Init(ib.GetSize());
+					std::size_t ib_size = ib.GetSize();
+					//if(!Internal::IsPowerOfTwo(ib_size))
+					//	ib_size = Internal::UpperPowerOfTwo(ib_size);
+					ibo.Init(ib_size);
 					ibo.SetData(std::move(ib));
 
 					triangle_count = vertices.size() / 3;

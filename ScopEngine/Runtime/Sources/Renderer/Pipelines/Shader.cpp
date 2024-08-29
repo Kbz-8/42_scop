@@ -78,7 +78,7 @@ namespace Scop
 		stream.close();
 
 		std::shared_ptr<Shader> shader = std::make_shared<Shader>(data, type, layout);
-		Message("Vulkan : shader loaded '%'", filepath);
+		Message("Vulkan : shader loaded %", filepath);
 		return shader;
 	}
 }

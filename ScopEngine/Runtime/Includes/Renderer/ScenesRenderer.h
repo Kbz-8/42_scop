@@ -9,9 +9,9 @@ namespace Scop
 	{
 		public:
 			SceneRenderer() = default;
-
+			void Init();
 			void Render(class Scene& scene, class Renderer& renderer); // TODO : add RTT support
-
+			void Destroy();
 			~SceneRenderer() = default;
 
 		private:

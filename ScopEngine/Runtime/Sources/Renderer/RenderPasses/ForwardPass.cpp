@@ -1,5 +1,6 @@
 #include <Renderer/RenderPasses/ForwardPass.h>
 #include <Renderer/Pipelines/Graphics.h>
+#include <Renderer/ViewerData.h>
 #include <Renderer/Renderer.h>
 #include <Graphics/Scene.h>
 #include <Maths/Mat4.h>
@@ -12,11 +13,15 @@ namespace Scop
 		Mat4f normal_mat;
 	};
 
-	void ForwardPass::Pass(Scene& scene, Renderer& renderer)
+	void ForwardPass::Pass(Scene& scene, Renderer& renderer, class Texture& render_target)
 	{
 		std::array<float, 4> clear_color = { 0.2f, 0.3f, 0.3f, 1.0f };
 		Scene::ForwardData& data = scene.GetForwardData();
 		GraphicPipeline& pipeline = scene.GetPipeline();
+
+		if(pipeline.GetPipeline() == VK_NULL_HANDLE)
+			pipeline.Init(RenderCore::Get().GetDefaultVertexShader(), scene.GetFragmentShader(), { render_target, scene.GetDepth() });
+
 		VkCommandBuffer cmd = renderer.GetActiveCommandBuffer();
 		pipeline.BindPipeline(cmd, renderer.GetSwapchainImageIndex(), clear_color);
 		for(auto& actor : scene.GetActors())

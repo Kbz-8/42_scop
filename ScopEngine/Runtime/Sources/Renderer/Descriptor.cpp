@@ -9,6 +9,16 @@
 
 namespace Scop
 {
+	void TransitionImageToCorrectLayout(Image& image, VkCommandBuffer cmd)
+	{
+		if(!image.IsInit())
+			return;
+		if(!kvfIsDepthFormat(image.GetFormat()))
+			image.TransitionLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, cmd);
+		else
+			image.TransitionLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, cmd);
+	}
+
 	DescriptorSet::DescriptorSet(const ShaderSetLayout& layout, VkDescriptorSetLayout vklayout, ShaderType shader_type)
 	: m_set_layout(vklayout)
 	{
@@ -90,7 +100,7 @@ namespace Scop
 		it->uniform_buffer_ptr = &buffer;
 	}
 
-	void DescriptorSet::Update(std::size_t i) noexcept
+	void DescriptorSet::Update(std::size_t i, VkCommandBuffer cmd) noexcept
 	{
 		Verify(m_set[i] != VK_NULL_HANDLE, "invalid descriptor");
 		std::vector<VkWriteDescriptorSet> writes;
@@ -100,6 +110,7 @@ namespace Scop
 		{
 			if(descriptor.image_ptr)
 			{
+				TransitionImageToCorrectLayout(*descriptor.image_ptr, cmd);
 				VkDescriptorImageInfo info{};
 				info.sampler = descriptor.image_ptr->GetSampler();
 				info.imageLayout = descriptor.image_ptr->GetLayout();
