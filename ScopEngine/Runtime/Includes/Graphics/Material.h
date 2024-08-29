@@ -44,11 +44,11 @@ namespace Scop
 				m_set = set.Duplicate();
 			}
 
-			inline void Bind(std::size_t frame_index)
+			inline void Bind(std::size_t frame_index, VkCommandBuffer cmd)
 			{
 				m_set.SetImage(frame_index, 0, *m_textures.albedo);
 				m_set.SetUniformBuffer(frame_index, 1, m_data_buffer.Get(frame_index));
-				m_set.Update(frame_index);
+				m_set.Update(frame_index, cmd);
 
 				static CPUBuffer buffer(sizeof(MaterialData));
 				std::memcpy(buffer.GetData(), &m_data, buffer.GetSize());

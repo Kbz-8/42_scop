@@ -20,10 +20,10 @@ namespace Scop
 		GraphicPipeline& pipeline = scene.GetPipeline();
 
 		if(pipeline.GetPipeline() == VK_NULL_HANDLE)
-			pipeline.Init(RenderCore::Get().GetDefaultVertexShader(), scene.GetFragmentShader(), { render_target, scene.GetDepth() });
+			pipeline.Init(RenderCore::Get().GetDefaultVertexShader(), scene.GetFragmentShader(), { &render_target, &scene.GetDepth() });
 
 		VkCommandBuffer cmd = renderer.GetActiveCommandBuffer();
-		pipeline.BindPipeline(cmd, renderer.GetSwapchainImageIndex(), clear_color);
+		pipeline.BindPipeline(cmd, 0, clear_color);
 		for(auto& actor : scene.GetActors())
 		{
 			ModelData model_data;

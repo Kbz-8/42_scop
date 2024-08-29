@@ -148,6 +148,7 @@ VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkForma
 VkAttachmentDescription kvfBuildSwapchainAttachmentDescription(VkSwapchainKHR swapchain, bool clear);
 
 VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attachments, size_t attachments_count, VkPipelineBindPoint bind_point);
+VkRenderPass kvfCreateRenderPassWithSubpassDependencies(VkDevice device, VkAttachmentDescription* attachments, size_t attachments_count, VkPipelineBindPoint bind_point, VkSubpassDependency* dependencies, size_t dependencies_count);
 void kvfDestroyRenderPass(VkDevice device, VkRenderPass renderpass);
 void kvfBeginRenderPass(VkRenderPass pass, VkCommandBuffer cmd, VkFramebuffer framebuffer, VkExtent2D framebuffer_extent, VkClearValue* clears, size_t clears_count);
 
@@ -1863,7 +1864,11 @@ VkAttachmentDescription kvfBuildSwapchainAttachmentDescription(VkSwapchainKHR sw
 VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attachments, size_t attachments_count, VkPipelineBindPoint bind_point)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
+	return kvfCreateRenderPassWithSubpassDependencies(device, attachments, attachments_count, bind_point, NULL, 0);
+}
 
+VkRenderPass kvfCreateRenderPassWithSubpassDependencies(VkDevice device, VkAttachmentDescription* attachments, size_t attachments_count, VkPipelineBindPoint bind_point, VkSubpassDependency* dependencies, size_t dependencies_count)
+{
 	size_t color_attachment_count = 0;
 	size_t depth_attachment_count = 0;
 
@@ -1918,8 +1923,8 @@ VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attac
 	renderpass_create_info.pAttachments = attachments;
 	renderpass_create_info.subpassCount = 1;
 	renderpass_create_info.pSubpasses = &subpass;
-	renderpass_create_info.dependencyCount = 0;
-	renderpass_create_info.pDependencies = NULL;
+	renderpass_create_info.dependencyCount = dependencies_count;
+	renderpass_create_info.pDependencies = dependencies;
 
 	VkRenderPass render_pass = VK_NULL_HANDLE;
 	__kvfCheckVk(vkCreateRenderPass(device, &renderpass_create_info, NULL, &render_pass));

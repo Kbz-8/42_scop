@@ -1,8 +1,3 @@
-// This file is a part of Akel
-// Authors : @kbz8
-// Created : 29/08/2024
-// Updated : 29/08/2024
-
 #include <Renderer/RenderPasses/FinalPass.h>
 #include <Renderer/Pipelines/Graphics.h>
 #include <Renderer/Renderer.h>

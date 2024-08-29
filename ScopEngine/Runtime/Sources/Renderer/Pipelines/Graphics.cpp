@@ -28,10 +28,10 @@ namespace Scop
 		};
 		EventBus::RegisterListener({ functor, std::to_string((std::uintptr_t)(void**)this) });
 
-		Init(std::move(vertex_shader), std::move(fragment_shader), std::vector<Image>{}, culling, disable_vertex_inputs);
+		Init(std::move(vertex_shader), std::move(fragment_shader), std::vector<NonOwningPtr<Image>>{}, culling, disable_vertex_inputs);
 	}
 
-	void GraphicPipeline::Init(std::shared_ptr<Shader> vertex_shader, std::shared_ptr<Shader> fragment_shader, std::vector<Image> attachments, VkCullModeFlagBits culling, bool disable_vertex_inputs)
+	void GraphicPipeline::Init(std::shared_ptr<Shader> vertex_shader, std::shared_ptr<Shader> fragment_shader, std::vector<NonOwningPtr<Image>> attachments, VkCullModeFlagBits culling, bool disable_vertex_inputs)
 	{
 		if(!vertex_shader || !fragment_shader)
 			FatalError("Vulkan : invalid shaders");
@@ -75,11 +75,7 @@ namespace Scop
 	bool GraphicPipeline::BindPipeline(VkCommandBuffer command_buffer, std::size_t framebuffer_index, std::array<float, 4> clear) noexcept
 	{
 		TransitionAttachments(command_buffer);
-		VkFramebuffer fb;
-		if(p_renderer)
-			fb = m_framebuffers[framebuffer_index];
-		else
-			fb = m_framebuffers[0];
+		VkFramebuffer fb = m_framebuffers[framebuffer_index];
 		VkExtent2D fb_extent = kvfGetFramebufferSize(fb);
 
 		VkViewport viewport{};
@@ -137,7 +133,7 @@ namespace Scop
 		Message("Vulkan : graphics pipeline destroyed");
 	}
 
-	void GraphicPipeline::CreateFramebuffers(const std::vector<Image>& render_targets)
+	void GraphicPipeline::CreateFramebuffers(const std::vector<NonOwningPtr<Image>>& render_targets)
 	{
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkImageView> attachment_views;
@@ -148,10 +144,10 @@ namespace Scop
 		}
 		else
 		{
-			for(const auto& image : render_targets)
+			for(NonOwningPtr<Image> image : render_targets)
 			{
-				attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image.GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image.GetFormat(), image.GetLayout(), image.GetLayout(), true));
-				attachment_views.push_back(image.GetImageView());
+				attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image->GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image->GetFormat(), image->GetLayout(), image->GetLayout(), true));
+				attachment_views.push_back(image->GetImageView());
 			}
 		}
 
@@ -177,9 +173,9 @@ namespace Scop
 		}
 		else
 		{
-			for(const auto& image : render_targets)
+			for(NonOwningPtr<Image> image : render_targets)
 			{
-				m_framebuffers.push_back(kvfCreateFramebuffer(RenderCore::Get().GetDevice(), m_renderpass, attachment_views.data(), attachment_views.size(), { .width = image.GetWidth(), .height = image.GetHeight() }));
+				m_framebuffers.push_back(kvfCreateFramebuffer(RenderCore::Get().GetDevice(), m_renderpass, attachment_views.data(), attachment_views.size(), { .width = image->GetWidth(), .height = image->GetHeight() }));
 				Message("Vulkan : framebuffer created");
 			}
 		}
@@ -190,12 +186,12 @@ namespace Scop
 		if(p_depth)
 			p_depth->TransitionLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, cmd);
 
-		for(auto& image : m_attachments)
+		for(NonOwningPtr<Image> image : m_attachments)
 		{
-			if(!image.IsInit())
+			if(!image->IsInit())
 				continue;
-			if(!kvfIsDepthFormat(image.GetFormat()))
-				image.TransitionLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, cmd);
+			if(!kvfIsDepthFormat(image->GetFormat()))
+				image->TransitionLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, cmd);
 		}
 	}
 }

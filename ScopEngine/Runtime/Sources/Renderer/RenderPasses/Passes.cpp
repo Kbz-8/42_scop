@@ -25,6 +25,7 @@ namespace Scop
 			};
 			EventBus::RegisterListener({ functor, "__ScopRenderPasses" });
 			auto extent = kvfGetSwapchainImagesSize(renderer.GetSwapchain());
+
 			m_main_render_texture.Init({}, extent.width, extent.height);
 		}
 		m_forward.Pass(scene, renderer, m_main_render_texture);

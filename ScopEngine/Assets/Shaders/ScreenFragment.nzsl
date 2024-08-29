@@ -20,6 +20,6 @@ external
 fn main(input: VertOut) -> FragOut
 {
 	let output: FragOut;
-	output.color = vec4[f32](u_texture.Sample(input.uv).rgb, 1.0);
+	output.color = u_texture.Sample(input.uv);
 	return output;
 }

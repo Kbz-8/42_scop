@@ -46,11 +46,11 @@ namespace Scop
 	void SkyboxPass::Pass(Scene& scene, Renderer& renderer, class Texture& render_target)
 	{
 		if(m_pipeline.GetPipeline() == VK_NULL_HANDLE)
-			m_pipeline.Init(p_vertex_shader, p_fragment_shader, { render_target, scene.GetDepth() }, VK_CULL_MODE_NONE);
+			m_pipeline.Init(p_vertex_shader, p_fragment_shader, { &render_target, &scene.GetDepth() }, VK_CULL_MODE_NONE);
 
 		std::array<float, 4> clear_color = { 0.0f, 0.0f, 0.0f, 1.0f };
 		VkCommandBuffer cmd = renderer.GetActiveCommandBuffer();
-		m_pipeline.BindPipeline(cmd, renderer.GetSwapchainImageIndex(), clear_color);
+		m_pipeline.BindPipeline(cmd, 0, clear_color);
 			std::array<VkDescriptorSet, 2> sets = { scene.GetForwardData().matrices_set->GetSet(renderer.GetCurrentFrameIndex()), p_set->GetSet(renderer.GetCurrentFrameIndex()) };
 			vkCmdBindDescriptorSets(cmd, m_pipeline.GetPipelineBindPoint(), m_pipeline.GetPipelineLayout(), 0, sets.size(), sets.data(), 0, nullptr);
 			m_screen_quad->Draw(cmd, renderer.GetDrawCallsCounterRef(), renderer.GetPolygonDrawnCounterRef());

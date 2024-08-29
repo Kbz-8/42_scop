@@ -36,7 +36,7 @@ namespace Scop
 	{
 		if(new_layout == m_layout)
 			return;
-		bool is_single_time_cmd_buffer = cmd == VK_NULL_HANDLE;
+		bool is_single_time_cmd_buffer = (cmd == VK_NULL_HANDLE);
 		if(is_single_time_cmd_buffer)
 			cmd = kvfCreateCommandBuffer(RenderCore::Get().GetDevice());
 		kvfTransitionImageLayout(RenderCore::Get().GetDevice(), m_image, cmd, m_format, m_layout, new_layout, is_single_time_cmd_buffer);
