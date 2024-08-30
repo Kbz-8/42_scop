@@ -17,6 +17,18 @@ namespace Scop
 	};
 
 	constexpr std::size_t LogTypeCount = static_cast<std::size_t>(LogType::EndEnum);
+
+	enum class Event
+	{
+		ResizeEventCode = 56,
+		FrameBeginEventCode = 57,
+		FatalErrorEventCode = 168,
+		QuitEventCode = 168,
+
+		EndEnum
+	};
+
+	constexpr std::size_t EventCount = static_cast<std::size_t>(Event::EndEnum);
 }
 
 #endif

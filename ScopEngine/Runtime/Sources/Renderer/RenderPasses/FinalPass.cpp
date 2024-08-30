@@ -26,7 +26,7 @@ namespace Scop
 
 		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
 		{
-			if(event.What() == 56)
+			if(event.What() == Event::ResizeEventCode)
 				m_pipeline.Destroy();
 		};
 		EventBus::RegisterListener({ functor, "__ScopFinalPass" });

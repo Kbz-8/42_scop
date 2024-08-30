@@ -69,9 +69,9 @@ namespace Scop
 		m_phi = m_phi < -89 ? -89 : m_phi;
 
 		// Spherical coordinate system
-		m_direction.x = std::cos(m_phi * M_PI / 180) * std::cos(m_theta * Pi<float>() / 180);
-		m_direction.y = std::sin(m_phi * M_PI / 180);
-		m_direction.z = std::cos(m_phi * M_PI / 180) * std::sin(-m_theta * Pi<float>() / 180);
+		m_direction.x = std::cos(m_phi * Pi<float>() / 180) * std::cos(m_theta * Pi<float>() / 180);
+		m_direction.y = std::sin(m_phi * Pi<float>() / 180);
+		m_direction.z = std::cos(m_phi * Pi<float>() / 180) * std::sin(-m_theta * Pi<float>() / 180);
 
 		m_left = m_up.CrossProduct(m_direction);
 		m_left.Normalize();

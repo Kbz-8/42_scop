@@ -24,19 +24,23 @@ namespace Scop
 
 	Actor& Scene::CreateActor(Model model) noexcept
 	{
-		return m_actors.emplace_back(std::move(model));
+		std::shared_ptr<Actor> actor = std::make_shared<Actor>(std::move(model));
+		m_actors.push_back(actor);
+		return *actor;
 	}
 
 	Actor& Scene::CreateActor(std::string_view name, Model model)
 	{
-		return m_actors.emplace_back(std::move(model));
+		std::shared_ptr<Actor> actor = std::make_shared<Actor>(std::move(model));
+		m_actors.push_back(actor);
+		return *actor;
 	}
 
 	void Scene::Init(NonOwningPtr<Renderer> renderer)
 	{
 		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
 		{
-			if(event.What() == 56)
+			if(event.What() == Event::ResizeEventCode)
 				m_pipeline.Destroy(); // Ugly but f*ck off
 		};
 		EventBus::RegisterListener({ functor, m_name + std::to_string(reinterpret_cast<std::uintptr_t>(this)) });
@@ -57,8 +61,8 @@ namespace Scop
 
 	void Scene::Update(Inputs& input, float timestep, float aspect)
 	{
-		for(auto& actor : m_actors)
-			actor.Update(input, timestep);
+		for(auto actor : m_actors)
+			actor->Update(this, input, timestep);
 		p_camera->Update(input, aspect, timestep);
 	}
 

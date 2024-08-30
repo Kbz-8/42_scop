@@ -11,7 +11,7 @@ namespace Scop
 	{
 		struct InterruptEvent : public EventBase
 		{
-			std::uint32_t What() const override { return 168; }
+			Event What() const override { return Event::QuitEventCode; }
 		};
 	}
 
@@ -36,9 +36,9 @@ namespace Scop
 		s_instance = this;
 		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
 		{
-			if(event.What() == 167)
+			if(event.What() == Event::FatalErrorEventCode)
 				FatalErrorEventHandle();
-			if(event.What() == 168)
+			if(event.What() == Event::QuitEventCode)
 				this->Quit();
 		};
 		EventBus::RegisterListener({ functor, "__ScopEngine" });

@@ -29,17 +29,23 @@ namespace Scop
 		TransitionAttachments();
 		CreateFramebuffers(m_attachments, descriptor.clear_color_attachments);
 
+		VkPhysicalDeviceFeatures features{};
+		vkGetPhysicalDeviceFeatures(RenderCore::Get().GetPhysicalDevice(), &features);
+
 		KvfGraphicsPipelineBuilder* builder = kvfCreateGPipelineBuilder();
 		kvfGPipelineBuilderAddShaderStage(builder, p_vertex_shader->GetShaderStage(), p_vertex_shader->GetShaderModule(), "main");
 		kvfGPipelineBuilderAddShaderStage(builder, p_fragment_shader->GetShaderStage(), p_fragment_shader->GetShaderModule(), "main");
 		kvfGPipelineBuilderSetInputTopology(builder, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-		kvfGPipelineBuilderSetPolygonMode(builder, descriptor.mode, 1.0f);
 		kvfGPipelineBuilderSetCullMode(builder, descriptor.culling, VK_FRONT_FACE_CLOCKWISE);
 		kvfGPipelineBuilderDisableBlending(builder);
 		if(p_depth)
 			kvfGPipelineBuilderEnableDepthTest(builder, (descriptor.depth_test_equal ? VK_COMPARE_OP_EQUAL : VK_COMPARE_OP_LESS), true);
 		else
 			kvfGPipelineBuilderDisableDepthTest(builder);
+		if(features.fillModeNonSolid)
+			kvfGPipelineBuilderSetPolygonMode(builder, descriptor.mode, 1.0f);
+		else
+			kvfGPipelineBuilderSetPolygonMode(builder, VK_POLYGON_MODE_FILL, 1.0f);
 
 		if(!descriptor.no_vertex_inputs)
 		{

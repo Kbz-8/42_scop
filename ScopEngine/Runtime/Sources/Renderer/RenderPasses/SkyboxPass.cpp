@@ -34,8 +34,8 @@ namespace Scop
 
 		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
 		{
-			if(event.What() == 56)
-				m_pipeline.Destroy(); // Ugly but f*ck off
+			if(event.What() == Event::ResizeEventCode)
+				m_pipeline.Destroy();
 		};
 		EventBus::RegisterListener({ functor, "__ScopSkyboxPass" });
 

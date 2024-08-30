@@ -16,7 +16,7 @@ namespace Scop
 			Actor(Model model);
 
 			inline void AttachScript(std::shared_ptr<Script> script) { p_script = script; }
-			void Update(class Inputs& input, float timestep);
+			void Update(NonOwningPtr<class Scene> scene, class Inputs& input, float timestep);
 
 			inline void SetColor(Vec4f color) noexcept { m_color = color; }
 			inline void SetPosition(Vec3f position) noexcept { m_position = position; }

@@ -1,6 +1,7 @@
 #include <kvf.h>
 #include <Renderer/Renderer.h>
 #include <Core/Logs.h>
+#include <Core/Enums.h>
 
 #include <SDL2/SDL_vulkan.h>
 
@@ -15,7 +16,12 @@ namespace Scop
 	{
 		struct ResizeEventBroadcast : public EventBase
 		{
-			std::uint32_t What() const override { return 56; }
+			Event What() const override { return Event::ResizeEventCode; }
+		};
+
+		struct FrameBeginEventBroadcast : public EventBase
+		{
+			Event What() const override { return Event::FrameBeginEventCode; }
 		};
 	}
 
@@ -25,10 +31,10 @@ namespace Scop
 
 		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
 		{
-			if(event.What() == 24)
+			if(event.What() == Event::ResizeEventCode)
 				this->RequireFramebufferResize();
 		};
-		EventBus::RegisterListener({ functor, "Renderer" });
+		EventBus::RegisterListener({ functor, "__ScopRenderer" });
 
 		m_window_ptr = window;
 		auto& render_core = RenderCore::Get();
@@ -69,6 +75,7 @@ namespace Scop
 		kvfBeginCommandBuffer(m_cmd_buffers[m_current_frame_index], 0);
 		m_drawcalls = 0;
 		m_polygons_drawn = 0;
+		EventBus::SendBroadcast(Internal::FrameBeginEventBroadcast{});
 		return true;
 	}
 

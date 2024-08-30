@@ -143,12 +143,12 @@ namespace Scop
 		CPUBuffer complete_data(size);
 		std::uint32_t pointer_offset = 0;
 
-		std::uint32_t face_order[6] = { 3, 1, 0, 4, 2, 5 };
+		const std::uint32_t face_order[6] = { 3, 1, 0, 4, 2, 5 };
 
-		for(std::uint32_t face = 0; face < 6; face++)
+		for(std::uint32_t face : face_order)
 		{
 			std::size_t current_size = face_width * face_height * sizeof(std::uint32_t);
-			std::memcpy(complete_data.GetData() + pointer_offset, texture_data[face_order[face]].data(), current_size);
+			std::memcpy(complete_data.GetData() + pointer_offset, texture_data[face].data(), current_size);
 			pointer_offset += current_size;
 		}
 

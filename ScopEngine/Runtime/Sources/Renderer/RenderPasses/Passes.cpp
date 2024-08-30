@@ -16,7 +16,7 @@ namespace Scop
 		{
 			std::function<void(const EventBase&)> functor = [this, renderer](const EventBase& event)
 			{
-				if(event.What() == 56)
+				if(event.What() == Event::ResizeEventCode)
 				{
 					m_main_render_texture.Destroy();
 					auto extent = kvfGetSwapchainImagesSize(renderer.GetSwapchain());

@@ -4,6 +4,7 @@
 #include <ScopCore.h>
 #include <ScopGraphics.h>
 
+void WireframeHandler(Scop::NonOwningPtr<Scop::Scene> scene, Scop::Inputs& inputs);
 void RotationHandler(Scop::NonOwningPtr<Scop::Actor> actor, Scop::Inputs& inputs, float delta);
 void MovementHandler(Scop::NonOwningPtr<Scop::Actor> actor, Scop::Inputs& inputs, float delta);
 void ColorsTransitionHandler(Scop::NonOwningPtr<Scop::Actor> actor, Scop::Inputs& inputs, float delta, Scop::MaterialData& data);

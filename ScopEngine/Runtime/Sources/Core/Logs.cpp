@@ -1,5 +1,4 @@
 #include <string>
-#include <cstdint>
 #include <string_view>
 
 #include <Core/Logs.h>
@@ -13,7 +12,7 @@ namespace Scop
 	{
 		struct FatalErrorEvent : public EventBase
 		{
-			std::uint32_t What() const override { return 167; }
+			Event What() const override { return Event::FatalErrorEventCode; }
 		};
 	}
 

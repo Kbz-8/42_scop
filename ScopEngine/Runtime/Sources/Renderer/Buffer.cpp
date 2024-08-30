@@ -49,7 +49,10 @@ namespace Scop
 		VkMemoryRequirements mem_requirements;
 		vkGetBufferMemoryRequirements(device, m_buffer, &mem_requirements);
 
-		m_memory = RenderCore::Get().GetAllocator().Allocate(mem_requirements.size, mem_requirements.alignment, *FindMemoryType(mem_requirements.memoryTypeBits, properties));
+		if(usage & VK_BUFFER_USAGE_TRANSFER_DST_BIT)
+			m_memory = RenderCore::Get().GetAllocator().Allocate(size, mem_requirements.alignment, *FindMemoryType(mem_requirements.memoryTypeBits, properties));
+		else
+			m_memory = RenderCore::Get().GetAllocator().Allocate(mem_requirements.size, mem_requirements.alignment, *FindMemoryType(mem_requirements.memoryTypeBits, properties));
 		vkBindBufferMemory(device, m_buffer, m_memory.memory, m_memory.offset);
 		Message("Vulkan : created buffer");
 		s_buffer_count++;
@@ -82,7 +85,6 @@ namespace Scop
 	void GPUBuffer::PushToGPU() noexcept
 	{
 		GPUBuffer new_buffer;
-		new_buffer.m_memory.size = m_memory.size;
 		new_buffer.m_usage = (this->m_usage & 0xFFFFFFFC) | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 		new_buffer.m_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 		new_buffer.CreateBuffer(m_memory.size, new_buffer.m_usage, new_buffer.m_flags);

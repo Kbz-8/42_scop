@@ -33,6 +33,7 @@ namespace Scop
 				std::shared_ptr<DescriptorSet> matrices_set;
 				std::shared_ptr<DescriptorSet> albedo_set;
 				std::shared_ptr<UniformBuffer> matrices_buffer;
+				bool wireframe = false;
 			};
 
 		public:
@@ -47,7 +48,7 @@ namespace Scop
 			void SwitchToParent();
 
 			[[nodiscard]] inline ForwardData& GetForwardData() noexcept { return m_forward; }
-			[[nodiscard]] inline const std::vector<Actor>& GetActors() const noexcept { return m_actors; }
+			[[nodiscard]] inline const std::vector<std::shared_ptr<Actor>>& GetActors() const noexcept { return m_actors; }
 			[[nodiscard]] inline const std::string& GetName() const noexcept { return m_name; }
 			[[nodiscard]] inline GraphicPipeline& GetPipeline() noexcept { return m_pipeline; }
 			[[nodiscard]] inline std::shared_ptr<BaseCamera> GetCamera() const { return p_camera; }
@@ -69,7 +70,7 @@ namespace Scop
 			ForwardData m_forward;
 			DepthImage m_depth;
 			std::shared_ptr<CubeTexture> p_skybox;
-			std::vector<Actor> m_actors;
+			std::vector<std::shared_ptr<Actor>> m_actors;
 			std::vector<Scene> m_scene_children;
 			std::string m_name;
 			std::shared_ptr<Shader> m_fragment_shader;

@@ -21,7 +21,7 @@ namespace Scop
 	{
 		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
 		{
-			if(event.What() == 56)
+			if(event.What() == Event::ResizeEventCode)
 			{
 				kvfDestroyRenderPass(RenderCore::Get().GetDevice(), m_renderpass);
 				std::vector<VkAttachmentDescription> attachments;

@@ -15,10 +15,10 @@ namespace Scop
 			p_script->OnInit(this);
 	}
 
-	void Actor::Update(Inputs& input, float delta)
+	void Actor::Update(NonOwningPtr<Scene> scene, Inputs& input, float delta)
 	{
 		if(p_script)
-			p_script->OnUpdate(this, input, delta);
+			p_script->OnUpdate(scene, this, input, delta);
 	}
 
 	Actor::~Actor()

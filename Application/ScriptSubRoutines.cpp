@@ -2,6 +2,21 @@
 
 constexpr const float SPEED = 40.0f;
 
+void WireframeHandler(Scop::NonOwningPtr<Scop::Scene> scene, Scop::Inputs& inputs)
+{
+	static bool key_pressed_last_frame = false;
+	if(inputs.IsKeyPressed(SDL_SCANCODE_F))
+		key_pressed_last_frame = true;
+	else if(key_pressed_last_frame)
+	{
+		scene->GetForwardData().wireframe = !scene->GetForwardData().wireframe;
+		Scop::RenderCore::Get().WaitDeviceIdle();
+		scene->GetPipeline().Destroy();
+		key_pressed_last_frame = false;
+	}
+	static Scop::Vec3f rotations{ 0.0f, 0.0f, 0.0f };
+}
+
 void RotationHandler(Scop::NonOwningPtr<Scop::Actor> actor, Scop::Inputs& inputs, float delta)
 {
 	static bool rotate = true;

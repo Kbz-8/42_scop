@@ -31,7 +31,7 @@ int main(int ac, char** av)
 
 	Scop::Scene main_scene("main", main_scene_desc);
 	Scop::Vec2ui32 skybox_size;
-	main_scene.AddSkybox(std::make_shared<Scop::CubeTexture>(Scop::LoadBMPFile(GetExecutablePath().parent_path().parent_path() / "Resources/skybox.bmp", skybox_size), skybox_size.x, skybox_size.y));
+	main_scene.AddSkybox(std::make_shared<Scop::CubeTexture>(Scop::LoadBMPFile(GetExecutablePath().parent_path().parent_path() / "Resources/skybox_debug.bmp", skybox_size), skybox_size.x, skybox_size.y));
 
 	Scop::Actor& object = main_scene.CreateActor(Scop::LoadModelFromObjFile(av[1]));
 	object.SetScale(Scop::Vec3f{ 5.0f, 5.0f, 5.0f });
@@ -48,10 +48,11 @@ int main(int ac, char** av)
 		}
 	}
 
-	auto object_update = [](Scop::NonOwningPtr<Scop::Actor> actor, Scop::Inputs& input, float delta)
+	auto object_update = [](Scop::NonOwningPtr<Scop::Scene> scene, Scop::NonOwningPtr<Scop::Actor> actor, Scop::Inputs& input, float delta)
 	{
 		static Scop::MaterialData material_data{};
 
+		WireframeHandler(scene, input);
 		RotationHandler(actor, input, delta);
 		MovementHandler(actor, input, delta);
 		ColorsTransitionHandler(actor, input, delta, material_data);

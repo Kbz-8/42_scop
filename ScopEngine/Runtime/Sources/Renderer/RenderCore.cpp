@@ -92,7 +92,10 @@ namespace Scop
 		vkGetPhysicalDeviceProperties(m_physical_device, &props);
 		Message("Vulkan : physical device picked '%'", props.deviceName);
 
-		m_device = kvfCreateDefaultDevice(m_physical_device);
+		const char* device_extensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+		VkPhysicalDeviceFeatures features{};
+		vkGetPhysicalDeviceFeatures(m_physical_device, &features);
+		m_device = kvfCreateDevice(m_physical_device, device_extensions, sizeof(device_extensions) / sizeof(device_extensions[0]), &features);
 		Message("Vulkan : logical device created");
 
 		vkDestroySurfaceKHR(m_instance, surface, nullptr);

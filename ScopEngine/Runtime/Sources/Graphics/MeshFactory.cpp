@@ -89,99 +89,99 @@ namespace Scop
 		//  v2------v3
 		std::vector<Vertex> data(24);
 
-		data[0].position = Vec4f(0.5f, 0.5f, 0.5f, 1.0f);
+		data[0].position = Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
 		data[0].color = Vec4f(1.0f);
 		data[0].normal = Vec4f(0.0f, 0.0f, 1.0f, 1.0f);
 
-		data[1].position = Vec4f(-0.5f, 0.5f, 0.5f, 1.0f);
+		data[1].position = Vec4f(-1.0f, 1.0f, 1.0f, 1.0f);
 		data[1].color = Vec4f(1.0f);
 		data[1].normal = Vec4f(0.0f, 0.0f, 1.0f, 1.0f);
 
-		data[2].position = Vec4f(-0.5f, -0.5f, 0.5f, 1.0f);
+		data[2].position = Vec4f(-1.0f, -1.0f, 1.0f, 1.0f);
 		data[2].color = Vec4f(1.0f);
 		data[2].normal = Vec4f(0.0f, 0.0f, 1.0f, 1.0f);
 
-		data[3].position = Vec4f(0.5f, -0.5f, 0.5f, 1.0f);
+		data[3].position = Vec4f(1.0f, -1.0f, 1.0f, 1.0f);
 		data[3].color = Vec4f(1.0f);
 		data[3].normal = Vec4f(0.0f, 0.0f, 1.0f, 1.0f);
 
-		data[4].position = Vec4f(0.5f, 0.5f, 0.5f, 1.0f);
+		data[4].position = Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
 		data[4].color = Vec4f(1.0f);
 		data[4].normal = Vec4f(1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[5].position = Vec4f(0.5f, -0.5f, 0.5f, 1.0f);
+		data[5].position = Vec4f(1.0f, -1.0f, 1.0f, 1.0f);
 		data[5].color = Vec4f(1.0f);
 		data[5].normal = Vec4f(1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[6].position = Vec4f(0.5f, -0.5f, -0.5f, 1.0f);
+		data[6].position = Vec4f(1.0f, -1.0f, -1.0f, 1.0f);
 		data[6].color = Vec4f(1.0f);
 		data[6].normal = Vec4f(1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[7].position = Vec4f(0.5f, 0.5f, -0.5f, 1.0f);
+		data[7].position = Vec4f(1.0f, 1.0f, -1.0f, 1.0f);
 		data[7].color = Vec4f(1.0f);
 		data[7].normal = Vec4f(1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[8].position = Vec4f(0.5f, 0.5f, 0.5f, 1.0f);
+		data[8].position = Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
 		data[8].color = Vec4f(1.0f);
 		data[8].normal = Vec4f(0.0f, 1.0f, 0.0f, 1.0f);
 
-		data[9].position = Vec4f(0.5f, 0.5f, -0.5f, 1.0f);
+		data[9].position = Vec4f(1.0f, 1.0f, -1.0f, 1.0f);
 		data[9].color = Vec4f(1.0f);
 		data[9].normal = Vec4f(0.0f, 1.0f, 0.0f, 1.0f);
 
-		data[10].position = Vec4f(-0.5f, 0.5f, -0.5f, 1.0f);
+		data[10].position = Vec4f(-1.0f, 1.0f, -1.0f, 1.0f);
 		data[10].color = Vec4f(1.0f);
 		data[10].normal = Vec4f(0.0f, 1.0f, 0.0f, 1.0f);
 
-		data[11].position = Vec4f(-0.5f, 0.5f, 0.5f, 1.0f);
+		data[11].position = Vec4f(-1.0f, 1.0f, 1.0f, 1.0f);
 		data[11].color = Vec4f(1.0f);
 		data[11].normal = Vec4f(0.0f, 1.0f, 0.0f, 1.0f);
 
-		data[12].position = Vec4f(-0.5f, 0.5f, 0.5f, 1.0f);
+		data[12].position = Vec4f(-1.0f, 1.0f, 1.0f, 1.0f);
 		data[12].color = Vec4f(1.0f);
 		data[12].normal = Vec4f(-1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[13].position = Vec4f(-0.5f, 0.5f, -0.5f, 1.0f);
+		data[13].position = Vec4f(-1.0f, 1.0f, -1.0f, 1.0f);
 		data[13].color = Vec4f(1.0f);
 		data[13].normal = Vec4f(-1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[14].position = Vec4f(-0.5f, -0.5f, -0.5f, 1.0f);
+		data[14].position = Vec4f(-1.0f, -1.0f, -1.0f, 1.0f);
 		data[14].color = Vec4f(1.0f);
 		data[14].normal = Vec4f(-1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[15].position = Vec4f(-0.5f, -0.5f, 0.5f, 1.0f);
+		data[15].position = Vec4f(-1.0f, -1.0f, 1.0f, 1.0f);
 		data[15].color = Vec4f(1.0f);
 		data[15].normal = Vec4f(-1.0f, 0.0f, 0.0f, 1.0f);
 
-		data[16].position = Vec4f(-0.5f, -0.5f, -0.5f, 1.0f);
+		data[16].position = Vec4f(-1.0f, -1.0f, -1.0f, 1.0f);
 		data[16].color = Vec4f(1.0f);
 		data[16].normal = Vec4f(0.0f, -1.0f, 0.0f, 1.0f);
 
-		data[17].position = Vec4f(0.5f, -0.5f, -0.5f, 1.0f);
+		data[17].position = Vec4f(1.0f, -1.0f, -1.0f, 1.0f);
 		data[17].color = Vec4f(1.0f);
 		data[17].normal = Vec4f(0.0f, -1.0f, 0.0f, 1.0f);
 
-		data[18].position = Vec4f(0.5f, -0.5f, 0.5f, 1.0f);
+		data[18].position = Vec4f(1.0f, -1.0f, 1.0f, 1.0f);
 		data[18].color = Vec4f(1.0f);
 		data[18].normal = Vec4f(0.0f, -1.0f, 0.0f, 1.0f);
 
-		data[19].position = Vec4f(-0.5f, -0.5f, 0.5f, 1.0f);
+		data[19].position = Vec4f(-1.0f, -1.0f, 1.0f, 1.0f);
 		data[19].color = Vec4f(1.0f);
 		data[19].normal = Vec4f(0.0f, -1.0f, 0.0f, 1.0f);
 
-		data[20].position = Vec4f(0.5f, -0.5f, -0.5f, 1.0f);
+		data[20].position = Vec4f(1.0f, -1.0f, -1.0f, 1.0f);
 		data[20].color = Vec4f(1.0f);
 		data[20].normal = Vec4f(0.0f, 0.0f, -1.0f, 1.0f);
 
-		data[21].position = Vec4f(-0.5f, -0.5f, -0.5f, 1.0f);
+		data[21].position = Vec4f(-1.0f, -1.0f, -1.0f, 1.0f);
 		data[21].color = Vec4f(1.0f);
 		data[21].normal = Vec4f(0.0f, 0.0f, -1.0f, 1.0f);
 
-		data[22].position = Vec4f(-0.5f, 0.5f, -0.5f, 1.0f);
+		data[22].position = Vec4f(-1.0f, 1.0f, -1.0f, 1.0f);
 		data[22].color = Vec4f(1.0f);
 		data[22].normal = Vec4f(0.0f, 0.0f, -1.0f, 1.0f);
 
-		data[23].position = Vec4f(0.5f, 0.5f, -0.5f, 1.0f);
+		data[23].position = Vec4f(1.0f, 1.0f, -1.0f, 1.0f);
 		data[23].color = Vec4f(1.0f);
 		data[23].normal = Vec4f(0.0f, 0.0f, -1.0f, 1.0f);
 
@@ -329,7 +329,7 @@ namespace Scop
 		float stack_count = static_cast<float>(y_segments);
 		float sector_step = 2 * Pi<float>() / sector_count;
 		float stack_step = Pi<float>() / stack_count;
-		float radius = 0.5f;
+		float radius = 1.0f;
 
 		for(int i = 0; i <= stack_count; ++i)
 		{

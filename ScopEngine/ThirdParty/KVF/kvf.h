@@ -102,7 +102,7 @@ uint32_t kvfGetDeviceQueueFamily(VkDevice device, KvfQueueType queue);
 bool kvfQueuePresentKHR(VkDevice device, VkSemaphore wait, VkSwapchainKHR swapchain, uint32_t image_index); // return false when the swapchain must be recreated
 
 VkDevice kvfCreateDefaultDevice(VkPhysicalDevice physical);
-VkDevice kvfCreateDevice(VkPhysicalDevice physical, const char** extensions, uint32_t extensions_count);
+VkDevice kvfCreateDevice(VkPhysicalDevice physical, const char** extensions, uint32_t extensions_count, VkPhysicalDeviceFeatures* features);
 void kvfDestroyDevice(VkDevice device);
 
 VkFence kvfCreateFence(VkDevice device);
@@ -1216,10 +1216,11 @@ VkPhysicalDevice kvfPickGoodPhysicalDevice(VkInstance instance, VkSurfaceKHR sur
 VkDevice kvfCreateDefaultDevice(VkPhysicalDevice physical)
 {
 	const char* extensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
-	return kvfCreateDevice(physical, extensions, sizeof(extensions) / sizeof(extensions[0]));
+	VkPhysicalDeviceFeatures device_features = { VK_FALSE };
+	return kvfCreateDevice(physical, extensions, sizeof(extensions) / sizeof(extensions[0]), &device_features);
 }
 
-VkDevice kvfCreateDevice(VkPhysicalDevice physical, const char** extensions, uint32_t extensions_count)
+VkDevice kvfCreateDevice(VkPhysicalDevice physical, const char** extensions, uint32_t extensions_count, VkPhysicalDeviceFeatures* features)
 {
 	const float queue_priority = 1.0f;
 
@@ -1243,13 +1244,11 @@ VkDevice kvfCreateDevice(VkPhysicalDevice physical, const char** extensions, uin
 	queue_create_info[1].flags = 0;
 	queue_create_info[1].pNext = NULL;
 
-	VkPhysicalDeviceFeatures device_features = { VK_FALSE };
-
 	VkDeviceCreateInfo createInfo;
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	createInfo.queueCreateInfoCount = (kvfdevice->queues.graphics == kvfdevice->queues.present ? 1 : 2);
 	createInfo.pQueueCreateInfos = queue_create_info;
-	createInfo.pEnabledFeatures = &device_features;
+	createInfo.pEnabledFeatures = features;
 	createInfo.enabledExtensionCount = extensions_count;
 	createInfo.ppEnabledExtensionNames = extensions;
 	createInfo.enabledLayerCount = 0;

@@ -15,11 +15,6 @@
 
 namespace Scop
 {
-	struct ResizeEvent : public EventBase
-	{
-		std::uint32_t What() const override { return 24; }
-	};
-
 	class Renderer
 	{
 		public:
