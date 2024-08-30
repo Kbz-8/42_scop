@@ -87,11 +87,11 @@ namespace Scop
 	{
 		public:
 			Texture() = default;
-			Texture(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM)
+			Texture(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB)
 			{
 				Init(std::move(pixels), width, height, format);
 			}
-			inline void Init(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM)
+			inline void Init(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB)
 			{
 				Image::Init(ImageType::Color, width, height, format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 				Image::CreateImageView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT);
@@ -123,11 +123,11 @@ namespace Scop
 	{
 		public:
 			CubeTexture() = default;
-			CubeTexture(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM)
+			CubeTexture(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB)
 			{
 				Init(std::move(pixels), width, height, format);
 			}
-			void Init(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM);
+			void Init(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
 			~CubeTexture() override { Destroy(); }
 	};
 }

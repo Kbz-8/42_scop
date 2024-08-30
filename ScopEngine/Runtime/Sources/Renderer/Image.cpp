@@ -27,7 +27,7 @@ namespace Scop
 		VkMemoryRequirements mem_requirements;
 		vkGetImageMemoryRequirements(RenderCore::Get().GetDevice(), m_image, &mem_requirements);
 
-		m_memory = RenderCore::Get().GetAllocator().Allocate(mem_requirements.size, mem_requirements.alignment, *FindMemoryType(mem_requirements.memoryTypeBits, properties));
+		m_memory = RenderCore::Get().GetAllocator().Allocate(mem_requirements.size, mem_requirements.alignment, *FindMemoryType(mem_requirements.memoryTypeBits, properties), true);
 		vkBindImageMemory(RenderCore::Get().GetDevice(), m_image, m_memory.memory, 0);
 		Message("Vulkan : image created");
 		s_image_count++;
@@ -121,14 +121,10 @@ namespace Scop
 				for(std::uint32_t y = 0; y < face_height; y++)
 				{
 					std::uint32_t offset = y;
-					if(face == 5)
-						offset = face_height - (y + 1);
 					std::uint32_t yp = cy * face_height + offset;
 					for(std::uint32_t x = 0; x < face_width; x++)
 					{
 						offset = x;
-						if(face == 5)
-							offset = face_width - (x + 1);
 						std::uint32_t xp = cx * face_width + offset;
 						texture_data[face][(x + y * face_width) * sizeof(std::uint32_t) + 0] = pixels.GetData()[(xp + yp * width) * sizeof(std::uint32_t) + 0];
 						texture_data[face][(x + y * face_width) * sizeof(std::uint32_t) + 1] = pixels.GetData()[(xp + yp * width) * sizeof(std::uint32_t) + 1];
@@ -143,7 +139,7 @@ namespace Scop
 		CPUBuffer complete_data(size);
 		std::uint32_t pointer_offset = 0;
 
-		const std::uint32_t face_order[6] = { 3, 1, 0, 4, 2, 5 };
+		const std::uint32_t face_order[6] = { 3, 1, 0, 5, 2, 4 };
 
 		for(std::uint32_t face : face_order)
 		{

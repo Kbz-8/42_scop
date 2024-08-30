@@ -31,10 +31,14 @@ int main(int ac, char** av)
 
 	Scop::Scene main_scene("main", main_scene_desc);
 	Scop::Vec2ui32 skybox_size;
-	main_scene.AddSkybox(std::make_shared<Scop::CubeTexture>(Scop::LoadBMPFile(GetExecutablePath().parent_path().parent_path() / "Resources/skybox_debug.bmp", skybox_size), skybox_size.x, skybox_size.y));
+	main_scene.AddSkybox(std::make_shared<Scop::CubeTexture>(Scop::LoadBMPFile(GetExecutablePath().parent_path().parent_path() / "Resources/skybox.bmp", skybox_size), skybox_size.x, skybox_size.y));
 
 	Scop::Actor& object = main_scene.CreateActor(Scop::LoadModelFromObjFile(av[1]));
 	object.SetScale(Scop::Vec3f{ 5.0f, 5.0f, 5.0f });
+
+	Scop::Actor& object2 = main_scene.CreateActor(Scop::CreateCube());
+	object2.SetScale(Scop::Vec3f{ 5.0f, 5.0f, 5.0f });
+	object2.SetPosition(Scop::Vec3f{ 10.0f, 10.0f, 10.0f });
 
 	if(ac > 2)
 	{

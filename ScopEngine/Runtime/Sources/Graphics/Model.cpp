@@ -12,10 +12,10 @@ namespace Scop
 		if(p_mesh)
 			m_materials.resize(p_mesh->GetSubMeshCount() + 1);
 
-		CPUBuffer default_albedo_pixels{ kvfFormatSize(VK_FORMAT_R8G8B8A8_UNORM) };
+		CPUBuffer default_albedo_pixels{ kvfFormatSize(VK_FORMAT_R8G8B8A8_SRGB) };
 		default_albedo_pixels.GetDataAs<std::uint32_t>()[0] = 0xFFFFFFFF;
 		MaterialTextures textures;
-		textures.albedo = std::make_shared<Texture>(std::move(default_albedo_pixels), 1, 1, VK_FORMAT_R8G8B8A8_UNORM);
+		textures.albedo = std::make_shared<Texture>(std::move(default_albedo_pixels), 1, 1, VK_FORMAT_R8G8B8A8_SRGB);
 		m_materials.back() = std::make_shared<Material>(textures);
 	}
 

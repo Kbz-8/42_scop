@@ -41,7 +41,6 @@ namespace Scop
 			GraphicPipelineDescriptor pipeline_descriptor;
 			pipeline_descriptor.vertex_shader = p_vertex_shader;
 			pipeline_descriptor.fragment_shader = p_fragment_shader;
-			pipeline_descriptor.depth = &scene.GetDepth();
 			pipeline_descriptor.renderer = &renderer;
 			pipeline_descriptor.culling = VK_CULL_MODE_NONE;
 			pipeline_descriptor.no_vertex_inputs = true;

@@ -52,7 +52,7 @@ namespace Scop
 			pipeline_descriptor.fragment_shader = p_fragment_shader;
 			pipeline_descriptor.color_attachments = { &render_target };
 			pipeline_descriptor.depth = &scene.GetDepth();
-			pipeline_descriptor.culling = VK_CULL_MODE_BACK_BIT;
+			pipeline_descriptor.culling = VK_CULL_MODE_NONE;
 			pipeline_descriptor.depth_test_equal = true;
 			pipeline_descriptor.clear_color_attachments = false;
 			m_pipeline.Init(pipeline_descriptor);
