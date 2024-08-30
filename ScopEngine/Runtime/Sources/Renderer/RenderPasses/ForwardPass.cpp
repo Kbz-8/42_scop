@@ -15,14 +15,21 @@ namespace Scop
 
 	void ForwardPass::Pass(Scene& scene, Renderer& renderer, class Texture& render_target)
 	{
-		std::array<float, 4> clear_color = { 0.2f, 0.3f, 0.3f, 1.0f };
 		Scene::ForwardData& data = scene.GetForwardData();
 		GraphicPipeline& pipeline = scene.GetPipeline();
 
 		if(pipeline.GetPipeline() == VK_NULL_HANDLE)
-			pipeline.Init(RenderCore::Get().GetDefaultVertexShader(), scene.GetFragmentShader(), { &render_target, &scene.GetDepth() });
+		{
+			GraphicPipelineDescriptor pipeline_descriptor;
+			pipeline_descriptor.vertex_shader = RenderCore::Get().GetDefaultVertexShader();
+			pipeline_descriptor.fragment_shader = scene.GetFragmentShader();
+			pipeline_descriptor.color_attachments = { &render_target };
+			pipeline_descriptor.depth = &scene.GetDepth();
+			pipeline.Init(pipeline_descriptor);
+		}
 
 		VkCommandBuffer cmd = renderer.GetActiveCommandBuffer();
+		std::array<float, 4> clear_color = { 0.2f, 0.3f, 0.3f, 1.0f };
 		pipeline.BindPipeline(cmd, 0, clear_color);
 		for(auto& actor : scene.GetActors())
 		{

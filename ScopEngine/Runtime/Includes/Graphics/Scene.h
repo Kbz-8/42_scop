@@ -42,6 +42,7 @@ namespace Scop
 			[[nodiscard]] Actor& CreateActor(std::string_view name, Model model);
 
 			[[nodiscard]] inline Scene& AddChildScene(std::string_view name, SceneDescriptor desc) { return m_scene_children.emplace_back(name, std::move(desc)); }
+			inline void AddSkybox(std::shared_ptr<CubeTexture> cubemap) { p_skybox = cubemap; }
 			void SwitchToChild(std::string_view name);
 			void SwitchToParent();
 
@@ -52,6 +53,7 @@ namespace Scop
 			[[nodiscard]] inline std::shared_ptr<BaseCamera> GetCamera() const { return p_camera; }
 			[[nodiscard]] inline DepthImage& GetDepth() noexcept { return m_depth; }
 			[[nodiscard]] inline std::shared_ptr<Shader> GetFragmentShader() const { return m_fragment_shader; }
+			[[nodiscard]] inline std::shared_ptr<CubeTexture> GetSkybox() const { return p_skybox; }
 
 			~Scene() = default;
 
@@ -66,6 +68,7 @@ namespace Scop
 			GraphicPipeline m_pipeline;
 			ForwardData m_forward;
 			DepthImage m_depth;
+			std::shared_ptr<CubeTexture> p_skybox;
 			std::vector<Actor> m_actors;
 			std::vector<Scene> m_scene_children;
 			std::string m_name;

@@ -119,12 +119,12 @@ uint32_t kvfGetSwapchainMinImagesCount(VkSwapchainKHR swapchain);
 VkExtent2D kvfGetSwapchainImagesSize(VkSwapchainKHR swapchain);
 void kvfDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain);
 
-VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage);
+VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, KvfImageType type);
 void kvfImageBufferToBuffer(VkCommandBuffer cmd, VkBuffer dst, VkImage src, size_t size);
 void kvfDestroyImage(VkDevice device, VkImage image);
-VkImageView kvfCreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageViewType type, VkImageAspectFlags aspect);
+VkImageView kvfCreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageViewType type, VkImageAspectFlags aspect, int layer_count);
 void kvfDestroyImageView(VkDevice device, VkImageView image_view);
-void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cmd, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, bool is_single_time_cmd_buffer);
+void kvfTransitionImageLayout(VkDevice device, VkImage image, KvfImageType type, VkCommandBuffer cmd, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, bool is_single_time_cmd_buffer);
 VkSampler kvfCreateSampler(VkDevice device, VkFilter filters, VkSamplerAddressMode address_modes, VkSamplerMipmapMode mipmap_mode);
 void kvfDestroySampler(VkDevice device, VkSampler sampler);
 
@@ -1510,7 +1510,7 @@ void kvfDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain)
 	__kvfDestroySwapchain(device, swapchain);
 }
 
-VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage)
+VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, KvfImageType type)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 	VkImageCreateInfo image_info = {};
@@ -1527,6 +1527,13 @@ VkImage kvfCreateImage(VkDevice device, uint32_t width, uint32_t height, VkForma
 	image_info.usage = usage;
 	image_info.samples = VK_SAMPLE_COUNT_1_BIT;
 	image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	switch(type)
+	{
+		case KVF_IMAGE_CUBE: image_info.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT; image_info.arrayLayers = 6; break;
+		default: break;
+	}
+
 	VkImage image;
 	__kvfCheckVk(vkCreateImage(device, &image_info, NULL, &image));
 	return image;
@@ -1540,7 +1547,7 @@ void kvfDestroyImage(VkDevice device, VkImage image)
 	vkDestroyImage(device, image, NULL);
 }
 
-VkImageView kvfCreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageViewType type, VkImageAspectFlags aspect)
+VkImageView kvfCreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageViewType type, VkImageAspectFlags aspect, int layer_count)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 	VkImageViewCreateInfo create_info = {};
@@ -1556,7 +1563,7 @@ VkImageView kvfCreateImageView(VkDevice device, VkImage image, VkFormat format, 
 	create_info.subresourceRange.baseMipLevel = 0;
 	create_info.subresourceRange.levelCount = 1;
 	create_info.subresourceRange.baseArrayLayer = 0;
-	create_info.subresourceRange.layerCount = 1;
+	create_info.subresourceRange.layerCount = layer_count;
 	VkImageView view;
 	__kvfCheckVk(vkCreateImageView(device, &create_info, NULL, &view));
 	return view;
@@ -1569,7 +1576,7 @@ void kvfDestroyImageView(VkDevice device, VkImageView image_view)
 	vkDestroyImageView(device, image_view, NULL);
 }
 
-void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cmd, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, bool is_single_time_cmd_buffer)
+void kvfTransitionImageLayout(VkDevice device, VkImage image, KvfImageType type, VkCommandBuffer cmd, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, bool is_single_time_cmd_buffer)
 {
 	KVF_ASSERT(device != VK_NULL_HANDLE);
 
@@ -1590,7 +1597,7 @@ void kvfTransitionImageLayout(VkDevice device, VkImage image, VkCommandBuffer cm
 	barrier.subresourceRange.baseMipLevel = 0;
 	barrier.subresourceRange.levelCount = 1;
 	barrier.subresourceRange.baseArrayLayer = 0;
-	barrier.subresourceRange.layerCount = 1;
+	barrier.subresourceRange.layerCount = (type == KVF_IMAGE_CUBE ? 6 : 1);
 	barrier.srcAccessMask = kvfLayoutToAccessMask(old_layout, false);
 	barrier.dstAccessMask = kvfLayoutToAccessMask(new_layout, true);
 	if(kvfIsStencilFormat(format))

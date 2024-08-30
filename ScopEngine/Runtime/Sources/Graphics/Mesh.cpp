@@ -7,7 +7,7 @@ namespace Scop
 	void Mesh::Draw(VkCommandBuffer cmd, std::size_t& drawcalls, std::size_t& polygondrawn) const noexcept
 	{
 		for(std::size_t i = 0; i < m_sub_meshes.size(); i++)
-			Draw(cmd, drawcalls, i);
+			Draw(cmd, drawcalls, polygondrawn, i);
 	}
 
 	void Mesh::Draw(VkCommandBuffer cmd, std::size_t& drawcalls, std::size_t& polygondrawn, std::size_t submesh_index) const noexcept

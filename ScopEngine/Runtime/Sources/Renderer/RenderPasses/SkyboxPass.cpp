@@ -39,21 +39,37 @@ namespace Scop
 		};
 		EventBus::RegisterListener({ functor, "__ScopSkyboxPass" });
 
-		m_screen_quad = CreateQuad();
+		m_cube = CreateCube();
 		p_set = std::make_shared<DescriptorSet>(p_fragment_shader->GetShaderLayout().set_layouts[0].second, p_fragment_shader->GetPipelineLayout().set_layouts[0], ShaderType::Fragment);
 	}
 
 	void SkyboxPass::Pass(Scene& scene, Renderer& renderer, class Texture& render_target)
 	{
 		if(m_pipeline.GetPipeline() == VK_NULL_HANDLE)
-			m_pipeline.Init(p_vertex_shader, p_fragment_shader, { &render_target, &scene.GetDepth() }, VK_CULL_MODE_NONE);
+		{
+			GraphicPipelineDescriptor pipeline_descriptor;
+			pipeline_descriptor.vertex_shader = p_vertex_shader;
+			pipeline_descriptor.fragment_shader = p_fragment_shader;
+			pipeline_descriptor.color_attachments = { &render_target };
+			pipeline_descriptor.depth = &scene.GetDepth();
+			pipeline_descriptor.culling = VK_CULL_MODE_BACK_BIT;
+			pipeline_descriptor.depth_test_equal = true;
+			pipeline_descriptor.clear_color_attachments = false;
+			m_pipeline.Init(pipeline_descriptor);
+		}
 
-		std::array<float, 4> clear_color = { 0.0f, 0.0f, 0.0f, 1.0f };
+		if(!scene.GetSkybox())
+			return;
+
 		VkCommandBuffer cmd = renderer.GetActiveCommandBuffer();
-		m_pipeline.BindPipeline(cmd, 0, clear_color);
+
+		p_set->SetImage(renderer.GetCurrentFrameIndex(), 0, *scene.GetSkybox());
+		p_set->Update(renderer.GetCurrentFrameIndex(), cmd);
+
+		m_pipeline.BindPipeline(cmd, 0, {});
 			std::array<VkDescriptorSet, 2> sets = { scene.GetForwardData().matrices_set->GetSet(renderer.GetCurrentFrameIndex()), p_set->GetSet(renderer.GetCurrentFrameIndex()) };
 			vkCmdBindDescriptorSets(cmd, m_pipeline.GetPipelineBindPoint(), m_pipeline.GetPipelineLayout(), 0, sets.size(), sets.data(), 0, nullptr);
-			m_screen_quad->Draw(cmd, renderer.GetDrawCallsCounterRef(), renderer.GetPolygonDrawnCounterRef());
+			m_cube->Draw(cmd, renderer.GetDrawCallsCounterRef(), renderer.GetPolygonDrawnCounterRef());
 		m_pipeline.EndPipeline(cmd);
 	}
 
@@ -62,7 +78,7 @@ namespace Scop
 		m_pipeline.Destroy();
 		p_vertex_shader.reset();
 		p_fragment_shader.reset();
-		m_screen_quad.reset();
+		m_cube.reset();
 		p_set.reset();
 	}
 }

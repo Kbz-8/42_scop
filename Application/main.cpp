@@ -30,6 +30,9 @@ int main(int ac, char** av)
 	main_scene_desc.camera = std::make_shared<Scop::FirstPerson3D>(Scop::Vec3f{ 0.0f, 0.0f, 0.0f });
 
 	Scop::Scene main_scene("main", main_scene_desc);
+	Scop::Vec2ui32 skybox_size;
+	main_scene.AddSkybox(std::make_shared<Scop::CubeTexture>(Scop::LoadBMPFile(GetExecutablePath().parent_path().parent_path() / "Resources/skybox.bmp", skybox_size), skybox_size.x, skybox_size.y));
+
 	Scop::Actor& object = main_scene.CreateActor(Scop::LoadModelFromObjFile(av[1]));
 	object.SetScale(Scop::Vec3f{ 5.0f, 5.0f, 5.0f });
 

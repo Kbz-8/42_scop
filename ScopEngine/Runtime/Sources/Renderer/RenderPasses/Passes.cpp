@@ -6,7 +6,7 @@ namespace Scop
 {
 	void RenderPasses::Init()
 	{
-		//m_skybox.Init();
+		m_skybox.Init();
 		m_final.Init();
 	}
 
@@ -29,7 +29,7 @@ namespace Scop
 			m_main_render_texture.Init({}, extent.width, extent.height);
 		}
 		m_forward.Pass(scene, renderer, m_main_render_texture);
-		//m_skybox.Pass(scene, renderer, m_main_render_texture);
+		m_skybox.Pass(scene, renderer, m_main_render_texture);
 
 		m_final.Pass(scene, renderer, m_main_render_texture);
 	}

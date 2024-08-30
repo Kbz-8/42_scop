@@ -13,16 +13,16 @@ namespace Scop
 	{
 		std::vector<Vertex> data(4);
 
-		data[0].position = Vec4f(x, y, 0.0f, 0.0f);
+		data[0].position = Vec4f(x, y, 0.0f, 1.0f);
 		data[0].uv = Vec2f(0.0f, 1.0f);
 
-		data[1].position = Vec4f(x + width, y, 0.0f, 0.0f);
+		data[1].position = Vec4f(x + width, y, 0.0f, 1.0f);
 		data[1].uv = Vec2f(0, 0);
 
-		data[2].position = Vec4f(x + width, y + height, 0.0f, 0.0f);
+		data[2].position = Vec4f(x + width, y + height, 0.0f, 1.0f);
 		data[2].uv = Vec2f(1, 0);
 
-		data[3].position = Vec4f(x, y + height, 0.0f, 0.0f);
+		data[3].position = Vec4f(x, y + height, 0.0f, 1.0f);
 		data[3].uv = Vec2f(1, 1);
 
 		std::vector<std::uint32_t> indices = {
@@ -48,19 +48,19 @@ namespace Scop
 	{
 		std::vector<Vertex> data(4);
 
-		data[0].position = Vec4f(-1.0f, -1.0f, 0.0f, 0.0f);
+		data[0].position = Vec4f(-1.0f, -1.0f, 0.0f, 1.0f);
 		data[0].uv = Vec2f(0.0f, 0.0f);
 		data[0].color = Vec4f(1.0f);
 
-		data[1].position = Vec4f(1.0f, -1.0f, 0.0f, 0.0f);
+		data[1].position = Vec4f(1.0f, -1.0f, 0.0f, 1.0f);
 		data[1].color = Vec4f(1.0f);
 		data[1].uv = Vec2f(1.0f, 0.0f);
 
-		data[2].position = Vec4f(1.0f, 1.0f, 0.0f, 0.0f);
+		data[2].position = Vec4f(1.0f, 1.0f, 0.0f, 1.0f);
 		data[2].color = Vec4f(1.0f);
 		data[2].uv = Vec2f(1.0f, 1.0f);
 
-		data[3].position = Vec4f(-1.0f, 1.0f, 0.0f, 0.0f);
+		data[3].position = Vec4f(-1.0f, 1.0f, 0.0f, 1.0f);
 		data[3].color = Vec4f(1.0f);
 		data[3].uv = Vec2f(0.0f, 1.0f);
 

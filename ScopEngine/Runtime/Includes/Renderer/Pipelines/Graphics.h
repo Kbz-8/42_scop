@@ -13,13 +13,26 @@
 
 namespace Scop
 {
+	struct GraphicPipelineDescriptor
+	{
+		std::shared_ptr<Shader> vertex_shader;
+		std::shared_ptr<Shader> fragment_shader;
+		std::vector<NonOwningPtr<Texture>> color_attachments;
+		NonOwningPtr<DepthImage> depth = nullptr;
+		NonOwningPtr<class Renderer> renderer = nullptr;
+		VkCullModeFlagBits culling = VK_CULL_MODE_FRONT_BIT;
+		VkPolygonMode mode = VK_POLYGON_MODE_FILL;
+		bool no_vertex_inputs = false;
+		bool depth_test_equal = false;
+		bool clear_color_attachments = true;
+	};
+
 	class GraphicPipeline : public Pipeline
 	{
 		public:
 			GraphicPipeline() = default;
 
-			void Init(std::shared_ptr<Shader> vertex_shader, std::shared_ptr<Shader> fragment_shader, NonOwningPtr<class Renderer> renderer, NonOwningPtr<DepthImage> depth, VkCullModeFlagBits culling = VK_CULL_MODE_FRONT_BIT, bool disable_vertex_inputs = false);
-			void Init(std::shared_ptr<Shader> vertex_shader, std::shared_ptr<Shader> fragment_shader, std::vector<NonOwningPtr<Image>> attachments, VkCullModeFlagBits culling = VK_CULL_MODE_FRONT_BIT, bool disable_vertex_inputs = false);
+			void Init(const GraphicPipelineDescriptor& descriptor);
 			bool BindPipeline(VkCommandBuffer command_buffer, std::size_t framebuffer_index, std::array<float, 4> clear) noexcept;
 			void EndPipeline(VkCommandBuffer command_buffer) noexcept override;
 			void Destroy() noexcept;
@@ -31,14 +44,14 @@ namespace Scop
 			~GraphicPipeline() = default;
 
 		private:
-			void CreateFramebuffers(const std::vector<NonOwningPtr<Image>>& render_targets);
+			void CreateFramebuffers(const std::vector<NonOwningPtr<Texture>>& render_targets, bool clear_attachments);
 			void TransitionAttachments(VkCommandBuffer cmd = VK_NULL_HANDLE);
 
 			// Private override to remove access
 			bool BindPipeline(VkCommandBuffer) noexcept override { return false; };
 
 		private:
-			std::vector<NonOwningPtr<Image>> m_attachments;
+			std::vector<NonOwningPtr<Texture>> m_attachments;
 			std::vector<VkFramebuffer> m_framebuffers;
 			std::vector<VkClearValue> m_clears;
 			std::shared_ptr<Shader> p_vertex_shader;

@@ -7,60 +7,41 @@
 
 namespace Scop
 {
-	void GraphicPipeline::Init(std::shared_ptr<Shader> vertex_shader, std::shared_ptr<Shader> fragment_shader, NonOwningPtr<Renderer> renderer, NonOwningPtr<DepthImage> depth, VkCullModeFlagBits culling, bool disable_vertex_inputs)
+	void GraphicPipeline::Init(const GraphicPipelineDescriptor& descriptor)
 	{
-		p_renderer = renderer;
-		p_depth = depth;
-		std::function<void(const EventBase&)> functor = [this, renderer](const EventBase& event)
-		{
-			if(event.What() == 56)
-			{
-				for(auto& fb : m_framebuffers)
-					kvfDestroyFramebuffer(RenderCore::Get().GetDevice(), fb);
-				m_framebuffers.clear();
-				kvfDestroyRenderPass(RenderCore::Get().GetDevice(), m_renderpass);
-				p_depth->Destroy();
-				auto extent = kvfGetSwapchainImagesSize(renderer->GetSwapchain());
-				p_depth->Init(extent.width, extent.height);
-				TransitionAttachments();
-				CreateFramebuffers({});
-			}
-		};
-		EventBus::RegisterListener({ functor, std::to_string((std::uintptr_t)(void**)this) });
-
-		Init(std::move(vertex_shader), std::move(fragment_shader), std::vector<NonOwningPtr<Image>>{}, culling, disable_vertex_inputs);
-	}
-
-	void GraphicPipeline::Init(std::shared_ptr<Shader> vertex_shader, std::shared_ptr<Shader> fragment_shader, std::vector<NonOwningPtr<Image>> attachments, VkCullModeFlagBits culling, bool disable_vertex_inputs)
-	{
-		if(!vertex_shader || !fragment_shader)
+		if(!descriptor.vertex_shader || !descriptor.fragment_shader)
 			FatalError("Vulkan : invalid shaders");
 
-		m_attachments = std::move(attachments);
-		p_vertex_shader = vertex_shader;
-		p_fragment_shader = fragment_shader;
+		m_attachments = descriptor.color_attachments;
+		p_vertex_shader = descriptor.vertex_shader;
+		p_fragment_shader = descriptor.fragment_shader;
+		p_renderer = descriptor.renderer;
+		p_depth = descriptor.depth;
 
 		std::vector<VkPushConstantRange> push_constants;
 		std::vector<VkDescriptorSetLayout> set_layouts;
-		push_constants.insert(push_constants.end(), vertex_shader->GetPipelineLayout().push_constants.begin(), vertex_shader->GetPipelineLayout().push_constants.end());
-		push_constants.insert(push_constants.end(), fragment_shader->GetPipelineLayout().push_constants.begin(), fragment_shader->GetPipelineLayout().push_constants.end());
-		set_layouts.insert(set_layouts.end(), vertex_shader->GetPipelineLayout().set_layouts.begin(), vertex_shader->GetPipelineLayout().set_layouts.end());
-		set_layouts.insert(set_layouts.end(), fragment_shader->GetPipelineLayout().set_layouts.begin(), fragment_shader->GetPipelineLayout().set_layouts.end());
+		push_constants.insert(push_constants.end(), p_vertex_shader->GetPipelineLayout().push_constants.begin(), p_vertex_shader->GetPipelineLayout().push_constants.end());
+		push_constants.insert(push_constants.end(), p_fragment_shader->GetPipelineLayout().push_constants.begin(), p_fragment_shader->GetPipelineLayout().push_constants.end());
+		set_layouts.insert(set_layouts.end(), p_vertex_shader->GetPipelineLayout().set_layouts.begin(), p_vertex_shader->GetPipelineLayout().set_layouts.end());
+		set_layouts.insert(set_layouts.end(), p_fragment_shader->GetPipelineLayout().set_layouts.begin(), p_fragment_shader->GetPipelineLayout().set_layouts.end());
 		m_pipeline_layout = kvfCreatePipelineLayout(RenderCore::Get().GetDevice(), set_layouts.data(), set_layouts.size(), push_constants.data(), push_constants.size());
 
 		TransitionAttachments();
-		CreateFramebuffers(m_attachments);
+		CreateFramebuffers(m_attachments, descriptor.clear_color_attachments);
 
 		KvfGraphicsPipelineBuilder* builder = kvfCreateGPipelineBuilder();
-		kvfGPipelineBuilderAddShaderStage(builder, vertex_shader->GetShaderStage(), vertex_shader->GetShaderModule(), "main");
-		kvfGPipelineBuilderAddShaderStage(builder, fragment_shader->GetShaderStage(), fragment_shader->GetShaderModule(), "main");
+		kvfGPipelineBuilderAddShaderStage(builder, p_vertex_shader->GetShaderStage(), p_vertex_shader->GetShaderModule(), "main");
+		kvfGPipelineBuilderAddShaderStage(builder, p_fragment_shader->GetShaderStage(), p_fragment_shader->GetShaderModule(), "main");
 		kvfGPipelineBuilderSetInputTopology(builder, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-		kvfGPipelineBuilderSetPolygonMode(builder, VK_POLYGON_MODE_FILL, 1.0f);
-		kvfGPipelineBuilderSetCullMode(builder, culling, VK_FRONT_FACE_CLOCKWISE);
+		kvfGPipelineBuilderSetPolygonMode(builder, descriptor.mode, 1.0f);
+		kvfGPipelineBuilderSetCullMode(builder, descriptor.culling, VK_FRONT_FACE_CLOCKWISE);
 		kvfGPipelineBuilderDisableBlending(builder);
-		kvfGPipelineBuilderEnableDepthTest(builder, VK_COMPARE_OP_LESS, true);
+		if(p_depth)
+			kvfGPipelineBuilderEnableDepthTest(builder, (descriptor.depth_test_equal ? VK_COMPARE_OP_EQUAL : VK_COMPARE_OP_LESS), true);
+		else
+			kvfGPipelineBuilderDisableDepthTest(builder);
 
-		if(!disable_vertex_inputs)
+		if(!descriptor.no_vertex_inputs)
 		{
 			VkVertexInputBindingDescription binding_description = Vertex::GetBindingDescription();
 			auto attributes_description = Vertex::GetAttributeDescriptions();
@@ -133,27 +114,25 @@ namespace Scop
 		Message("Vulkan : graphics pipeline destroyed");
 	}
 
-	void GraphicPipeline::CreateFramebuffers(const std::vector<NonOwningPtr<Image>>& render_targets)
+	void GraphicPipeline::CreateFramebuffers(const std::vector<NonOwningPtr<Texture>>& render_targets, bool clear_attachments)
 	{
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkImageView> attachment_views;
 		if(p_renderer)
 		{
-			attachments.push_back(kvfBuildSwapchainAttachmentDescription(p_renderer->GetSwapchain(), true));
+			attachments.push_back(kvfBuildSwapchainAttachmentDescription(p_renderer->GetSwapchain(), clear_attachments));
 			attachment_views.push_back(p_renderer->GetSwapchainImages()[0].GetImageView());
 		}
-		else
+
+		for(NonOwningPtr<Texture> image : render_targets)
 		{
-			for(NonOwningPtr<Image> image : render_targets)
-			{
-				attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image->GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image->GetFormat(), image->GetLayout(), image->GetLayout(), true));
-				attachment_views.push_back(image->GetImageView());
-			}
+			attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image->GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image->GetFormat(), image->GetLayout(), image->GetLayout(), clear_attachments));
+			attachment_views.push_back(image->GetImageView());
 		}
 
 		if(p_depth)
 		{
-			attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(p_depth->GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), p_depth->GetFormat(), p_depth->GetLayout(), p_depth->GetLayout(), true));
+			attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(p_depth->GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), p_depth->GetFormat(), p_depth->GetLayout(), p_depth->GetLayout(), clear_attachments));
 			attachment_views.push_back(p_depth->GetImageView());
 		}
 
@@ -171,13 +150,10 @@ namespace Scop
 				Message("Vulkan : framebuffer created");
 			}
 		}
-		else
+		for(NonOwningPtr<Texture> image : render_targets)
 		{
-			for(NonOwningPtr<Image> image : render_targets)
-			{
-				m_framebuffers.push_back(kvfCreateFramebuffer(RenderCore::Get().GetDevice(), m_renderpass, attachment_views.data(), attachment_views.size(), { .width = image->GetWidth(), .height = image->GetHeight() }));
-				Message("Vulkan : framebuffer created");
-			}
+			m_framebuffers.push_back(kvfCreateFramebuffer(RenderCore::Get().GetDevice(), m_renderpass, attachment_views.data(), attachment_views.size(), { .width = image->GetWidth(), .height = image->GetHeight() }));
+			Message("Vulkan : framebuffer created");
 		}
 	}
 
@@ -186,12 +162,11 @@ namespace Scop
 		if(p_depth)
 			p_depth->TransitionLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, cmd);
 
-		for(NonOwningPtr<Image> image : m_attachments)
+		for(NonOwningPtr<Texture> image : m_attachments)
 		{
 			if(!image->IsInit())
 				continue;
-			if(!kvfIsDepthFormat(image->GetFormat()))
-				image->TransitionLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, cmd);
+			image->TransitionLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, cmd);
 		}
 	}
 }

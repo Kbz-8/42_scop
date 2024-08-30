@@ -37,7 +37,16 @@ namespace Scop
 	void FinalPass::Pass(Scene& scene, Renderer& renderer, Texture& render_target)
 	{
 		if(m_pipeline.GetPipeline() == VK_NULL_HANDLE)
-			m_pipeline.Init(p_vertex_shader, p_fragment_shader, &renderer, nullptr, VK_CULL_MODE_NONE, true);
+		{
+			GraphicPipelineDescriptor pipeline_descriptor;
+			pipeline_descriptor.vertex_shader = p_vertex_shader;
+			pipeline_descriptor.fragment_shader = p_fragment_shader;
+			pipeline_descriptor.depth = &scene.GetDepth();
+			pipeline_descriptor.renderer = &renderer;
+			pipeline_descriptor.culling = VK_CULL_MODE_NONE;
+			pipeline_descriptor.no_vertex_inputs = true;
+			m_pipeline.Init(pipeline_descriptor);
+		}
 
 		VkCommandBuffer cmd = renderer.GetActiveCommandBuffer();
 

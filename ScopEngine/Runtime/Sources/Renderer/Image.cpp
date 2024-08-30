@@ -4,14 +4,25 @@
 
 namespace Scop
 {
-	void Image::Init(std::uint32_t width, std::uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
+	void Image::Init(ImageType type, std::uint32_t width, std::uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
 	{
+		m_type = type;
 		m_width = width;
 		m_height = height;
 		m_format = format;
 		m_tiling = tiling;
 
-		m_image = kvfCreateImage(RenderCore::Get().GetDevice(), width, height, format, tiling, usage);
+		KvfImageType kvf_type = KVF_IMAGE_OTHER;
+		switch(m_type)
+		{
+			case ImageType::Color: kvf_type = KVF_IMAGE_COLOR; break;
+			case ImageType::Depth: kvf_type = KVF_IMAGE_DEPTH; break;
+			case ImageType::Cube: kvf_type = KVF_IMAGE_CUBE; break;
+
+			default: break;
+		}
+
+		m_image = kvfCreateImage(RenderCore::Get().GetDevice(), width, height, format, tiling, usage, kvf_type);
 
 		VkMemoryRequirements mem_requirements;
 		vkGetImageMemoryRequirements(RenderCore::Get().GetDevice(), m_image, &mem_requirements);
@@ -22,9 +33,9 @@ namespace Scop
 		s_image_count++;
 	}
 
-	void Image::CreateImageView(VkImageViewType type, VkImageAspectFlags aspect_flags) noexcept
+	void Image::CreateImageView(VkImageViewType type, VkImageAspectFlags aspect_flags, int layer_count) noexcept
 	{
-		m_image_view = kvfCreateImageView(RenderCore::Get().GetDevice(), m_image, m_format, type, aspect_flags);
+		m_image_view = kvfCreateImageView(RenderCore::Get().GetDevice(), m_image, m_format, type, aspect_flags, layer_count);
 	}
 
 	void Image::CreateSampler() noexcept
@@ -39,7 +50,16 @@ namespace Scop
 		bool is_single_time_cmd_buffer = (cmd == VK_NULL_HANDLE);
 		if(is_single_time_cmd_buffer)
 			cmd = kvfCreateCommandBuffer(RenderCore::Get().GetDevice());
-		kvfTransitionImageLayout(RenderCore::Get().GetDevice(), m_image, cmd, m_format, m_layout, new_layout, is_single_time_cmd_buffer);
+		KvfImageType kvf_type = KVF_IMAGE_OTHER;
+		switch(m_type)
+		{
+			case ImageType::Color: kvf_type = KVF_IMAGE_COLOR; break;
+			case ImageType::Depth: kvf_type = KVF_IMAGE_DEPTH; break;
+			case ImageType::Cube: kvf_type = KVF_IMAGE_CUBE; break;
+
+			default: break;
+		}
+		kvfTransitionImageLayout(RenderCore::Get().GetDevice(), m_image, kvf_type, cmd, m_format, m_layout, new_layout, is_single_time_cmd_buffer);
 		m_layout = new_layout;
 	}
 
@@ -71,5 +91,112 @@ namespace Scop
 		Message("Vulkan : image destroyed");
 		m_image = VK_NULL_HANDLE;
 		s_image_count--;
+	}
+
+	void CubeTexture::Init(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format)
+	{
+		if(!pixels)
+			FatalError("Vulkan : a cubemap cannot be created without pixels data");
+
+		std::array<std::vector<std::uint8_t>, 6> texture_data;
+		std::uint32_t face_width = width / 4;
+		std::uint32_t face_height = height / 3;
+
+		std::size_t size = 0;
+
+		for(std::uint32_t cy = 0, face = 0; cy < 3; cy++)
+		{
+			for(std::uint32_t cx = 0; cx < 4; cx++)
+			{
+				if(cx == 0 || cx == 2 || cx == 3)
+				{
+					if(cy != 1)
+						continue;
+				}
+
+				texture_data[face] = std::vector<std::uint8_t>(face_width * face_height * sizeof(std::uint32_t));
+
+				size += sizeof(std::uint32_t) * width * height;
+
+				for(std::uint32_t y = 0; y < face_height; y++)
+				{
+					std::uint32_t offset = y;
+					if(face == 5)
+						offset = face_height - (y + 1);
+					std::uint32_t yp = cy * face_height + offset;
+					for(std::uint32_t x = 0; x < face_width; x++)
+					{
+						offset = x;
+						if(face == 5)
+							offset = face_width - (x + 1);
+						std::uint32_t xp = cx * face_width + offset;
+						texture_data[face][(x + y * face_width) * sizeof(std::uint32_t) + 0] = pixels.GetData()[(xp + yp * width) * sizeof(std::uint32_t) + 0];
+						texture_data[face][(x + y * face_width) * sizeof(std::uint32_t) + 1] = pixels.GetData()[(xp + yp * width) * sizeof(std::uint32_t) + 1];
+						texture_data[face][(x + y * face_width) * sizeof(std::uint32_t) + 2] = pixels.GetData()[(xp + yp * width) * sizeof(std::uint32_t) + 2];
+						texture_data[face][(x + y * face_width) * sizeof(std::uint32_t) + 3] = pixels.GetData()[(xp + yp * width) * sizeof(std::uint32_t) + 3];
+					}
+				}
+				face++;
+			}
+		}
+
+		CPUBuffer complete_data(size);
+		std::uint32_t pointer_offset = 0;
+
+		std::uint32_t face_order[6] = { 3, 1, 0, 4, 2, 5 };
+
+		for(std::uint32_t face = 0; face < 6; face++)
+		{
+			std::size_t current_size = face_width * face_height * sizeof(std::uint32_t);
+			std::memcpy(complete_data.GetData() + pointer_offset, texture_data[face_order[face]].data(), current_size);
+			pointer_offset += current_size;
+		}
+
+		Image::Init(ImageType::Cube, face_width, face_height, format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		Image::CreateImageView(VK_IMAGE_VIEW_TYPE_CUBE, VK_IMAGE_ASPECT_COLOR_BIT, 6);
+		Image::CreateSampler();
+
+		GPUBuffer staging_buffer;
+		staging_buffer.Init(BufferType::Staging, complete_data.GetSize(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, complete_data);
+		std::vector<VkBufferImageCopy> buffer_copy_regions;
+		std::uint32_t offset = 0;
+
+		for(std::uint32_t face = 0; face < 6; face++)
+		{
+			VkBufferImageCopy buffer_copy_region{};
+			buffer_copy_region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			buffer_copy_region.imageSubresource.mipLevel = 0;
+			buffer_copy_region.imageSubresource.baseArrayLayer = face;
+			buffer_copy_region.imageSubresource.layerCount = 1;
+			buffer_copy_region.imageExtent.width = face_width;
+			buffer_copy_region.imageExtent.height = face_height;
+			buffer_copy_region.imageExtent.depth = 1;
+			buffer_copy_region.bufferOffset = offset;
+			buffer_copy_regions.push_back(buffer_copy_region);
+
+			offset += face_width * face_height * kvfFormatSize(format);
+		}
+
+		VkImageSubresourceRange subresource_range{};
+		subresource_range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		subresource_range.baseMipLevel = 0;
+		subresource_range.levelCount = 1;
+		subresource_range.layerCount = 6;
+
+		auto device = RenderCore::Get().GetDevice();
+
+		VkCommandBuffer cmd = kvfCreateCommandBuffer(device);
+		kvfBeginCommandBuffer(cmd, 0);
+		TransitionLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, cmd);
+		vkCmdCopyBufferToImage(cmd, staging_buffer.Get(), Image::Get(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, buffer_copy_regions.size(), buffer_copy_regions.data());
+		TransitionLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, cmd);
+		kvfEndCommandBuffer(cmd);
+
+		VkFence fence = kvfCreateFence(device);
+		kvfSubmitSingleTimeCommandBuffer(device, cmd, KVF_GRAPHICS_QUEUE, fence);
+		kvfWaitForFence(device, fence);
+		kvfDestroyFence(device, fence);
+
+		staging_buffer.Destroy();
 	}
 }

@@ -19,7 +19,7 @@ struct VertOut
 
 external
 {
-	[set(0), binding(0)] viewer_data: uniform[ViewerData],
+	[set(0), binding(0)] viewer_data: uniform[ViewerData]
 }
 
 [entry(vert)]
@@ -31,6 +31,7 @@ fn main(input: VertIn) -> VertOut
 
 	let output: VertOut;
 	output.uvw = input.pos.xyz;
-	output.pos = viewer_data.projection_matrix * rotation_matrix * vec4[f32](input.pos.xy, 1.0, 1.0);
+	output.uvw.xy *= -1.0;
+	output.pos = viewer_data.projection_matrix * rotation_matrix * input.pos;
 	return output;
 }

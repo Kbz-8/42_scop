@@ -23,7 +23,7 @@ namespace Scop
 			std::shared_ptr<DescriptorSet> p_set;
 			std::shared_ptr<Shader> p_vertex_shader;
 			std::shared_ptr<Shader> p_fragment_shader;
-			std::shared_ptr<class Mesh> m_screen_quad;
+			std::shared_ptr<class Mesh> m_cube;
 	};
 }
 

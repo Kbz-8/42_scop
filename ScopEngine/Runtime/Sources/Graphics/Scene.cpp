@@ -64,6 +64,7 @@ namespace Scop
 
 	void Scene::Destroy()
 	{
+		p_skybox.reset();
 		m_depth.Destroy();
 		m_actors.clear();
 		m_pipeline.Destroy();

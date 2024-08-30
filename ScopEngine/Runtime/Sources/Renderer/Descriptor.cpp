@@ -3,6 +3,7 @@
 
 #include <Core/Logs.h>
 #include <Renderer/Image.h>
+#include <Renderer/Enums.h>
 #include <Renderer/Buffer.h>
 #include <Renderer/Descriptor.h>
 #include <Renderer/RenderCore.h>
@@ -13,10 +14,12 @@ namespace Scop
 	{
 		if(!image.IsInit())
 			return;
-		if(!kvfIsDepthFormat(image.GetFormat()))
+		if(image.GetType() == ImageType::Color || image.GetType() == ImageType::Cube)
 			image.TransitionLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, cmd);
-		else
+		else if(image.GetType() == ImageType::Depth)
 			image.TransitionLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, cmd);
+		else
+			Error("Vulkan : cannot transition descriptor image layout, unkown image type");
 	}
 
 	DescriptorSet::DescriptorSet(const ShaderSetLayout& layout, VkDescriptorSetLayout vklayout, ShaderType shader_type)
