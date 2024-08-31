@@ -37,7 +37,7 @@ namespace Scop
 		kvfGPipelineBuilderAddShaderStage(builder, p_fragment_shader->GetShaderStage(), p_fragment_shader->GetShaderModule(), "main");
 		kvfGPipelineBuilderSetInputTopology(builder, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 		kvfGPipelineBuilderSetCullMode(builder, descriptor.culling, VK_FRONT_FACE_CLOCKWISE);
-		kvfGPipelineBuilderDisableBlending(builder);
+		kvfGPipelineBuilderEnableAlphaBlending(builder);
 		if(p_depth)
 			kvfGPipelineBuilderEnableDepthTest(builder, (descriptor.depth_test_equal ? VK_COMPARE_OP_EQUAL : VK_COMPARE_OP_LESS), true);
 		else
@@ -46,6 +46,10 @@ namespace Scop
 			kvfGPipelineBuilderSetPolygonMode(builder, descriptor.mode, 1.0f);
 		else
 			kvfGPipelineBuilderSetPolygonMode(builder, VK_POLYGON_MODE_FILL, 1.0f);
+		if(features.sampleRateShading)
+			kvfGPipelineBuilderSetMultisamplingShading(builder, VK_SAMPLE_COUNT_1_BIT, 0.25f);
+		else
+			kvfGPipelineBuilderSetMultisampling(builder, VK_SAMPLE_COUNT_1_BIT);
 
 		if(!descriptor.no_vertex_inputs)
 		{
@@ -132,13 +136,13 @@ namespace Scop
 
 		for(NonOwningPtr<Texture> image : render_targets)
 		{
-			attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image->GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image->GetFormat(), image->GetLayout(), image->GetLayout(), clear_attachments));
+			attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image->GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image->GetFormat(), image->GetLayout(), image->GetLayout(), clear_attachments, VK_SAMPLE_COUNT_1_BIT));
 			attachment_views.push_back(image->GetImageView());
 		}
 
 		if(p_depth)
 		{
-			attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(p_depth->GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), p_depth->GetFormat(), p_depth->GetLayout(), p_depth->GetLayout(), clear_attachments));
+			attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(p_depth->GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), p_depth->GetFormat(), p_depth->GetLayout(), p_depth->GetLayout(), clear_attachments, VK_SAMPLE_COUNT_1_BIT));
 			attachment_views.push_back(p_depth->GetImageView());
 		}
 

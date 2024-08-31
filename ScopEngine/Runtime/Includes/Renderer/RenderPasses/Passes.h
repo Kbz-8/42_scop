@@ -5,6 +5,7 @@
 #include <Renderer/RenderPasses/SkyboxPass.h>
 #include <Renderer/RenderPasses/ForwardPass.h>
 #include <Renderer/RenderPasses/FinalPass.h>
+#include <Renderer/RenderPasses/2DPass.h>
 
 namespace Scop
 {
@@ -19,6 +20,7 @@ namespace Scop
 
 		private:
 			SkyboxPass m_skybox;
+			Render2DPass m_2Dpass;
 			FinalPass m_final;
 			Texture m_main_render_texture;
 			ForwardPass m_forward;

@@ -34,7 +34,7 @@ namespace Scop
 
 		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
 		{
-			if(event.What() == Event::ResizeEventCode)
+			if(event.What() == Event::ResizeEventCode || event.What() == Event::SceneHasChangedEventCode)
 				m_pipeline.Destroy();
 		};
 		EventBus::RegisterListener({ functor, "__ScopSkyboxPass" });
@@ -45,6 +45,9 @@ namespace Scop
 
 	void SkyboxPass::Pass(Scene& scene, Renderer& renderer, class Texture& render_target)
 	{
+		if(!scene.GetSkybox())
+			return;
+
 		if(m_pipeline.GetPipeline() == VK_NULL_HANDLE)
 		{
 			GraphicPipelineDescriptor pipeline_descriptor;
@@ -57,9 +60,6 @@ namespace Scop
 			pipeline_descriptor.clear_color_attachments = false;
 			m_pipeline.Init(pipeline_descriptor);
 		}
-
-		if(!scene.GetSkybox())
-			return;
 
 		VkCommandBuffer cmd = renderer.GetActiveCommandBuffer();
 

@@ -13,6 +13,11 @@ namespace Scop
 		{
 			Event What() const override { return Event::QuitEventCode; }
 		};
+
+		struct SceneChangedEvent : public EventBase
+		{
+			Event What() const override { return Event::SceneHasChangedEventCode; }
+		};
 	}
 
 	void FatalErrorEventHandle()
@@ -76,6 +81,13 @@ namespace Scop
 			m_inputs.Update();
 			p_current_scene->Update(m_inputs, current_timestep, static_cast<float>(m_window.GetWidth()) / static_cast<float>(m_window.GetHeight()));
 
+			if(m_scene_changed)
+			{
+				EventBus::SendBroadcast(Internal::SceneChangedEvent{});
+				m_scene_changed = false;
+				continue;
+			}
+
 			if(m_renderer.BeginFrame())
 			{
 				m_scene_renderer.Render(*p_current_scene, m_renderer);
@@ -95,7 +107,7 @@ namespace Scop
 	ScopEngine::~ScopEngine()
 	{
 		RenderCore::Get().WaitDeviceIdle();
-		m_main_scene.Destroy();
+		m_main_scene->Destroy();
 		m_window.Destroy();
 		#ifdef DEBUG
 			m_imgui.Destroy();

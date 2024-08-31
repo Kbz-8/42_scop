@@ -5,6 +5,7 @@
 #include <Core/Logs.h>
 #include <Renderer/ViewerData.h>
 #include <Core/EventBus.h>
+#include <Core/Engine.h>
 
 #include <cstring>
 
@@ -36,11 +37,41 @@ namespace Scop
 		return *actor;
 	}
 
+	Sprite& Scene::CreateSprite(std::shared_ptr<Texture> texture) noexcept
+	{
+		std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>(texture);
+		m_sprites.push_back(sprite);
+		return *sprite;
+	}
+
+	Sprite& Scene::CreateSprite(std::string_view name, std::shared_ptr<Texture> texture)
+	{
+		std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>(texture);
+		m_sprites.push_back(sprite);
+		return *sprite;
+	}
+
+	void Scene::SwitchToChild(std::string_view name) const noexcept
+	{
+		auto it = std::find_if(m_scene_children.begin(), m_scene_children.end(), [name](const Scene& scene){ return name == scene.GetName(); });
+		if(it == m_scene_children.end())
+		{
+			Error("Cannot switch to scene '%', scene not found in children of '%'", name, m_name);
+			return;
+		}
+		ScopEngine::Get().SwitchToScene(const_cast<Scene*>(&(*it)));
+	}
+
+	void Scene::SwitchToParent() const noexcept
+	{
+		ScopEngine::Get().SwitchToScene(p_parent);
+	}
+
 	void Scene::Init(NonOwningPtr<Renderer> renderer)
 	{
 		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
 		{
-			if(event.What() == Event::ResizeEventCode)
+			if(event.What() == Event::ResizeEventCode || event.What() == Event::SceneHasChangedEventCode)
 				m_pipeline.Destroy(); // Ugly but f*ck off
 		};
 		EventBus::RegisterListener({ functor, m_name + std::to_string(reinterpret_cast<std::uintptr_t>(this)) });
@@ -57,13 +88,18 @@ namespace Scop
 			m_forward.matrices_set->Update(i);
 		}
 		m_forward.albedo_set = std::make_shared<DescriptorSet>(m_fragment_shader->GetShaderLayout().set_layouts[0].second, m_fragment_shader->GetPipelineLayout().set_layouts[0], ShaderType::Fragment);
+		for(auto& child : m_scene_children)
+			child.Init(renderer);
 	}
 
 	void Scene::Update(Inputs& input, float timestep, float aspect)
 	{
 		for(auto actor : m_actors)
 			actor->Update(this, input, timestep);
-		p_camera->Update(input, aspect, timestep);
+		for(auto sprite : m_sprites)
+			sprite->Update(this, input, timestep);
+		if(p_camera)
+			p_camera->Update(input, aspect, timestep);
 	}
 
 	void Scene::Destroy()
@@ -71,6 +107,7 @@ namespace Scop
 		p_skybox.reset();
 		m_depth.Destroy();
 		m_actors.clear();
+		m_sprites.clear();
 		m_pipeline.Destroy();
 		m_fragment_shader.reset();
 		m_forward.matrices_buffer->Destroy();

@@ -15,7 +15,7 @@ namespace Scop
 			Actor();
 			Actor(Model model);
 
-			inline void AttachScript(std::shared_ptr<Script> script) { p_script = script; }
+			inline void AttachScript(std::shared_ptr<ActorScript> script) { p_script = script; }
 			void Update(NonOwningPtr<class Scene> scene, class Inputs& input, float timestep);
 
 			inline void SetColor(Vec4f color) noexcept { m_color = color; }
@@ -38,7 +38,7 @@ namespace Scop
 			Vec4f m_color = Vec4f{ 1.0f, 1.0f, 1.0f, 1.0f };
 			Vec3f m_position = Vec3f{ 0.0f, 0.0f, 0.0f };
 			Vec3f m_scale = Vec3f{ 1.0f, 1.0f, 1.0f };
-			std::shared_ptr<Script> p_script;
+			std::shared_ptr<ActorScript> p_script;
 	};
 }
 

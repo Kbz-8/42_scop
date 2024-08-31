@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <filesystem>
 #include <string>
+#include <thread>
 
 std::filesystem::path GetExecutablePath()
 {
@@ -16,6 +17,9 @@ std::filesystem::path GetExecutablePath()
 	return std::string(result, (count > 0) ? count : 0);
 }
 
+constexpr std::uint32_t WIDTH = 1280;
+constexpr std::uint32_t HEIGHT = 720;
+
 int main(int ac, char** av)
 {
 	if(ac < 2)
@@ -23,20 +27,53 @@ int main(int ac, char** av)
 		Scop::Error("not enough arguments");
 		return 1;
 	}
-	Scop::ScopEngine engine(ac, av, "Scop", 1280, 720, GetExecutablePath().parent_path().parent_path() / "ScopEngine/Assets");
+	Scop::ScopEngine engine(ac, av, "Scop", WIDTH, HEIGHT, GetExecutablePath().parent_path().parent_path() / "ScopEngine/Assets");
+
+	bool skip_splashscreen = false;
+	for(int i = 2; i < ac; i++)
+	{
+		std::cout << '"' <<  av[i] << '"' << std::endl;
+		if(std::strcmp(av[i], "--skip-splash") == 0)
+			skip_splashscreen = true;
+	}
+
+	Scop::SceneDescriptor splashscreen_scene_desc;
+	splashscreen_scene_desc.fragment_shader = Scop::RenderCore::Get().GetDefaultFragmentShader();
+	splashscreen_scene_desc.camera = std::make_shared<Scop::FirstPerson3D>(Scop::Vec3f{ 0.0f, 0.0f, 0.0f });
+	Scop::Scene splashscreen_scene("splash", splashscreen_scene_desc);
+	Scop::Vec2ui32 splash_size;
+	Scop::Sprite& splash = splashscreen_scene.CreateSprite(std::make_shared<Scop::Texture>(Scop::LoadBMPFile(GetExecutablePath().parent_path().parent_path() / "ScopEngine/Assets/Images/splashscreen.bmp", splash_size), splash_size.x, splash_size.y));
+	splash.SetPosition(Scop::Vec2ui{ WIDTH / 2 - splash_size.x / 2, HEIGHT / 2 - splash_size.y / 2 });
+
+	auto splash_update = [skip_splashscreen](Scop::NonOwningPtr<Scop::Scene> scene, Scop::NonOwningPtr<Scop::Sprite> sprite, Scop::Inputs& input, float delta)
+	{
+		using namespace std::chrono_literals;
+		if(skip_splashscreen)
+			scene->SwitchToChild("main");
+		static std::size_t i = 0;
+		std::this_thread::sleep_for(33ms);
+		Scop::Vec4f color = sprite->GetColor();
+		color.w -= 0.1f;
+		sprite->SetColor(color); 
+		i++;
+		if(i >= 60) // wait for 2 sec
+			scene->SwitchToChild("main");
+	};
+
+	using sprite_hook = std::function<void(Scop::NonOwningPtr<Scop::Sprite>)>;
+	splash.AttachScript(std::make_shared<Scop::NativeSpriteScript>(sprite_hook{}, splash_update, sprite_hook{}));
 
 	Scop::SceneDescriptor main_scene_desc;
 	main_scene_desc.fragment_shader = Scop::RenderCore::Get().GetDefaultFragmentShader();
 	main_scene_desc.camera = std::make_shared<Scop::FirstPerson3D>(Scop::Vec3f{ 0.0f, 0.0f, 0.0f });
-
-	Scop::Scene main_scene("main", main_scene_desc);
+	Scop::Scene& main_scene = splashscreen_scene.AddChildScene("main", main_scene_desc);
 	Scop::Vec2ui32 skybox_size;
 	main_scene.AddSkybox(std::make_shared<Scop::CubeTexture>(Scop::LoadBMPFile(GetExecutablePath().parent_path().parent_path() / "Resources/skybox.bmp", skybox_size), skybox_size.x, skybox_size.y));
 
 	Scop::Actor& object = main_scene.CreateActor(Scop::LoadModelFromObjFile(av[1]));
 	object.SetScale(Scop::Vec3f{ 5.0f, 5.0f, 5.0f });
 
-	Scop::Actor& object2 = main_scene.CreateActor(Scop::CreateCube());
+	Scop::Actor& object2 = main_scene.CreateActor(Scop::CreateSphere());
 	object2.SetScale(Scop::Vec3f{ 5.0f, 5.0f, 5.0f });
 	object2.SetPosition(Scop::Vec3f{ 10.0f, 10.0f, 10.0f });
 
@@ -44,6 +81,8 @@ int main(int ac, char** av)
 	{
 		for(std::size_t i = 2, j = 0; i < ac; i++, j++)
 		{
+			if(!std::filesystem::exists(av[i]))
+				continue;
 			Scop::Vec2ui32 albedo_size;
 			Scop::MaterialTextures material_params;
 			material_params.albedo = std::make_shared<Scop::Texture>(Scop::LoadBMPFile(av[i], albedo_size), albedo_size.x, albedo_size.y);
@@ -69,10 +108,10 @@ int main(int ac, char** av)
 		}
 	};
 
-	using hook = std::function<void(Scop::NonOwningPtr<Scop::Actor>)>;
-	object.AttachScript(std::make_shared<Scop::NativeScript>(hook{}, object_update, hook{}));
+	using actor_hook = std::function<void(Scop::NonOwningPtr<Scop::Actor>)>;
+	object.AttachScript(std::make_shared<Scop::NativeActorScript>(actor_hook{}, object_update, actor_hook{}));
 
-	engine.RegisterMainScene(main_scene);
+	engine.RegisterMainScene(&splashscreen_scene);
 	engine.Run();
 	return 0;
 }

@@ -26,7 +26,7 @@ namespace Scop
 				kvfDestroyRenderPass(RenderCore::Get().GetDevice(), m_renderpass);
 				std::vector<VkAttachmentDescription> attachments;
 				const Image& image = p_renderer->GetSwapchainImages()[0];
-				attachments.push_back(kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, image.GetFormat(), image.GetLayout(), image.GetLayout(), false));
+				attachments.push_back(kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, image.GetFormat(), image.GetLayout(), image.GetLayout(), false, VK_SAMPLE_COUNT_1_BIT));
 				m_renderpass = kvfCreateRenderPass(RenderCore::Get().GetDevice(), attachments.data(), attachments.size(), VK_PIPELINE_BIND_POINT_GRAPHICS);
 				CreateFramebuffers();
 				ImGui_ImplVulkan_SetMinImageCount(kvfGetSwapchainMinImagesCount(p_renderer->GetSwapchain()));
@@ -63,13 +63,13 @@ namespace Scop
 		vkCreateDescriptorPool(RenderCore::Get().GetDevice(), &pool_info, nullptr, &m_pool);
 
 		// Setup Platform/Renderer bindings
-		ImGui_ImplVulkan_LoadFunctions([](const char *function_name, void *vulkan_instance) {
+		ImGui_ImplVulkan_LoadFunctions([](const char* function_name, void* vulkan_instance) {
 			return vkGetInstanceProcAddr(*(reinterpret_cast<VkInstance*>(vulkan_instance)), function_name);
 		}, &RenderCore::Get().GetInstanceRef());
 
 		std::vector<VkAttachmentDescription> attachments;
 		const Image& image = p_renderer->GetSwapchainImages()[0];
-		attachments.push_back(kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, image.GetFormat(), image.GetLayout(), image.GetLayout(), false));
+		attachments.push_back(kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, image.GetFormat(), image.GetLayout(), image.GetLayout(), false, VK_SAMPLE_COUNT_1_BIT));
 		m_renderpass = kvfCreateRenderPass(RenderCore::Get().GetDevice(), attachments.data(), attachments.size(), VK_PIPELINE_BIND_POINT_GRAPHICS);
 		CreateFramebuffers();
 
@@ -86,7 +86,7 @@ namespace Scop
 			init_info.Subpass = 0;
 			init_info.MinImageCount = kvfGetSwapchainMinImagesCount(p_renderer->GetSwapchain());
 			init_info.ImageCount = p_renderer->GetSwapchainImages().size();
-			init_info.CheckVkResultFn = [](VkResult){};
+			init_info.CheckVkResultFn = [](VkResult result){ kvfCheckVk(result); };
 			init_info.RenderPass = m_renderpass;
 		ImGui_ImplVulkan_Init(&init_info);
 
@@ -174,7 +174,7 @@ namespace Scop
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkImageView> attachment_views;
 		const Image& image = p_renderer->GetSwapchainImages()[0];
-		attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image.GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image.GetFormat(), image.GetLayout(), image.GetLayout(), false));
+		attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image.GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image.GetFormat(), image.GetLayout(), image.GetLayout(), false, VK_SAMPLE_COUNT_1_BIT));
 		attachment_views.push_back(image.GetImageView());
 		for(const Image& image : p_renderer->GetSwapchainImages())
 		{

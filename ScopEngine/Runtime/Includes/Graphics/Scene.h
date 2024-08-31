@@ -8,6 +8,7 @@
 #include <Utils/NonOwningPtr.h>
 
 #include <Graphics/Actor.h>
+#include <Graphics/Sprite.h>
 #include <Renderer/Buffer.h>
 #include <Renderer/Descriptor.h>
 #include <Renderer/RenderCore.h>
@@ -39,16 +40,20 @@ namespace Scop
 		public:
 			Scene(std::string_view name, SceneDescriptor desc);
 
-			[[nodiscard]] Actor& CreateActor(Model model) noexcept;
-			[[nodiscard]] Actor& CreateActor(std::string_view name, Model model);
+			Actor& CreateActor(Model model) noexcept;
+			Actor& CreateActor(std::string_view name, Model model);
+
+			Sprite& CreateSprite(std::shared_ptr<Texture> texture) noexcept;
+			Sprite& CreateSprite(std::string_view name, std::shared_ptr<Texture> texture);
 
 			[[nodiscard]] inline Scene& AddChildScene(std::string_view name, SceneDescriptor desc) { return m_scene_children.emplace_back(name, std::move(desc)); }
 			inline void AddSkybox(std::shared_ptr<CubeTexture> cubemap) { p_skybox = cubemap; }
-			void SwitchToChild(std::string_view name);
-			void SwitchToParent();
+			void SwitchToChild(std::string_view name) const noexcept;
+			void SwitchToParent() const noexcept;
 
 			[[nodiscard]] inline ForwardData& GetForwardData() noexcept { return m_forward; }
 			[[nodiscard]] inline const std::vector<std::shared_ptr<Actor>>& GetActors() const noexcept { return m_actors; }
+			[[nodiscard]] inline const std::vector<std::shared_ptr<Sprite>>& GetSprites() const noexcept { return m_sprites; }
 			[[nodiscard]] inline const std::string& GetName() const noexcept { return m_name; }
 			[[nodiscard]] inline GraphicPipeline& GetPipeline() noexcept { return m_pipeline; }
 			[[nodiscard]] inline std::shared_ptr<BaseCamera> GetCamera() const { return p_camera; }
@@ -71,6 +76,7 @@ namespace Scop
 			DepthImage m_depth;
 			std::shared_ptr<CubeTexture> p_skybox;
 			std::vector<std::shared_ptr<Actor>> m_actors;
+			std::vector<std::shared_ptr<Sprite>> m_sprites;
 			std::vector<Scene> m_scene_children;
 			std::string m_name;
 			std::shared_ptr<Shader> m_fragment_shader;

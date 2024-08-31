@@ -20,6 +20,7 @@ namespace Scop
 
 	enum class Event
 	{
+		SceneHasChangedEventCode = 55,
 		ResizeEventCode = 56,
 		FrameBeginEventCode = 57,
 		FatalErrorEventCode = 168,

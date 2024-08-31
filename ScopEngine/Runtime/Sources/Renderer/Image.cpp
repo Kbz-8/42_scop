@@ -4,13 +4,14 @@
 
 namespace Scop
 {
-	void Image::Init(ImageType type, std::uint32_t width, std::uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
+	void Image::Init(ImageType type, std::uint32_t width, std::uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, bool is_multisampled)
 	{
 		m_type = type;
 		m_width = width;
 		m_height = height;
 		m_format = format;
 		m_tiling = tiling;
+		m_is_multisampled = is_multisampled;
 
 		KvfImageType kvf_type = KVF_IMAGE_OTHER;
 		switch(m_type)
@@ -22,7 +23,26 @@ namespace Scop
 			default: break;
 		}
 
-		m_image = kvfCreateImage(RenderCore::Get().GetDevice(), width, height, format, tiling, usage, kvf_type);
+		if(m_is_multisampled)
+		{
+			VkImageCreateInfo image_info{};
+			image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+			image_info.imageType = VK_IMAGE_TYPE_2D;
+			image_info.extent.width = width;
+			image_info.extent.height = height;
+			image_info.extent.depth = 1;
+			image_info.mipLevels = 1;
+			image_info.arrayLayers = (m_type == ImageType::Cube ? 6 : 1);
+			image_info.format = format;
+			image_info.tiling = tiling;
+			image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			image_info.usage = usage;
+			image_info.samples = VK_SAMPLE_COUNT_4_BIT;
+			image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			kvfCheckVk(vkCreateImage(RenderCore::Get().GetDevice(), &image_info, nullptr, &m_image));
+		}
+		else
+			m_image = kvfCreateImage(RenderCore::Get().GetDevice(), width, height, format, tiling, usage, kvf_type);
 
 		VkMemoryRequirements mem_requirements;
 		vkGetImageMemoryRequirements(RenderCore::Get().GetDevice(), m_image, &mem_requirements);

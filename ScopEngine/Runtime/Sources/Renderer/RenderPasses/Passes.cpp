@@ -7,6 +7,7 @@ namespace Scop
 	void RenderPasses::Init()
 	{
 		m_skybox.Init();
+		m_2Dpass.Init();
 		m_final.Init();
 	}
 
@@ -28,8 +29,10 @@ namespace Scop
 
 			m_main_render_texture.Init({}, extent.width, extent.height);
 		}
+
 		m_forward.Pass(scene, renderer, m_main_render_texture);
 		m_skybox.Pass(scene, renderer, m_main_render_texture);
+		m_2Dpass.Pass(scene, renderer, m_main_render_texture);
 
 		m_final.Pass(scene, renderer, m_main_render_texture);
 	}
@@ -37,6 +40,7 @@ namespace Scop
 	void RenderPasses::Destroy()
 	{
 		m_skybox.Destroy();
+		m_2Dpass.Destroy();
 		m_final.Destroy();
 		m_main_render_texture.Destroy();
 	}

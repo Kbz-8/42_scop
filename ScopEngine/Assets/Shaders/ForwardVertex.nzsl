@@ -22,14 +22,14 @@ struct VertOut
 
 struct ModelData
 {
-	matrix : mat4[f32],
+	matrix: mat4[f32],
 	normal: mat4[f32],
 }
 
 external
 {
 	[set(0), binding(0)] viewer_data: uniform[ViewerData],
-	model : push_constant[ModelData]
+	model: push_constant[ModelData]
 }
 
 [entry(vert)]

@@ -30,7 +30,7 @@ namespace Scop
 			[[nodiscard]] inline const Window& GetWindow() const noexcept { return m_window; }
 			[[nodiscard]] inline std::filesystem::path GetAssetsPath() const { return m_assets_path; }
 
-			inline void RegisterMainScene(const Scene& scene) noexcept { m_main_scene = scene; p_current_scene = &m_main_scene; }
+			inline void RegisterMainScene(NonOwningPtr<Scene> scene) noexcept { m_main_scene = scene; p_current_scene = m_main_scene; }
 
 			constexpr void Quit() noexcept { m_running = false; }
 
@@ -40,7 +40,7 @@ namespace Scop
 			~ScopEngine();
 
 		private:
-			inline void SwitchToScene(NonOwningPtr<Scene> current) noexcept { p_current_scene = current; }
+			inline void SwitchToScene(NonOwningPtr<Scene> current) noexcept { p_current_scene = current; m_scene_changed = true; }
 
 		private:
 			static ScopEngine* s_instance;
@@ -50,11 +50,12 @@ namespace Scop
 				ImGuiRenderer m_imgui;
 			#endif
 			Window m_window;
-			Scene m_main_scene;
+			NonOwningPtr<Scene> m_main_scene;
 			SceneRenderer m_scene_renderer;
 			std::filesystem::path m_assets_path;
 			NonOwningPtr<Scene> p_current_scene;
 			bool m_running = true;
+			bool m_scene_changed = false;
 	};
 }
 

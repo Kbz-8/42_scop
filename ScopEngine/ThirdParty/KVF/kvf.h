@@ -144,7 +144,7 @@ void kvfEndCommandBuffer(VkCommandBuffer buffer);
 void kvfSubmitCommandBuffer(VkDevice device, VkCommandBuffer buffer, KvfQueueType queue, VkSemaphore signal, VkSemaphore wait, VkFence fence, VkPipelineStageFlags* stages);
 void kvfSubmitSingleTimeCommandBuffer(VkDevice device, VkCommandBuffer buffer, KvfQueueType queue, VkFence fence);
 
-VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkFormat format, VkImageLayout initial, VkImageLayout final, bool clear);
+VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkFormat format, VkImageLayout initial, VkImageLayout final, bool clear, VkSampleCountFlagBits samples);
 VkAttachmentDescription kvfBuildSwapchainAttachmentDescription(VkSwapchainKHR swapchain, bool clear);
 
 VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attachments, size_t attachments_count, VkPipelineBindPoint bind_point);
@@ -187,6 +187,8 @@ void kvfGPipelineBuilderReset(KvfGraphicsPipelineBuilder* builder);
 void kvfGPipelineBuilderSetInputTopology(KvfGraphicsPipelineBuilder* builder, VkPrimitiveTopology topology);
 void kvfGPipelineBuilderSetPolygonMode(KvfGraphicsPipelineBuilder* builder, VkPolygonMode polygon, float line_width);
 void kvfGPipelineBuilderSetCullMode(KvfGraphicsPipelineBuilder* builder, VkCullModeFlags cull, VkFrontFace face);
+void kvfGPipelineBuilderSetMultisampling(KvfGraphicsPipelineBuilder* builder, VkSampleCountFlagBits count);
+void kvfGPipelineBuilderSetMultisamplingShading(KvfGraphicsPipelineBuilder* builder, VkSampleCountFlagBits count, float min_sampling_shading);
 void kvfGPipelineBuilderDisableBlending(KvfGraphicsPipelineBuilder* builder);
 void kvfGPipelineBuilderEnableAdditiveBlending(KvfGraphicsPipelineBuilder* builder);
 void kvfGPipelineBuilderEnableAlphaBlending(KvfGraphicsPipelineBuilder* builder);
@@ -198,6 +200,8 @@ void kvfGPipelineBuilderResetShaderStages(KvfGraphicsPipelineBuilder* builder);
 
 VkPipeline kvfCreateGraphicsPipeline(VkDevice device, VkPipelineLayout layout, KvfGraphicsPipelineBuilder* builder, VkRenderPass pass);
 void kvfDestroyPipeline(VkDevice device, VkPipeline pipeline);
+
+void kvfCheckVk(VkResult result);
 
 #ifdef __cplusplus
 }
@@ -289,6 +293,7 @@ struct KvfGraphicsPipelineBuilder
 	VkPipelineRasterizationStateCreateInfo rasterization_state;
 	VkPipelineDepthStencilStateCreateInfo depth_stencil_state;
 	VkPipelineColorBlendAttachmentState color_blend_attachment_state;
+	VkPipelineMultisampleStateCreateInfo multisampling;
 	size_t shader_stages_count;
 };
 
@@ -335,6 +340,11 @@ void __kvfCheckVk(VkResult result, const char* function)
 
 #undef __kvfCheckVk
 #define __kvfCheckVk(res) __kvfCheckVk(res, __FUNCTION__)
+
+void kvfCheckVk(VkResult result)
+{
+	__kvfCheckVk(result);
+}
 
 void __kvfAddDeviceToArray(VkPhysicalDevice device, int32_t graphics_queue, int32_t present_queue)
 {
@@ -1819,7 +1829,7 @@ void kvfSubmitSingleTimeCommandBuffer(VkDevice device, VkCommandBuffer buffer, K
 		vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
 }
 
-VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkFormat format, VkImageLayout initial, VkImageLayout final, bool clear)
+VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkFormat format, VkImageLayout initial, VkImageLayout final, bool clear, VkSampleCountFlagBits samples)
 {
 	VkAttachmentDescription attachment = {};
 
@@ -1847,12 +1857,23 @@ VkAttachmentDescription kvfBuildAttachmentDescription(KvfImageType type, VkForma
 	}
 	else
 	{
-		attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-		attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		if(samples != VK_SAMPLE_COUNT_1_BIT)
+		{
+			attachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		}
+		else
+		{
+			attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+			attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		}
 	}
 
-	attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	attachment.samples = samples;
+	if(samples != VK_SAMPLE_COUNT_1_BIT)
+		attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	else
+		attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 	attachment.flags = 0;
 
@@ -1864,7 +1885,7 @@ VkAttachmentDescription kvfBuildSwapchainAttachmentDescription(VkSwapchainKHR sw
 	__KvfSwapchain* kvf_swapchain = __kvfGetKvfSwapchainFromVkSwapchainKHR(swapchain);
 	KVF_ASSERT(kvf_swapchain != NULL);
 	KVF_ASSERT(kvf_swapchain->images_count != 0);
-	return kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, kvf_swapchain->images_format, VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, clear);
+	return kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, kvf_swapchain->images_format, VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, clear, VK_SAMPLE_COUNT_1_BIT);
 }
 
 VkRenderPass kvfCreateRenderPass(VkDevice device, VkAttachmentDescription* attachments, size_t attachments_count, VkPipelineBindPoint bind_point)
@@ -2162,6 +2183,7 @@ void kvfGPipelineBuilderReset(KvfGraphicsPipelineBuilder* builder)
 	builder->tessellation_state.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
 	builder->rasterization_state.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	builder->depth_stencil_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	builder->multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 }
 
 void kvfGPipelineBuilderSetInputTopology(KvfGraphicsPipelineBuilder* builder, VkPrimitiveTopology topology)
@@ -2183,6 +2205,20 @@ void kvfGPipelineBuilderSetCullMode(KvfGraphicsPipelineBuilder* builder, VkCullM
 	KVF_ASSERT(builder != NULL);
 	builder->rasterization_state.cullMode = cull;
 	builder->rasterization_state.frontFace = face;
+}
+
+void kvfGPipelineBuilderSetMultisampling(KvfGraphicsPipelineBuilder* builder, VkSampleCountFlagBits count)
+{
+	KVF_ASSERT(builder != NULL);
+	builder->multisampling.rasterizationSamples = count;
+}
+
+void kvfGPipelineBuilderSetMultisamplingShading(KvfGraphicsPipelineBuilder* builder, VkSampleCountFlagBits count, float min_sampling_shading)
+{
+	KVF_ASSERT(builder != NULL);
+	builder->multisampling.rasterizationSamples = count;
+	builder->multisampling.sampleShadingEnable = VK_TRUE;
+	builder->multisampling.minSampleShading = min_sampling_shading;
 }
 
 void kvfGPipelineBuilderDisableBlending(KvfGraphicsPipelineBuilder* builder)
@@ -2316,11 +2352,6 @@ VkPipeline kvfCreateGraphicsPipeline(VkDevice device, VkPipelineLayout layout, K
 	viewport_state.scissorCount = 1;
 	viewport_state.pScissors = NULL;
 
-	VkPipelineMultisampleStateCreateInfo multisampling = {};
-	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-	multisampling.sampleShadingEnable = VK_FALSE;
-	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
 	VkGraphicsPipelineCreateInfo pipeline_info = {};
 	pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipeline_info.stageCount = builder->shader_stages_count;
@@ -2329,7 +2360,7 @@ VkPipeline kvfCreateGraphicsPipeline(VkDevice device, VkPipelineLayout layout, K
 	pipeline_info.pInputAssemblyState = &builder->input_assembly_state;
 	pipeline_info.pViewportState = &viewport_state;
 	pipeline_info.pRasterizationState = &builder->rasterization_state;
-	pipeline_info.pMultisampleState = &multisampling;
+	pipeline_info.pMultisampleState = &builder->multisampling;
 	pipeline_info.pColorBlendState = &color_blending;
 	pipeline_info.pDynamicState = &dynamic_states;
 	pipeline_info.layout = layout;
