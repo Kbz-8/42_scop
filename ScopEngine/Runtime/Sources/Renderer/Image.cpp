@@ -91,21 +91,22 @@ namespace Scop
 		subresource_range.levelCount = 1;
 		subresource_range.baseArrayLayer = 0;
 
-		VkImageLayout old_layout = m_layout;
-		TransitionLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, cmd);
 		if(m_type == ImageType::Color || m_type == ImageType::Cube)
 		{
+			VkImageLayout old_layout = m_layout;
+			TransitionLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, cmd);
 			subresource_range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			VkClearColorValue clear_color = VkClearColorValue({ { color.x, color.y, color.z, color.w } });
 			vkCmdClearColorImage(cmd, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clear_color, 1, &subresource_range);
+			TransitionLayout(old_layout, cmd);
 		}
 		else if(m_type == ImageType::Depth)
 		{
 			VkClearDepthStencilValue clear_depth_stencil = { 1.0f, 1 };
 			subresource_range.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+			TransitionLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, cmd);
 			vkCmdClearDepthStencilImage(cmd, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clear_depth_stencil, 1, &subresource_range);
 		}
-		TransitionLayout(old_layout, cmd);
 	}
 
 	void Image::DestroySampler() noexcept

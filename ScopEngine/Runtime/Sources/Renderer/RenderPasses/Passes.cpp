@@ -31,6 +31,7 @@ namespace Scop
 		}
 
 		m_main_render_texture.Clear(renderer.GetActiveCommandBuffer(), Vec4f{ 0.0f, 0.0f, 0.0f, 1.0f });
+		scene.GetDepth().Clear(renderer.GetActiveCommandBuffer(), {});
 
 		if(scene.GetDescription().render_3D_enabled)
 			m_forward.Pass(scene, renderer, m_main_render_texture);

@@ -27,11 +27,12 @@ namespace Scop
 			pipeline_descriptor.depth = &scene.GetDepth();
 			if(scene.GetForwardData().wireframe)
 				pipeline_descriptor.mode = VK_POLYGON_MODE_LINE;
+			pipeline_descriptor.clear_color_attachments = false;
 			pipeline.Init(pipeline_descriptor);
 		}
 
 		VkCommandBuffer cmd = renderer.GetActiveCommandBuffer();
-		pipeline.BindPipeline(cmd, 0, { 0.0f, 0.0f, 0.0f, 1.0f });
+		pipeline.BindPipeline(cmd, 0, {});
 		for(auto actor : scene.GetActors())
 		{
 			ModelData model_data;
