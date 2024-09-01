@@ -83,6 +83,7 @@ namespace Scop
 
 			if(m_scene_changed)
 			{
+				RenderCore::Get().WaitDeviceIdle();
 				EventBus::SendBroadcast(Internal::SceneChangedEvent{});
 				m_scene_changed = false;
 				continue;

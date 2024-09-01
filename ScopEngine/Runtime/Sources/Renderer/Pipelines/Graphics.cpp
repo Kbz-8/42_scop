@@ -91,7 +91,8 @@ namespace Scop
 			m_clears[i].color.float32[3] = clear[3];
 		}
 
-		m_clears.back().depthStencil = VkClearDepthStencilValue{ 1.0f, 0 };
+		if(p_depth)
+			m_clears.back().depthStencil = VkClearDepthStencilValue{ 1.0f, 0 };
 
 		kvfBeginRenderPass(m_renderpass, command_buffer, fb, fb_extent, m_clears.data(), m_clears.size());
 		vkCmdBindPipeline(command_buffer, GetPipelineBindPoint(), GetPipeline());

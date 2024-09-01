@@ -1,3 +1,4 @@
+#include "Renderer/RenderCore.h"
 #include <kvf.h>
 #include <Renderer/Renderer.h>
 #include <Core/Logs.h>
@@ -117,7 +118,7 @@ namespace Scop
 
 	void Renderer::DestroySwapchain()
 	{
-		vkDeviceWaitIdle(RenderCore::Get().GetDevice());
+		RenderCore::Get().WaitDeviceIdle();
 		for(Image& img : m_swapchain_images)
 			img.DestroyImageView();
 		kvfDestroySwapchainKHR(RenderCore::Get().GetDevice(), m_swapchain);

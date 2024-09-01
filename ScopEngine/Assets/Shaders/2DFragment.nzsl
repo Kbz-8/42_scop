@@ -22,5 +22,7 @@ fn main(input: VertOut) -> FragOut
 {
 	let output: FragOut;
 	output.color = input.color * u_texture.Sample(input.uv);
+	if(output.color.w == 0.0)
+		discard;
 	return output;
 }

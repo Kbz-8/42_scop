@@ -14,7 +14,7 @@ namespace Scop
 		UpdateView();
 		m_target = m_position + m_direction;
 		m_view = Mat4f::LookAt(m_position, m_target, m_up);
-		m_proj = Mat4f::Perspective(RadianAngle<float>(m_fov), aspect, 0.1f, 100'000.f);
+		m_proj = Mat4f::Perspective(RadianAnglef(m_fov), aspect, 0.1f, 100'000.f);
 
 		if(input.IsKeyPressed(SDL_SCANCODE_F1))
 		{

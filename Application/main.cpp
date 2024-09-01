@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <string>
 #include <thread>
+#include <cmath>
 
 std::filesystem::path GetExecutablePath()
 {
@@ -32,14 +33,14 @@ int main(int ac, char** av)
 	bool skip_splashscreen = false;
 	for(int i = 2; i < ac; i++)
 	{
-		std::cout << '"' <<  av[i] << '"' << std::endl;
 		if(std::strcmp(av[i], "--skip-splash") == 0)
 			skip_splashscreen = true;
 	}
 
 	Scop::SceneDescriptor splashscreen_scene_desc;
 	splashscreen_scene_desc.fragment_shader = Scop::RenderCore::Get().GetDefaultFragmentShader();
-	splashscreen_scene_desc.camera = std::make_shared<Scop::FirstPerson3D>(Scop::Vec3f{ 0.0f, 0.0f, 0.0f });
+	splashscreen_scene_desc.render_3D_enabled = false;
+	splashscreen_scene_desc.render_skybox_enabled = false;
 	Scop::Scene splashscreen_scene("splash", splashscreen_scene_desc);
 	Scop::Vec2ui32 splash_size;
 	Scop::Sprite& splash = splashscreen_scene.CreateSprite(std::make_shared<Scop::Texture>(Scop::LoadBMPFile(GetExecutablePath().parent_path().parent_path() / "ScopEngine/Assets/Images/splashscreen.bmp", splash_size), splash_size.x, splash_size.y));
@@ -50,14 +51,16 @@ int main(int ac, char** av)
 		using namespace std::chrono_literals;
 		if(skip_splashscreen)
 			scene->SwitchToChild("main");
-		static std::size_t i = 0;
-		std::this_thread::sleep_for(33ms);
+
+		static float x = 0.02f;
 		Scop::Vec4f color = sprite->GetColor();
-		color.w -= 0.1f;
+		color.w = std::abs(std::sin(x)) * 1.1;
+		x += 0.02f;
 		sprite->SetColor(color); 
-		i++;
-		if(i >= 60) // wait for 2 sec
+		if(color.w <= 0.02f)
 			scene->SwitchToChild("main");
+
+		std::this_thread::sleep_for(33ms); // 30fps
 	};
 
 	using sprite_hook = std::function<void(Scop::NonOwningPtr<Scop::Sprite>)>;
@@ -65,7 +68,7 @@ int main(int ac, char** av)
 
 	Scop::SceneDescriptor main_scene_desc;
 	main_scene_desc.fragment_shader = Scop::RenderCore::Get().GetDefaultFragmentShader();
-	main_scene_desc.camera = std::make_shared<Scop::FirstPerson3D>(Scop::Vec3f{ 0.0f, 0.0f, 0.0f });
+	main_scene_desc.camera = std::make_shared<Scop::FirstPerson3D>(Scop::Vec3f{ -10.0f, 0.0f, 0.0f });
 	Scop::Scene& main_scene = splashscreen_scene.AddChildScene("main", main_scene_desc);
 	Scop::Vec2ui32 skybox_size;
 	main_scene.AddSkybox(std::make_shared<Scop::CubeTexture>(Scop::LoadBMPFile(GetExecutablePath().parent_path().parent_path() / "Resources/skybox.bmp", skybox_size), skybox_size.x, skybox_size.y));

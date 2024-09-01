@@ -5,6 +5,7 @@
 #include <vector>
 #include <kvf.h>
 
+#include <Maths/Vec4.h>
 #include <Renderer/RenderCore.h>
 #include <Renderer/Buffer.h>
 #include <Utils/Buffer.h>
@@ -31,6 +32,7 @@ namespace Scop
 			void CreateImageView(VkImageViewType type, VkImageAspectFlags aspectFlags, int layer_count = 1) noexcept;
 			void CreateSampler() noexcept;
 			void TransitionLayout(VkImageLayout new_layout, VkCommandBuffer cmd = VK_NULL_HANDLE);
+			void Clear(VkCommandBuffer cmd, Vec4f color);
 
 			void DestroySampler() noexcept;
 			void DestroyImageView() noexcept;

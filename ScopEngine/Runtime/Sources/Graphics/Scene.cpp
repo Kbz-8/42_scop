@@ -12,15 +12,13 @@
 namespace Scop
 {
 	Scene::Scene(std::string_view name, SceneDescriptor desc)
-	: m_name(name), m_fragment_shader(desc.fragment_shader), p_parent(nullptr), p_camera(desc.camera)
+	: m_name(name), m_descriptor(std::move(desc)), p_parent(nullptr)
 	{
-		Verify((bool)p_camera, "No camera given");
 	}
 
 	Scene::Scene(std::string_view name, SceneDescriptor desc, NonOwningPtr<Scene> parent)
-	: m_name(name), m_fragment_shader(desc.fragment_shader), p_parent(parent), p_camera(desc.camera)
+	: m_name(name), m_descriptor(std::move(desc)), p_parent(parent)
 	{
-		Verify((bool)p_camera, "No camera given");
 	}
 
 	Actor& Scene::CreateActor(Model model) noexcept
@@ -87,7 +85,7 @@ namespace Scop
 			m_forward.matrices_set->SetUniformBuffer(i, 0, m_forward.matrices_buffer->Get(i));
 			m_forward.matrices_set->Update(i);
 		}
-		m_forward.albedo_set = std::make_shared<DescriptorSet>(m_fragment_shader->GetShaderLayout().set_layouts[0].second, m_fragment_shader->GetPipelineLayout().set_layouts[0], ShaderType::Fragment);
+		m_forward.albedo_set = std::make_shared<DescriptorSet>(m_descriptor.fragment_shader->GetShaderLayout().set_layouts[0].second, m_descriptor.fragment_shader->GetPipelineLayout().set_layouts[0], ShaderType::Fragment);
 		for(auto& child : m_scene_children)
 			child.Init(renderer);
 	}
@@ -98,8 +96,8 @@ namespace Scop
 			actor->Update(this, input, timestep);
 		for(auto sprite : m_sprites)
 			sprite->Update(this, input, timestep);
-		if(p_camera)
-			p_camera->Update(input, aspect, timestep);
+		if(m_descriptor.camera)
+			m_descriptor.camera->Update(input, aspect, timestep);
 	}
 
 	void Scene::Destroy()
@@ -109,7 +107,7 @@ namespace Scop
 		m_actors.clear();
 		m_sprites.clear();
 		m_pipeline.Destroy();
-		m_fragment_shader.reset();
+		m_descriptor.fragment_shader.reset();
 		m_forward.matrices_buffer->Destroy();
 		for(auto& child : m_scene_children)
 			child.Destroy();

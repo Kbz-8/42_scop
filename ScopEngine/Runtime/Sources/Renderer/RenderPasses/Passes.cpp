@@ -30,9 +30,14 @@ namespace Scop
 			m_main_render_texture.Init({}, extent.width, extent.height);
 		}
 
-		m_forward.Pass(scene, renderer, m_main_render_texture);
-		m_skybox.Pass(scene, renderer, m_main_render_texture);
-		m_2Dpass.Pass(scene, renderer, m_main_render_texture);
+		m_main_render_texture.Clear(renderer.GetActiveCommandBuffer(), Vec4f{ 0.0f, 0.0f, 0.0f, 1.0f });
+
+		if(scene.GetDescription().render_3D_enabled)
+			m_forward.Pass(scene, renderer, m_main_render_texture);
+		if(scene.GetDescription().render_skybox_enabled)
+			m_skybox.Pass(scene, renderer, m_main_render_texture);
+		if(scene.GetDescription().render_2D_enabled)
+			m_2Dpass.Pass(scene, renderer, m_main_render_texture);
 
 		m_final.Pass(scene, renderer, m_main_render_texture);
 	}

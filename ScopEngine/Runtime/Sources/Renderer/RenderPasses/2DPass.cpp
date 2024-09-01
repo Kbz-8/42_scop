@@ -10,6 +10,7 @@ namespace Scop
 {
 	struct SpriteData
 	{
+		Vec4f color;
 		Vec2f position;
 	};
 
@@ -27,7 +28,7 @@ namespace Scop
 						{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER }
 					})
 				}
-			}, { ShaderPushConstantLayout({ 0, sizeof(Vec2f) }) }
+			}, { ShaderPushConstantLayout({ 0, sizeof(SpriteData) }) }
 		);
 		p_vertex_shader = LoadShaderFromFile(ScopEngine::Get().GetAssetsPath() / "Shaders/Build/2DVertex.spv", ShaderType::Vertex, std::move(vertex_shader_layout));
 		ShaderLayout fragment_shader_layout(
@@ -87,6 +88,7 @@ namespace Scop
 		{
 			SpriteData sprite_data;
 			sprite_data.position = Vec2f{ static_cast<float>(sprite->GetPosition().x), static_cast<float>(sprite->GetPosition().y) };
+			sprite_data.color = sprite->GetColor();
 			if(!sprite->IsSetInit())
 				sprite->UpdateDescriptorSet(*p_texture_set);
 			sprite->Bind(frame_index, cmd);

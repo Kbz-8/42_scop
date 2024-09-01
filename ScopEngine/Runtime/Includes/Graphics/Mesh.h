@@ -45,6 +45,7 @@ namespace Scop
 			inline std::size_t GetSubMeshCount() const { return m_sub_meshes.size(); }
 
 			inline void AddSubMesh(SubMesh mesh) { m_sub_meshes.emplace_back(std::move(mesh)); }
+			[[nodiscard]] inline SubMesh& GetSubMesh(std::size_t index) { return m_sub_meshes.at(index); }
 
 			~Mesh();
 
