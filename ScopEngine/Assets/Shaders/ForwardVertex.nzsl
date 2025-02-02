@@ -13,10 +13,12 @@ struct VertIn
 
 struct VertOut
 {
-	[location(0)] color : vec4[f32],
-	[location(1)] uv : vec2[f32],
-	[location(2)] norm : vec4[f32],
-	[location(3)] norm_mat : mat4[f32],
+	[location(0)] color: vec4[f32],
+	[location(1)] uv: vec2[f32],
+	[location(2)] norm: vec4[f32],
+	[location(3)] transformed_norm: vec3[f32],
+	[location(4)] frag_position: vec4[f32],
+	[location(5)] camera_position: vec3[f32],
 	[builtin(position)] pos: vec4[f32]
 }
 
@@ -38,8 +40,10 @@ fn main(input: VertIn) -> VertOut
 	let output: VertOut;
 	output.color = input.color;
 	output.uv = input.uv;
-	output.norm = input.normal;
-	output.norm_mat = model.normal;
-	output.pos = viewer_data.view_proj_matrix * model.matrix * input.pos;
+	output.norm = normalize(input.normal);
+	output.transformed_norm = mat3[f32](model.normal) * output.norm.xyz;
+	output.frag_position = model.matrix * input.pos;
+	output.camera_position = viewer_data.camera_position;
+	output.pos = viewer_data.view_proj_matrix * output.frag_position;
 	return output;
 }

@@ -3,10 +3,12 @@ module;
 
 struct VertOut
 {
-	[location(0)] color : vec4[f32],
-	[location(1)] uv : vec2[f32],
-	[location(2)] norm : vec4[f32],
-	[location(3)] norm_mat : mat4[f32],
+	[location(0)] color: vec4[f32],
+	[location(1)] uv: vec2[f32],
+	[location(2)] norm: vec4[f32],
+	[location(3)] transformed_norm: vec3[f32],
+	[location(4)] frag_position: vec4[f32],
+	[location(5)] camera_position: vec3[f32],
 	[builtin(position)] pos: vec4[f32]
 }
 
@@ -30,7 +32,7 @@ external
 
 fn Mixf32(a: f32, b: f32, t: f32) -> f32
 {
-    return a + (b - a) * t;
+	return a + (b - a) * t;
 }
 
 fn MixVec4f32(a: vec4[f32], b: vec4[f32], t: f32) -> vec4[f32]
@@ -49,16 +51,19 @@ fn main(input: VertOut) -> FragOut
 	if(input.color.a == 0.0)
 		discard;
 
-	const ambient = vec3[f32](0.3, 0.3, 0.3);
+	const ambient = vec3[f32](0.1, 0.1, 0.1);
 	const directional_color = vec3[f32](5.0, 5.0, 5.0);
-	const intensity = 1.0;
-
+	const specular_strength = 0.5;
 	let directional_vector = normalize(vec3[f32](0.85, 0.8, 0.75));
 
-	let transformed_normal = mat3[f32](input.norm_mat) * input.norm.xyz;
+	let directional: f32 = max(dot(input.transformed_norm.xyz, directional_vector), 0.0);
 
-	let directional : f32 = max(dot(transformed_normal.xyz, directional_vector), 0.0);
-	let lighting : vec3[f32] = (ambient + (directional_color * directional)) * intensity;
+	let view_dir: vec3[f32] = normalize(input.camera_position - input.frag_position.xyz);
+	let reflect_dir: vec3[f32] = reflect(-directional_vector, input.norm.xyz);
+	let spec: f32 = pow(max(dot(view_dir, reflect_dir), 0.0), 128.0);
+	let specular: vec3[f32] = specular_strength * spec * directional_color;
+
+	let lighting: vec3[f32] = ambient + (directional_color * directional) + specular;
 
 	let grey_scale_value: f32 = 0.3 * input.color.r + 0.59 * input.color.g + 0.11 * input.color.b;
 	let grey_scale = vec4[f32](grey_scale_value, grey_scale_value, grey_scale_value, 1.0);

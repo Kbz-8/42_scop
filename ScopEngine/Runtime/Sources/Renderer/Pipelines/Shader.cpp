@@ -16,7 +16,7 @@ namespace Scop
 			default : FatalError("wtf"); break;
 		}
 		m_module = kvfCreateShaderModule(RenderCore::Get().GetDevice(), m_bytecode.data(), m_bytecode.size());
-		Message("Vulkan : shader module created");
+		Message("Vulkan: shader module created");
 
 		GeneratePipelineLayout(m_layout);
 	}
@@ -35,7 +35,7 @@ namespace Scop
 				bindings[i].stageFlags = m_stage;
 			}
 			m_set_layouts.emplace_back(kvfCreateDescriptorSetLayout(RenderCore::Get().GetDevice(), bindings.data(), bindings.size()));
-			Message("Vulkan : descriptor set layout created");
+			Message("Vulkan: descriptor set layout created");
 			m_pipeline_layout_part.set_layouts.push_back(m_set_layouts.back());
 		}
 
@@ -57,11 +57,11 @@ namespace Scop
 	Shader::~Shader()
 	{
 		kvfDestroyShaderModule(RenderCore::Get().GetDevice(), m_module);
-		Message("Vulkan : shader module destroyed");
+		Message("Vulkan: shader module destroyed");
 		for(auto& layout : m_set_layouts)
 		{
 			kvfDestroyDescriptorSetLayout(RenderCore::Get().GetDevice(), layout);
-			Message("Vulkan : descriptor set layout destroyed");
+			Message("Vulkan: descriptor set layout destroyed");
 		}
 	}
 
@@ -78,7 +78,7 @@ namespace Scop
 		stream.close();
 
 		std::shared_ptr<Shader> shader = std::make_shared<Shader>(data, type, layout);
-		Message("Vulkan : shader loaded %", filepath);
+		Message("Vulkan: shader loaded %", filepath);
 		return shader;
 	}
 }

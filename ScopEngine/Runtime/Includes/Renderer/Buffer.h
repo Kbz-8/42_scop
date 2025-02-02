@@ -2,7 +2,6 @@
 #define __SCOP_GPU_BUFFER__
 
 #include <kvf.h>
-#include <Renderer/Vulkan/VulkanPrototypes.h>
 #include <Renderer/Enums.h>
 #include <Core/Logs.h>
 #include <Renderer/RenderCore.h>
@@ -58,7 +57,7 @@ namespace Scop
 		public:
 			inline void Init(std::uint32_t size, VkBufferUsageFlags additional_flags = 0) { GPUBuffer::Init(BufferType::LowDynamic, size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | additional_flags, {}); }
 			void SetData(CPUBuffer data);
-			inline void Bind(VkCommandBuffer cmd) const noexcept { VkDeviceSize offset = 0; vkCmdBindVertexBuffers(cmd, 0, 1, &m_buffer, &offset); }
+			inline void Bind(VkCommandBuffer cmd) const noexcept { VkDeviceSize offset = 0; RenderCore::Get().vkCmdBindVertexBuffers(cmd, 0, 1, &m_buffer, &offset); }
 	};
 
 	class IndexBuffer : public GPUBuffer
@@ -66,7 +65,7 @@ namespace Scop
 		public:
 			inline void Init(std::uint32_t size, VkBufferUsageFlags additional_flags = 0) { GPUBuffer::Init(BufferType::LowDynamic, size, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | additional_flags, {}); }
 			void SetData(CPUBuffer data);
-			inline void Bind(VkCommandBuffer cmd) const noexcept { vkCmdBindIndexBuffer(cmd, m_buffer, 0, VK_INDEX_TYPE_UINT32); }
+			inline void Bind(VkCommandBuffer cmd) const noexcept { RenderCore::Get().vkCmdBindIndexBuffer(cmd, m_buffer, 0, VK_INDEX_TYPE_UINT32); }
 	};
 
 	class UniformBuffer

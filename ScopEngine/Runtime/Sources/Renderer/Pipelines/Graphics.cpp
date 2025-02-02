@@ -10,7 +10,7 @@ namespace Scop
 	void GraphicPipeline::Init(const GraphicPipelineDescriptor& descriptor)
 	{
 		if(!descriptor.vertex_shader || !descriptor.fragment_shader)
-			FatalError("Vulkan : invalid shaders");
+			FatalError("Vulkan: invalid shaders");
 
 		m_attachments = descriptor.color_attachments;
 		p_vertex_shader = descriptor.vertex_shader;
@@ -30,7 +30,7 @@ namespace Scop
 		CreateFramebuffers(m_attachments, descriptor.clear_color_attachments);
 
 		VkPhysicalDeviceFeatures features{};
-		vkGetPhysicalDeviceFeatures(RenderCore::Get().GetPhysicalDevice(), &features);
+		RenderCore::Get().vkGetPhysicalDeviceFeatures(RenderCore::Get().GetPhysicalDevice(), &features);
 
 		KvfGraphicsPipelineBuilder* builder = kvfCreateGPipelineBuilder();
 		kvfGPipelineBuilderAddShaderStage(builder, p_vertex_shader->GetShaderStage(), p_vertex_shader->GetShaderModule(), "main");
@@ -58,8 +58,8 @@ namespace Scop
 			kvfGPipelineBuilderSetVertexInputs(builder, binding_description, attributes_description.data(), attributes_description.size());
 		}
 
-		m_pipeline = kvfCreateGraphicsPipeline(RenderCore::Get().GetDevice(), m_pipeline_layout, builder, m_renderpass);
-		Message("Vulkan : graphics pipeline created");
+		m_pipeline = kvfCreateGraphicsPipeline(RenderCore::Get().GetDevice(), VK_NULL_HANDLE, m_pipeline_layout, builder, m_renderpass);
+		Message("Vulkan: graphics pipeline created");
 		kvfDestroyGPipelineBuilder(builder);
 	}
 
@@ -76,12 +76,12 @@ namespace Scop
 		viewport.height = fb_extent.height;
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
-		vkCmdSetViewport(command_buffer, 0, 1, &viewport);
+		RenderCore::Get().vkCmdSetViewport(command_buffer, 0, 1, &viewport);
 
 		VkRect2D scissor{};
 		scissor.offset = { 0, 0 };
 		scissor.extent = fb_extent;
-		vkCmdSetScissor(command_buffer, 0, 1, &scissor);
+		RenderCore::Get().vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 
 		for(int i = 0; i < m_clears.size(); i++)
 		{
@@ -95,34 +95,35 @@ namespace Scop
 			m_clears.back().depthStencil = VkClearDepthStencilValue{ 1.0f, 0 };
 
 		kvfBeginRenderPass(m_renderpass, command_buffer, fb, fb_extent, m_clears.data(), m_clears.size());
-		vkCmdBindPipeline(command_buffer, GetPipelineBindPoint(), GetPipeline());
+		RenderCore::Get().vkCmdBindPipeline(command_buffer, GetPipelineBindPoint(), GetPipeline());
 		return true;
 	}
 
 	void GraphicPipeline::EndPipeline(VkCommandBuffer command_buffer) noexcept
 	{
-		vkCmdEndRenderPass(command_buffer);
+		RenderCore::Get().vkCmdEndRenderPass(command_buffer);
 	}
 
 	void GraphicPipeline::Destroy() noexcept
 	{
+		RenderCore::Get().WaitDeviceIdle();
 		p_vertex_shader.reset();
 		p_fragment_shader.reset();
 		for(auto& fb : m_framebuffers)
 		{
 			kvfDestroyFramebuffer(RenderCore::Get().GetDevice(), fb);
-			Message("Vulkan : framebuffer destroyed");
+			Message("Vulkan: framebuffer destroyed");
 		}
 		m_framebuffers.clear();
 		kvfDestroyPipelineLayout(RenderCore::Get().GetDevice(), m_pipeline_layout);
 		m_pipeline_layout = VK_NULL_HANDLE;
-		Message("Vulkan : graphics pipeline layout destroyed");
+		Message("Vulkan: graphics pipeline layout destroyed");
 		kvfDestroyRenderPass(RenderCore::Get().GetDevice(), m_renderpass);
 		m_renderpass = VK_NULL_HANDLE;
-		Message("Vulkan : renderpass destroyed");
+		Message("Vulkan: renderpass destroyed");
 		kvfDestroyPipeline(RenderCore::Get().GetDevice(), m_pipeline);
 		m_pipeline = VK_NULL_HANDLE;
-		Message("Vulkan : graphics pipeline destroyed");
+		Message("Vulkan: graphics pipeline destroyed");
 	}
 
 	void GraphicPipeline::CreateFramebuffers(const std::vector<NonOwningPtr<Texture>>& render_targets, bool clear_attachments)
@@ -131,8 +132,8 @@ namespace Scop
 		std::vector<VkImageView> attachment_views;
 		if(p_renderer)
 		{
-			attachments.push_back(kvfBuildSwapchainAttachmentDescription(p_renderer->GetSwapchain(), clear_attachments));
-			attachment_views.push_back(p_renderer->GetSwapchainImages()[0].GetImageView());
+			attachments.push_back(kvfBuildSwapchainAttachmentDescription(p_renderer->GetSwapchain().Get(), clear_attachments));
+			attachment_views.push_back(p_renderer->GetSwapchain().GetSwapchainImages()[0].GetImageView());
 		}
 
 		for(NonOwningPtr<Texture> image : render_targets)
@@ -150,21 +151,21 @@ namespace Scop
 		m_renderpass = kvfCreateRenderPass(RenderCore::Get().GetDevice(), attachments.data(), attachments.size(), GetPipelineBindPoint());
 		m_clears.clear();
 		m_clears.resize(attachments.size());
-		Message("Vulkan : renderpass created");
+		Message("Vulkan: renderpass created");
 
 		if(p_renderer)
 		{
-			for(const Image& image : p_renderer->GetSwapchainImages())
+			for(const Image& image : p_renderer->GetSwapchain().GetSwapchainImages())
 			{
 				attachment_views[0] = image.GetImageView();
 				m_framebuffers.push_back(kvfCreateFramebuffer(RenderCore::Get().GetDevice(), m_renderpass, attachment_views.data(), attachment_views.size(), { .width = image.GetWidth(), .height = image.GetHeight() }));
-				Message("Vulkan : framebuffer created");
+				Message("Vulkan: framebuffer created");
 			}
 		}
 		for(NonOwningPtr<Texture> image : render_targets)
 		{
 			m_framebuffers.push_back(kvfCreateFramebuffer(RenderCore::Get().GetDevice(), m_renderpass, attachment_views.data(), attachment_views.size(), { .width = image->GetWidth(), .height = image->GetHeight() }));
-			Message("Vulkan : framebuffer created");
+			Message("Vulkan: framebuffer created");
 		}
 	}
 

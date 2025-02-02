@@ -19,7 +19,7 @@ namespace Scop
 		else if(image.GetType() == ImageType::Depth)
 			image.TransitionLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, cmd);
 		else
-			Error("Vulkan : cannot transition descriptor image layout, unkown image type");
+			Error("Vulkan: cannot transition descriptor image layout, unkown image type");
 	}
 
 	DescriptorSet::DescriptorSet(const ShaderSetLayout& layout, VkDescriptorSetLayout vklayout, ShaderType shader_type)
@@ -52,12 +52,12 @@ namespace Scop
 		});
 		if(it == m_descriptors.end())
 		{
-			Warning("Vulkan : cannot update descriptor set image; invalid binding");
+			Warning("Vulkan: cannot update descriptor set image; invalid binding");
 			return;
 		}
 		if(it->type != VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
 		{
-			Error("Vulkan : trying to bind an image to the wrong descriptor");
+			Error("Vulkan: trying to bind an image to the wrong descriptor");
 			return;
 		}
 		it->image_ptr = &image;
@@ -72,12 +72,12 @@ namespace Scop
 		});
 		if(it == m_descriptors.end())
 		{
-			Warning("Vulkan : cannot update descriptor set buffer; invalid binding");
+			Warning("Vulkan: cannot update descriptor set buffer; invalid binding");
 			return;
 		}
 		if(it->type != VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
 		{
-			Error("Vulkan : trying to bind a buffer to the wrong descriptor");
+			Error("Vulkan: trying to bind a buffer to the wrong descriptor");
 			return;
 		}
 		it->storage_buffer_ptr = &buffer;
@@ -92,12 +92,12 @@ namespace Scop
 		});
 		if(it == m_descriptors.end())
 		{
-			Warning("Vulkan : cannot update descriptor set buffer; invalid binding");
+			Warning("Vulkan: cannot update descriptor set buffer; invalid binding");
 			return;
 		}
 		if(it->type != VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
 		{
-			Error("Vulkan : trying to bind a buffer to the wrong descriptor");
+			Error("Vulkan: trying to bind a buffer to the wrong descriptor");
 			return;
 		}
 		it->uniform_buffer_ptr = &buffer;
@@ -106,9 +106,27 @@ namespace Scop
 	void DescriptorSet::Update(std::size_t i, VkCommandBuffer cmd) noexcept
 	{
 		Verify(m_set[i] != VK_NULL_HANDLE, "invalid descriptor");
-		std::vector<VkWriteDescriptorSet> writes;
-		std::vector<VkDescriptorBufferInfo> buffer_infos;
-		std::vector<VkDescriptorImageInfo> image_infos;
+
+		std::size_t image_count = 0;
+		std::size_t buffer_count = 0;
+
+		for(auto& descriptor : m_descriptors)
+		{
+			if(descriptor.image_ptr)
+				image_count++;
+			else if(descriptor.uniform_buffer_ptr || descriptor.storage_buffer_ptr)
+				buffer_count++;
+			else
+				FatalError("unknown descriptor data");
+		}
+
+		std::vector<VkWriteDescriptorSet> writes(m_descriptors.size());
+		std::vector<VkDescriptorBufferInfo> buffer_infos(buffer_count);
+		std::vector<VkDescriptorImageInfo> image_infos(image_count);
+		std::size_t buffer_index = 0;
+		std::size_t image_index = 0;
+		std::size_t write_index = 0;
+
 		for(auto& descriptor : m_descriptors)
 		{
 			if(descriptor.image_ptr)
@@ -118,8 +136,9 @@ namespace Scop
 				info.sampler = descriptor.image_ptr->GetSampler();
 				info.imageLayout = descriptor.image_ptr->GetLayout();
 				info.imageView = descriptor.image_ptr->GetImageView();
-				image_infos.push_back(info);
-				writes.push_back(kvfWriteImageToDescriptorSet(RenderCore::Get().GetDevice(), m_set[i], &image_infos.back(), descriptor.binding));
+				image_infos[image_index] = std::move(info);
+				writes[write_index] = kvfWriteImageToDescriptorSet(RenderCore::Get().GetDevice(), m_set[i], &image_infos[image_index], descriptor.binding);
+				image_index++;
 			}
 			else if(descriptor.uniform_buffer_ptr)
 			{
@@ -127,8 +146,9 @@ namespace Scop
 				info.buffer = descriptor.uniform_buffer_ptr->Get();
 				info.offset = descriptor.uniform_buffer_ptr->GetOffset();
 				info.range = VK_WHOLE_SIZE;
-				buffer_infos.push_back(info);
-				writes.push_back(kvfWriteUniformBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set[i], &buffer_infos.back(), descriptor.binding));
+				buffer_infos[buffer_index] = std::move(info);
+				writes[write_index] = kvfWriteUniformBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set[i], &buffer_infos[buffer_index], descriptor.binding);
+				buffer_index++;
 			}
 			else if(descriptor.storage_buffer_ptr)
 			{
@@ -136,10 +156,12 @@ namespace Scop
 				info.buffer = descriptor.storage_buffer_ptr->Get();
 				info.offset = descriptor.storage_buffer_ptr->GetOffset();
 				info.range = VK_WHOLE_SIZE;
-				buffer_infos.push_back(info);
-				writes.push_back(kvfWriteStorageBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set[i], &buffer_infos.back(), descriptor.binding));
+				buffer_infos[buffer_index] = std::move(info);
+				writes[write_index] = kvfWriteStorageBufferToDescriptorSet(RenderCore::Get().GetDevice(), m_set[i], &buffer_infos[buffer_index], descriptor.binding);
+				buffer_index++;
 			}
+			write_index++;
 		}
-		vkUpdateDescriptorSets(RenderCore::Get().GetDevice(), writes.size(), writes.data(), 0, nullptr);
+		RenderCore::Get().vkUpdateDescriptorSets(RenderCore::Get().GetDevice(), writes.size(), writes.data(), 0, nullptr);
 	}
 }

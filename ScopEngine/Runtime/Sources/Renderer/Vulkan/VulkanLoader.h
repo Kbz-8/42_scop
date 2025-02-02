@@ -1,7 +1,7 @@
 #ifndef __SCOP_VULKAN_LOADER__
 #define __SCOP_VULKAN_LOADER__
 
-#include <Renderer/Vulkan/VulkanPrototypes.h>
+#include <vulkan/vulkan_core.h>
 
 namespace Scop
 {
@@ -10,6 +10,7 @@ namespace Scop
 		public:
 			VulkanLoader();
 			void LoadInstance(VkInstance instance);
+			void LoadDevice(VkDevice device);
 			~VulkanLoader();
 
 		private:

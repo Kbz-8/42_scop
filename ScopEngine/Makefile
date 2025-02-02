@@ -20,9 +20,11 @@ OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 SPVS = $(addprefix $(SHADER_DIR)/, $(SHADER_SRCS:.nzsl=.spv))
 
 CXX = clang++
-CXXFLAGS = -std=c++20 -I Runtime/Includes -I Runtime/Sources -I ThirdParty/KVF -D KVF_IMPL_VK_NO_PROTOTYPES
+CXXFLAGS = -std=c++20 -I Runtime/Includes -I Runtime/Sources -I ThirdParty/KVF -D KVF_IMPL_VK_NO_PROTOTYPES -D VK_NO_PROTOTYPES
 
 AR = ar rc
+
+SH = sh -c
 
 NZSLC = ./Assets/Vendors/nzslc.x86_64
 
@@ -64,7 +66,7 @@ endif
 	@printf "\e[1;32m[build finished]\e[1;00m\n"
 
 $(SHADER_DIR)/%.spv: %.nzsl
-	@printf "\e[1;32m[compiling...]\e[1;00m "$<"\n"
+	@printf "\e[1;32m[compiling shader {"$(NZSLC)"}...]\e[1;00m "$<"\n"
 	@$(NZSLC) --compile=spv $< -o $(SHADER_DIR) --optimize --module=$(SHADER_MODULE_DIR)
 
 $(OBJ_DIR):
@@ -76,7 +78,10 @@ $(BIN_DIR):
 $(SHADER_DIR):
 	@mkdir -p $(SHADER_DIR)
 
-shaders : $(SHADER_DIR) $(SPVS)
+shaders: $(SHADER_DIR) $(SPVS)
+
+dependencies:
+	@$(SH) Script/FetchDependencies.sh
 
 clean-shaders:
 	@$(RM) $(SHADER_DIR)
@@ -91,5 +96,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re shaders clean-shaders re-shaders
-
+.PHONY: all clean fclean re dependencies shaders clean-shaders re-shaders

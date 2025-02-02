@@ -21,5 +21,6 @@ imgui.ini
 Objects/
 Bin/
 .vscode/
+compile_commands.json
 ScopEngine/Objects/
 ScopEngine/Assets/Shaders/Build/

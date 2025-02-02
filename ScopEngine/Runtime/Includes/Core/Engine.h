@@ -44,6 +44,7 @@ namespace Scop
 
 		private:
 			static ScopEngine* s_instance;
+
 			Inputs m_inputs;
 			Renderer m_renderer;
 			#ifdef DEBUG
@@ -53,6 +54,7 @@ namespace Scop
 			NonOwningPtr<Scene> m_main_scene;
 			SceneRenderer m_scene_renderer;
 			std::filesystem::path m_assets_path;
+			std::unique_ptr<RenderCore> p_renderer_core;
 			NonOwningPtr<Scene> p_current_scene;
 			bool m_running = true;
 			bool m_scene_changed = false;

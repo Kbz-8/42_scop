@@ -68,7 +68,7 @@ namespace Scop
 
 		m_pipeline.BindPipeline(cmd, 0, {});
 			std::array<VkDescriptorSet, 2> sets = { scene.GetForwardData().matrices_set->GetSet(renderer.GetCurrentFrameIndex()), p_set->GetSet(renderer.GetCurrentFrameIndex()) };
-			vkCmdBindDescriptorSets(cmd, m_pipeline.GetPipelineBindPoint(), m_pipeline.GetPipelineLayout(), 0, sets.size(), sets.data(), 0, nullptr);
+			RenderCore::Get().vkCmdBindDescriptorSets(cmd, m_pipeline.GetPipelineBindPoint(), m_pipeline.GetPipelineLayout(), 0, sets.size(), sets.data(), 0, nullptr);
 			m_cube->Draw(cmd, renderer.GetDrawCallsCounterRef(), renderer.GetPolygonDrawnCounterRef());
 		m_pipeline.EndPipeline(cmd);
 	}

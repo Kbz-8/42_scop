@@ -34,7 +34,7 @@ namespace Scop
 				material->UpdateDescriptorSet(set);
 			material->Bind(frame_index, cmd);
 			std::array<VkDescriptorSet, 2> sets = { matrices_set.GetSet(frame_index), material->GetSet(frame_index) };
-			vkCmdBindDescriptorSets(cmd, pipeline.GetPipelineBindPoint(), pipeline.GetPipelineLayout(), 0, sets.size(), sets.data(), 0, nullptr);
+			RenderCore::Get().vkCmdBindDescriptorSets(cmd, pipeline.GetPipelineBindPoint(), pipeline.GetPipelineLayout(), 0, sets.size(), sets.data(), 0, nullptr);
 			p_mesh->Draw(cmd, drawcalls, polygondrawn, i);
 		}
 	}

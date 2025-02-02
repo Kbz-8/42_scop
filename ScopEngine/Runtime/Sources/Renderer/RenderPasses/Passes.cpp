@@ -9,25 +9,21 @@ namespace Scop
 		m_skybox.Init();
 		m_2Dpass.Init();
 		m_final.Init();
+
+		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
+		{
+			if(event.What() == Event::ResizeEventCode)
+				m_main_render_texture.Destroy();
+		};
+		EventBus::RegisterListener({ functor, "__ScopRenderPasses" });
 	}
 
 	void RenderPasses::Pass(Scene& scene, Renderer& renderer)
 	{
 		if(!m_main_render_texture.IsInit())
 		{
-			std::function<void(const EventBase&)> functor = [this, renderer](const EventBase& event)
-			{
-				if(event.What() == Event::ResizeEventCode)
-				{
-					m_main_render_texture.Destroy();
-					auto extent = kvfGetSwapchainImagesSize(renderer.GetSwapchain());
-					m_main_render_texture.Init({}, extent.width, extent.height);
-				}
-			};
-			EventBus::RegisterListener({ functor, "__ScopRenderPasses" });
-			auto extent = kvfGetSwapchainImagesSize(renderer.GetSwapchain());
-
-			m_main_render_texture.Init({}, extent.width, extent.height);
+			auto extent = kvfGetSwapchainImagesSize(renderer.GetSwapchain().Get());
+			m_main_render_texture.Init({}, extent.width, extent.height, VK_FORMAT_R8G8B8A8_UNORM);
 		}
 
 		m_main_render_texture.Clear(renderer.GetActiveCommandBuffer(), Vec4f{ 0.0f, 0.0f, 0.0f, 1.0f });

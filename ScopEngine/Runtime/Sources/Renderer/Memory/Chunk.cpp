@@ -1,5 +1,5 @@
 #include <Renderer/Memory/Chunk.h>
-#include <Renderer/Vulkan/VulkanPrototypes.h>
+#include <Renderer/RenderCore.h>
 #include <Core/Logs.h>
 
 #include <algorithm>
@@ -14,15 +14,15 @@ namespace Scop
 		alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		alloc_info.allocationSize = size;
 		alloc_info.memoryTypeIndex = m_memory_type_index;
-		if(vkAllocateMemory(m_device, &alloc_info, nullptr, &m_memory) != VK_SUCCESS)
-			FatalError("Vulkan : failed to allocate memory for a chunk");
+		if(RenderCore::Get().vkAllocateMemory(m_device, &alloc_info, nullptr, &m_memory) != VK_SUCCESS)
+			FatalError("Vulkan: failed to allocate memory for a chunk");
 
 		VkPhysicalDeviceMemoryProperties properties;
-		vkGetPhysicalDeviceMemoryProperties(m_physical, &properties);
+		RenderCore::Get().vkGetPhysicalDeviceMemoryProperties(m_physical, &properties);
 		if((properties.memoryTypes[m_memory_type_index].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
 		{
-			if(vkMapMemory(m_device, m_memory, 0, VK_WHOLE_SIZE, 0, &p_map) != VK_SUCCESS)
-				FatalError("Vulkan : failed to map a host visible chunk");
+			if(RenderCore::Get().vkMapMemory(m_device, m_memory, 0, VK_WHOLE_SIZE, 0, &p_map) != VK_SUCCESS)
+				FatalError("Vulkan: failed to map a host visible chunk");
 		}
 		MemoryBlock& block = m_blocks.emplace_back();
 		block.memory = m_memory;
@@ -89,6 +89,6 @@ namespace Scop
 
 	MemoryChunk::~MemoryChunk()
 	{
-		vkFreeMemory(m_device, m_memory, nullptr);
+		RenderCore::Get().vkFreeMemory(m_device, m_memory, nullptr);
 	}
 }

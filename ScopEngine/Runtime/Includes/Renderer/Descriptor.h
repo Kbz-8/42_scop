@@ -8,7 +8,6 @@
 #include <Renderer/RenderCore.h>
 #include <Utils/NonOwningPtr.h>
 #include <Renderer/Pipelines/Shader.h>
-#include <Renderer/Vulkan/VulkanPrototypes.h>
 
 namespace Scop
 {

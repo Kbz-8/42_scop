@@ -1,7 +1,16 @@
 #include <Platform/Inputs.h>
+#include <Core/EventBus.h>
 
 namespace Scop
 {
+	namespace Internal
+	{
+		struct ResizeEventSwapchain : public EventBase
+		{
+			Event What() const override { return Event::ResizeEventCode; }
+		};
+	}
+	
 	Inputs::Inputs() : m_keys(SDL_GetKeyboardState(&m_keys_count))
 	{}
 
@@ -38,7 +47,8 @@ namespace Scop
 					switch(m_event.window.event)
 					{
 						case SDL_WINDOWEVENT_CLOSE: m_has_recieved_close_event = true; break;
-						default : break;
+						case SDL_WINDOWEVENT_SIZE_CHANGED: EventBus::Send("__ScopSwapchain", Internal::ResizeEventSwapchain{}); break;
+						default: break;
 					}
 					break;
 				}

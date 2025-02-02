@@ -39,17 +39,17 @@ namespace Scop
 			image_info.usage = usage;
 			image_info.samples = VK_SAMPLE_COUNT_4_BIT;
 			image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			kvfCheckVk(vkCreateImage(RenderCore::Get().GetDevice(), &image_info, nullptr, &m_image));
+			kvfCheckVk(RenderCore::Get().vkCreateImage(RenderCore::Get().GetDevice(), &image_info, nullptr, &m_image));
 		}
 		else
 			m_image = kvfCreateImage(RenderCore::Get().GetDevice(), width, height, format, tiling, usage, kvf_type);
 
 		VkMemoryRequirements mem_requirements;
-		vkGetImageMemoryRequirements(RenderCore::Get().GetDevice(), m_image, &mem_requirements);
+		RenderCore::Get().vkGetImageMemoryRequirements(RenderCore::Get().GetDevice(), m_image, &mem_requirements);
 
 		m_memory = RenderCore::Get().GetAllocator().Allocate(mem_requirements.size, mem_requirements.alignment, *FindMemoryType(mem_requirements.memoryTypeBits, properties), true);
-		vkBindImageMemory(RenderCore::Get().GetDevice(), m_image, m_memory.memory, 0);
-		Message("Vulkan : image created");
+		RenderCore::Get().vkBindImageMemory(RenderCore::Get().GetDevice(), m_image, m_memory.memory, 0);
+		Message("Vulkan: image created");
 		s_image_count++;
 	}
 
@@ -97,7 +97,7 @@ namespace Scop
 			TransitionLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, cmd);
 			subresource_range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			VkClearColorValue clear_color = VkClearColorValue({ { color.x, color.y, color.z, color.w } });
-			vkCmdClearColorImage(cmd, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clear_color, 1, &subresource_range);
+			RenderCore::Get().vkCmdClearColorImage(cmd, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clear_color, 1, &subresource_range);
 			TransitionLayout(old_layout, cmd);
 		}
 		else if(m_type == ImageType::Depth)
@@ -105,7 +105,8 @@ namespace Scop
 			VkClearDepthStencilValue clear_depth_stencil = { 1.0f, 1 };
 			subresource_range.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 			TransitionLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, cmd);
-			vkCmdClearDepthStencilImage(cmd, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clear_depth_stencil, 1, &subresource_range);
+			RenderCore::Get().vkCmdClearDepthStencilImage(cmd, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clear_depth_stencil, 1, &subresource_range);
+			TransitionLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, cmd);
 		}
 	}
 
@@ -134,7 +135,7 @@ namespace Scop
 			m_memory = NULL_MEMORY_BLOCK;
 			kvfDestroyImage(RenderCore::Get().GetDevice(), m_image);
 		}
-		Message("Vulkan : image destroyed");
+		Message("Vulkan: image destroyed");
 		m_image = VK_NULL_HANDLE;
 		s_image_count--;
 	}
@@ -142,7 +143,7 @@ namespace Scop
 	void CubeTexture::Init(CPUBuffer pixels, std::uint32_t width, std::uint32_t height, VkFormat format)
 	{
 		if(!pixels)
-			FatalError("Vulkan : a cubemap cannot be created without pixels data");
+			FatalError("Vulkan: a cubemap cannot be created without pixels data");
 
 		std::array<std::vector<std::uint8_t>, 6> texture_data;
 		std::uint32_t face_width = width / 4;
@@ -230,7 +231,7 @@ namespace Scop
 		VkCommandBuffer cmd = kvfCreateCommandBuffer(device);
 		kvfBeginCommandBuffer(cmd, 0);
 		TransitionLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, cmd);
-		vkCmdCopyBufferToImage(cmd, staging_buffer.Get(), Image::Get(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, buffer_copy_regions.size(), buffer_copy_regions.data());
+		RenderCore::Get().vkCmdCopyBufferToImage(cmd, staging_buffer.Get(), Image::Get(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, buffer_copy_regions.size(), buffer_copy_regions.data());
 		TransitionLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, cmd);
 		kvfEndCommandBuffer(cmd);
 

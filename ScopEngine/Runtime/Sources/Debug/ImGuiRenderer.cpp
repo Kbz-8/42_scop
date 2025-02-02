@@ -25,11 +25,11 @@ namespace Scop
 			{
 				kvfDestroyRenderPass(RenderCore::Get().GetDevice(), m_renderpass);
 				std::vector<VkAttachmentDescription> attachments;
-				const Image& image = p_renderer->GetSwapchainImages()[0];
+				const Image& image = p_renderer->GetSwapchain().GetSwapchainImages()[0];
 				attachments.push_back(kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, image.GetFormat(), image.GetLayout(), image.GetLayout(), false, VK_SAMPLE_COUNT_1_BIT));
 				m_renderpass = kvfCreateRenderPass(RenderCore::Get().GetDevice(), attachments.data(), attachments.size(), VK_PIPELINE_BIND_POINT_GRAPHICS);
 				CreateFramebuffers();
-				ImGui_ImplVulkan_SetMinImageCount(kvfGetSwapchainMinImagesCount(p_renderer->GetSwapchain()));
+				ImGui_ImplVulkan_SetMinImageCount(kvfGetSwapchainMinImagesCount(p_renderer->GetSwapchain().Get()));
 			}
 		};
 		EventBus::RegisterListener({ functor, std::to_string((std::uintptr_t)(void**)this) });
@@ -60,15 +60,15 @@ namespace Scop
 		pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
 		pool_info.poolSizeCount = (std::uint32_t)IM_ARRAYSIZE(pool_sizes);
 		pool_info.pPoolSizes = pool_sizes;
-		vkCreateDescriptorPool(RenderCore::Get().GetDevice(), &pool_info, nullptr, &m_pool);
+		RenderCore::Get().vkCreateDescriptorPool(RenderCore::Get().GetDevice(), &pool_info, nullptr, &m_pool);
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplVulkan_LoadFunctions([](const char* function_name, void* vulkan_instance) {
-			return vkGetInstanceProcAddr(*(reinterpret_cast<VkInstance*>(vulkan_instance)), function_name);
+			return RenderCore::Get().vkGetInstanceProcAddr(*(reinterpret_cast<VkInstance*>(vulkan_instance)), function_name);
 		}, &RenderCore::Get().GetInstanceRef());
 
 		std::vector<VkAttachmentDescription> attachments;
-		const Image& image = p_renderer->GetSwapchainImages()[0];
+		const Image& image = p_renderer->GetSwapchain().GetSwapchainImages()[0];
 		attachments.push_back(kvfBuildAttachmentDescription(KVF_IMAGE_COLOR, image.GetFormat(), image.GetLayout(), image.GetLayout(), false, VK_SAMPLE_COUNT_1_BIT));
 		m_renderpass = kvfCreateRenderPass(RenderCore::Get().GetDevice(), attachments.data(), attachments.size(), VK_PIPELINE_BIND_POINT_GRAPHICS);
 		CreateFramebuffers();
@@ -84,8 +84,8 @@ namespace Scop
 			init_info.Allocator = nullptr;
 			init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 			init_info.Subpass = 0;
-			init_info.MinImageCount = kvfGetSwapchainMinImagesCount(p_renderer->GetSwapchain());
-			init_info.ImageCount = p_renderer->GetSwapchainImages().size();
+			init_info.MinImageCount = kvfGetSwapchainMinImagesCount(p_renderer->GetSwapchain().Get());
+			init_info.ImageCount = p_renderer->GetSwapchain().GetSwapchainImages().size();
 			init_info.CheckVkResultFn = [](VkResult result){ kvfCheckVk(result); };
 			init_info.RenderPass = m_renderpass;
 		ImGui_ImplVulkan_Init(&init_info);
@@ -103,7 +103,7 @@ namespace Scop
 			kvfDestroyFramebuffer(RenderCore::Get().GetDevice(), fb);
 		m_framebuffers.clear();
 		kvfDestroyRenderPass(RenderCore::Get().GetDevice(), m_renderpass);
-		vkDestroyDescriptorPool(RenderCore::Get().GetDevice(), m_pool, nullptr);
+		RenderCore::Get().vkDestroyDescriptorPool(RenderCore::Get().GetDevice(), m_pool, nullptr);
 	}
 
 	bool ImGuiRenderer::BeginFrame()
@@ -131,15 +131,15 @@ namespace Scop
 		if(ImGui::Begin("Render Statistics", nullptr, ImGuiWindowFlags_NoResize))
 		{
 			VkPhysicalDeviceProperties props;
-			vkGetPhysicalDeviceProperties(RenderCore::Get().GetPhysicalDevice(), &props);
+			RenderCore::Get().vkGetPhysicalDeviceProperties(RenderCore::Get().GetPhysicalDevice(), &props);
 			ImGui::Text("GPU in use:\n%s", props.deviceName);
 			ImGui::Text("GPU type: %s", gpu_types_string[static_cast<int>(props.deviceType)].c_str());
 			ImGui::Separator();
 			ImGui::Text("Frame time %.3fms", delta);
-			ImGui::PlotLines("##Frames_Histogram", frame_histogram.data(), frame_histogram.size(), 0, NULL, 0.0f, 1.0f, ImVec2(ImGui::GetContentRegionAvail().x, 40.0f));
+			ImGui::PlotLines("##Frames_Histogram", frame_histogram.data(), frame_histogram.size(), 0, nullptr, 0.0f, 1.0f, ImVec2(ImGui::GetContentRegionAvail().x, 40.0f));
 			ImGui::Text("FPS %.0f", ImGui::GetIO().Framerate);
 			ImGui::Separator();
-			ImGui::Text("Swapchain images count %ld", p_renderer->GetSwapchainImages().size());
+			ImGui::Text("Swapchain images count %ld", p_renderer->GetSwapchain().GetSwapchainImages().size());
 			ImGui::Text("Drawcalls %ld", p_renderer->GetDrawCallsCounterRef());
 			ImGui::Text("Polygon drawn %ld", p_renderer->GetPolygonDrawnCounterRef());
 			ImGui::Text("Allocations count %ld", RenderCore::Get().GetAllocator().GetAllocationsCount());
@@ -154,15 +154,15 @@ namespace Scop
 
 	void ImGuiRenderer::EndFrame()
 	{
-		VkFramebuffer fb = m_framebuffers[p_renderer->GetSwapchainImageIndex()];
+		VkFramebuffer fb = m_framebuffers[p_renderer->GetSwapchain().GetImageIndex()];
 		ImGui::Render();
 		ImDrawData* draw_data = ImGui::GetDrawData();
 		if(draw_data->DisplaySize.x >= 0.0f && draw_data->DisplaySize.y >= 0.0f)
 		{
 			VkExtent2D fb_extent = kvfGetFramebufferSize(fb);
-			kvfBeginRenderPass(m_renderpass, p_renderer->GetActiveCommandBuffer(), fb, fb_extent, NULL, 0);
+			kvfBeginRenderPass(m_renderpass, p_renderer->GetActiveCommandBuffer(), fb, fb_extent, nullptr, 0);
 			ImGui_ImplVulkan_RenderDrawData(draw_data, p_renderer->GetActiveCommandBuffer());
-			vkCmdEndRenderPass(p_renderer->GetActiveCommandBuffer());
+			RenderCore::Get().vkCmdEndRenderPass(p_renderer->GetActiveCommandBuffer());
 		}
 	}
 
@@ -173,10 +173,10 @@ namespace Scop
 		m_framebuffers.clear();
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkImageView> attachment_views;
-		const Image& image = p_renderer->GetSwapchainImages()[0];
+		const Image& image = p_renderer->GetSwapchain().GetSwapchainImages()[0];
 		attachments.push_back(kvfBuildAttachmentDescription((kvfIsDepthFormat(image.GetFormat()) ? KVF_IMAGE_DEPTH : KVF_IMAGE_COLOR), image.GetFormat(), image.GetLayout(), image.GetLayout(), false, VK_SAMPLE_COUNT_1_BIT));
 		attachment_views.push_back(image.GetImageView());
-		for(const Image& image : p_renderer->GetSwapchainImages())
+		for(const Image& image : p_renderer->GetSwapchain().GetSwapchainImages())
 		{
 			attachment_views[0] = image.GetImageView();
 			m_framebuffers.push_back(kvfCreateFramebuffer(RenderCore::Get().GetDevice(), m_renderpass, attachment_views.data(), attachment_views.size(), { .width = image.GetWidth(), .height = image.GetHeight() }));

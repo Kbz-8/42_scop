@@ -54,7 +54,7 @@ namespace Scop
 		SDL_SetHint("SDL_MOUSE_RELATIVE_MODE_CENTER", "1");
 		if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0)
 			FatalError("SDL error : unable to init all subsystems : %", SDL_GetError());
-		RenderCore::Get().Init();
+		p_renderer_core = std::make_unique<RenderCore>();
 		m_renderer.Init(&m_window);
 		m_scene_renderer.Init();
 		#ifdef DEBUG
@@ -79,6 +79,7 @@ namespace Scop
 			old_timestep = static_cast<float>(SDL_GetTicks64()) / 1000.0f;
 
 			m_inputs.Update();
+			m_window.FetchWindowInfos();
 			p_current_scene->Update(m_inputs, current_timestep, static_cast<float>(m_window.GetWidth()) / static_cast<float>(m_window.GetHeight()));
 
 			if(m_scene_changed)
@@ -89,16 +90,14 @@ namespace Scop
 				continue;
 			}
 
-			if(m_renderer.BeginFrame())
-			{
+			m_renderer.BeginFrame();
 				m_scene_renderer.Render(*p_current_scene, m_renderer);
 				#ifdef DEBUG
 					m_imgui.BeginFrame();
 					m_imgui.DisplayRenderStatistics();
 					m_imgui.EndFrame();
 				#endif
-				m_renderer.EndFrame();
-			}
+			m_renderer.EndFrame();
 
 			if(m_running)
 				m_running = !m_inputs.HasRecievedCloseEvent();
@@ -115,7 +114,7 @@ namespace Scop
 		#endif
 		m_scene_renderer.Destroy();
 		m_renderer.Destroy();
-		RenderCore::Get().Destroy();
+		p_renderer_core.reset();
 		SDL_Quit();
 		Message("Successfully executed !");
 		s_instance = nullptr;

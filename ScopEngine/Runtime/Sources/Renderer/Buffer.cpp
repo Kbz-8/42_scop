@@ -10,7 +10,7 @@ namespace Scop
 		{
 			if(data.Empty())
 			{
-				Warning("Vulkan : trying to create constant buffer without data (constant buffers cannot be modified after creation)");
+				Warning("Vulkan: trying to create constant buffer without data (constant buffers cannot be modified after creation)");
 				return;
 			}
 			m_usage = usage | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
@@ -28,7 +28,7 @@ namespace Scop
 		}
 
 		if(type == BufferType::Staging && data.Empty())
-			Warning("Vulkan : trying to create staging buffer without data (wtf?)");
+			Warning("Vulkan: trying to create staging buffer without data (wtf?)");
 
 		CreateBuffer(size, m_usage, m_flags);
 
@@ -47,14 +47,14 @@ namespace Scop
 		m_buffer = kvfCreateBuffer(device, usage, size);
 
 		VkMemoryRequirements mem_requirements;
-		vkGetBufferMemoryRequirements(device, m_buffer, &mem_requirements);
+		RenderCore::Get().vkGetBufferMemoryRequirements(device, m_buffer, &mem_requirements);
 
 		if(usage & VK_BUFFER_USAGE_TRANSFER_DST_BIT)
 			m_memory = RenderCore::Get().GetAllocator().Allocate(size, mem_requirements.alignment, *FindMemoryType(mem_requirements.memoryTypeBits, properties));
 		else
 			m_memory = RenderCore::Get().GetAllocator().Allocate(mem_requirements.size, mem_requirements.alignment, *FindMemoryType(mem_requirements.memoryTypeBits, properties));
-		vkBindBufferMemory(device, m_buffer, m_memory.memory, m_memory.offset);
-		Message("Vulkan : created buffer");
+		RenderCore::Get().vkBindBufferMemory(device, m_buffer, m_memory.memory, m_memory.offset);
+		Message("Vulkan: created buffer");
 		s_buffer_count++;
 	}
 
@@ -62,12 +62,12 @@ namespace Scop
 	{
 		if(!(m_usage & VK_BUFFER_USAGE_TRANSFER_DST_BIT))
 		{
-			Error("Vulkan : buffer cannot be the destination of a copy because it does not have the correct usage flag");
+			Error("Vulkan: buffer cannot be the destination of a copy because it does not have the correct usage flag");
 			return false;
 		}
 		if(!(buffer.m_usage & VK_BUFFER_USAGE_TRANSFER_SRC_BIT))
 		{
-			Error("Vulkan : buffer cannot be the source of a copy because it does not have the correct usage flag");
+			Error("Vulkan: buffer cannot be the source of a copy because it does not have the correct usage flag");
 			return false;
 		}
 
@@ -92,18 +92,18 @@ namespace Scop
 		if(new_buffer.CopyFrom(*this))
 			Swap(new_buffer);
 		new_buffer.Destroy();
-		Message("Vulkan : pushed buffer to GPU memory");
+		Message("Vulkan: pushed buffer to GPU memory");
 	}
 
 	void GPUBuffer::Destroy() noexcept
 	{
 		if(m_buffer == VK_NULL_HANDLE)
 			return;
-		vkDestroyBuffer(RenderCore::Get().GetDevice(), m_buffer, nullptr);
+		RenderCore::Get().vkDestroyBuffer(RenderCore::Get().GetDevice(), m_buffer, nullptr);
 		RenderCore::Get().GetAllocator().Deallocate(m_memory);
 		m_buffer = VK_NULL_HANDLE;
 		m_memory = NULL_MEMORY_BLOCK;
-		Message("Vulkan : destroyed buffer");
+		Message("Vulkan: destroyed buffer");
 		s_buffer_count--;
 	}
 
@@ -119,12 +119,12 @@ namespace Scop
 	{
 		if(data.GetSize() > m_memory.size)
 		{
-			Error("Vulkan : trying to store to much data in a vertex buffer (% bytes in % bytes)", data.GetSize(), m_memory.size);
+			Error("Vulkan: trying to store to much data in a vertex buffer (% bytes in % bytes)", data.GetSize(), m_memory.size);
 			return;
 		}
 		if(data.Empty())
 		{
-			Warning("Vulkan : cannot set empty data in a vertex buffer");
+			Warning("Vulkan: cannot set empty data in a vertex buffer");
 			return;
 		}
 		GPUBuffer staging;
@@ -137,12 +137,12 @@ namespace Scop
 	{
 		if(data.GetSize() > m_memory.size)
 		{
-			Error("Vulkan : trying to store to much data in an index buffer (% bytes in % bytes)", data.GetSize(), m_memory.size);
+			Error("Vulkan: trying to store to much data in an index buffer (% bytes in % bytes)", data.GetSize(), m_memory.size);
 			return;
 		}
 		if(data.Empty())
 		{
-			Warning("Vulkan : cannot set empty data in an index buffer");
+			Warning("Vulkan: cannot set empty data in an index buffer");
 			return;
 		}
 		GPUBuffer staging;
@@ -158,7 +158,7 @@ namespace Scop
 			m_buffers[i].Init(BufferType::HighDynamic, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, {});
 			m_maps[i] = m_buffers[i].GetMap();
 			if(m_maps[i] == nullptr)
-				FatalError("Vulkan : unable to map a uniform buffer");
+				FatalError("Vulkan: unable to map a uniform buffer");
 		}
 	}
 
@@ -166,7 +166,7 @@ namespace Scop
 	{
 		if(data.GetSize() != m_buffers[frame_index].GetSize())
 		{
-			Error("Vulkan : invalid data size to update to a uniform buffer, % != %", data.GetSize(), m_buffers[frame_index].GetSize());
+			Error("Vulkan: invalid data size to update to a uniform buffer, % != %", data.GetSize(), m_buffers[frame_index].GetSize());
 			return;
 		}
 		if(m_maps[frame_index] != nullptr)

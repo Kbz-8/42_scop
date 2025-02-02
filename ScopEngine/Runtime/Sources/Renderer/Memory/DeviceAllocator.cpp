@@ -29,7 +29,7 @@ namespace Scop
 		m_allocations_count++;
 		if(block.has_value())
 			return *block;
-		FatalError("Device Allocator : could not allocate a memory block");
+		FatalError("Device Allocator: could not allocate a memory block");
 		return {}; // to avoid warnings
 	}
 
@@ -45,6 +45,6 @@ namespace Scop
 				return;
 			}
 		}
-		Error("Device Allocator : unable to free a block; could not find it's chunk");
+		Error("Device Allocator: unable to free a block; could not find it's chunk");
 	}
 }

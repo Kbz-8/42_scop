@@ -1,20 +1,21 @@
 #ifndef __SCOP_RENDER_CORE__
 #define __SCOP_RENDER_CORE__
 
-#include <kvf.h>
 #include <array>
 #include <memory>
 #include <cstdint>
 #include <optional>
 
-#include <Utils/Singleton.h>
+#ifdef DEBUG
+	#define KVF_ENABLE_VALIDATION_LAYERS
+#endif
+#include <kvf.h>
 
 #include <Renderer/Memory/DeviceAllocator.h>
-#include <Renderer/Vulkan/VulkanPrototypes.h>
 
 namespace Scop
 {
-	constexpr const int MAX_FRAMES_IN_FLIGHT = 3;
+	constexpr const int MAX_FRAMES_IN_FLIGHT = 2;
 
 	constexpr const int DEFAULT_VERTEX_SHADER_ID = 0;
 	constexpr const int DEFAULT_FRAGMENT_SHADER_ID = 1;
@@ -22,13 +23,14 @@ namespace Scop
 
 	std::optional<std::uint32_t> FindMemoryType(std::uint32_t type_filter, VkMemoryPropertyFlags properties, bool error = true);
 
-	class RenderCore : public Singleton<RenderCore>
-	{
-		friend class Singleton<RenderCore>;
+	#if defined(DEBUG) && defined(VK_EXT_debug_utils)
+		#define SCOP_HAS_DEBUG_UTILS_FUNCTIONS
+	#endif
 
+	class RenderCore
+	{
 		public:
-			void Init() noexcept;
-			void Destroy() noexcept;
+			RenderCore();
 
 			[[nodiscard]] inline VkInstance GetInstance() const noexcept { return m_instance; }
 			[[nodiscard]] inline VkInstance& GetInstanceRef() noexcept { return m_instance; }
@@ -42,11 +44,27 @@ namespace Scop
 
 			inline void WaitDeviceIdle() const noexcept { vkDeviceWaitIdle(m_device); }
 
-		private:
-			RenderCore() = default;
-			~RenderCore() = default;
+			inline static bool IsInit() noexcept { return s_instance != nullptr; }
+			inline static RenderCore& Get() noexcept { return *s_instance; }
+
+			#define SCOP_VULKAN_GLOBAL_FUNCTION(fn) PFN_##fn fn = nullptr;
+			#define SCOP_VULKAN_INSTANCE_FUNCTION(fn) PFN_##fn fn = nullptr;
+			#define SCOP_VULKAN_DEVICE_FUNCTION(fn) PFN_##fn fn = nullptr;
+				#include <Renderer/Vulkan/VulkanDefs.h>
+			#undef SCOP_VULKAN_GLOBAL_FUNCTION
+			#undef SCOP_VULKAN_INSTANCE_FUNCTION
+			#undef SCOP_VULKAN_DEVICE_FUNCTION
+
+			~RenderCore();
 
 		private:
+			void LoadKVFGlobalVulkanFunctionPointers() const noexcept;
+			void LoadKVFInstanceVulkanFunctionPointers() const noexcept;
+			void LoadKVFDeviceVulkanFunctionPointers() const noexcept;
+
+		private:
+			static RenderCore* s_instance;
+
 			std::array<std::shared_ptr<class Shader>, 3> m_internal_shaders;
 			DeviceAllocator m_allocator;
 			VkInstance m_instance = VK_NULL_HANDLE;

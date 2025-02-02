@@ -67,15 +67,21 @@ namespace Scop
 
 	void Scene::Init(NonOwningPtr<Renderer> renderer)
 	{
-		std::function<void(const EventBase&)> functor = [this](const EventBase& event)
+		std::function<void(const EventBase&)> functor = [this, renderer](const EventBase& event)
 		{
+			if(event.What() == Event::ResizeEventCode)
+			{
+				m_depth.Destroy();
+				m_depth.Init(renderer->GetSwapchain().GetSwapchainImages().back().GetWidth(), renderer->GetSwapchain().GetSwapchainImages().back().GetHeight());
+			}
+
 			if(event.What() == Event::ResizeEventCode || event.What() == Event::SceneHasChangedEventCode)
 				m_pipeline.Destroy(); // Ugly but f*ck off
 		};
 		EventBus::RegisterListener({ functor, m_name + std::to_string(reinterpret_cast<std::uintptr_t>(this)) });
 
 		auto vertex_shader = RenderCore::Get().GetDefaultVertexShader();
-		m_depth.Init(renderer->GetSwapchainImages().back().GetWidth(), renderer->GetSwapchainImages().back().GetHeight());
+		m_depth.Init(renderer->GetSwapchain().GetSwapchainImages().back().GetWidth(), renderer->GetSwapchain().GetSwapchainImages().back().GetHeight());
 		m_forward.matrices_buffer = std::make_shared<UniformBuffer>();
 		m_forward.matrices_buffer->Init(sizeof(ViewerData));
 
